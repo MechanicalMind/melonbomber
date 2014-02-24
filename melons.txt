@@ -1,0 +1,7 @@
+"Gamemode"
+{
+"base"	"base"
+"title"	"T"
+"maps"	"^mb_"
+"menusystem"	"1"
+}
