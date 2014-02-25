@@ -27,3 +27,9 @@ function GM:ShouldCollide(ent1, ent2)
 	end
 	return true
 end
+
+function GM:PlayerSetNewHull(ply)
+	local s = 20
+	ply:SetHull(Vector(-s / 2, -s / 2, 0), Vector(s / 2, s / 2, 72))
+	ply:SetHullDuck(Vector(-s / 2, -s / 2, 0), Vector(s / 2, s / 2, 36))
+end

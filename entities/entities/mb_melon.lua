@@ -123,7 +123,10 @@ function ENT:Think()
 			for k, ply in pairs(player.GetAll()) do
 				if ply:Alive() then
 					local t = self:GetPos() - ply:GetPos()
-					local d = 18 + 11
+					// 18 is half block
+					// 35 is half player width
+					// 1 is hacky fix
+					local d = 18 + 35 + 1
 					if math.abs(t.x) < d && math.abs(t.y) < d then
 						withinRange = true
 						break

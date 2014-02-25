@@ -16,15 +16,24 @@ local pick = addPickup("Speed", Color(0,150,255), "models/props_junk/Shoe001a.md
 function pick:OnPickup(ply)
 	ply:SetRunningBoots(ply:GetRunningBoots() + 1)
 end
-
-
-local pick = addPickup("Bomb Power", Color(220,50,50), "models/props_lab/cactus.mdl")
-function pick:OnPickup(ply)
-	ply:SetBombPower(ply:GetBombPower() + 1)
+function pick:CanPickup(ply)
+	return ply:GetRunningBoots() < 9
 end
 
 
-local pick = addPickup("Max Bombs", Color(50,255,50), "models/props_c17/TrapPropeller_Engine.mdl")
+local pick = addPickup("Bomb Power", Color(220,50,50), "models/props_junk/gascan001a.mdl")
+function pick:OnPickup(ply)
+	ply:SetBombPower(ply:GetBombPower() + 1)
+end
+function pick:CanPickup(ply)
+	return ply:GetBombPower() < 9
+end
+
+
+local pick = addPickup("Max Bombs", Color(50,255,50), "models/props_junk/watermelon01.mdl")
 function pick:OnPickup(ply)
 	ply:SetMaxBombs(ply:GetMaxBombs() + 1)
+end
+function pick:CanPickup(ply)
+	return ply:GetMaxBombs() < 9
 end

@@ -107,6 +107,19 @@ function GM:SpecificExplosion(zone, x, y, bomb)
 
 	sound.Play("BaseExplosionEffect.Sound", t, 75, math.Rand(-80, 120))
 
+	for k, ent in pairs(ents.FindByClass("mb_pickup")) do
+		local s = zone.grid.sqsize / 2 - 1
+		local mins, maxs = t + Vector(-s, -s, 0), t + Vector(s, s, 32)
+		mins = mins - ent:OBBMaxs()
+		maxs = maxs - ent:OBBMins()
+		local pos = ent:GetPos()
+		if pos.x > mins.x && pos.x < maxs.x then
+			if pos.y > mins.y && pos.y < maxs.y then
+				ent:Remove()
+			end
+		end
+	end
+
 	local ent = zone.grid:getSquare(x, y)
 	if IsValid(ent) then
 		if ent.gridBreakable then
@@ -165,17 +178,25 @@ function GM:GibCrate(ent)
 end
 
 function GM:CreatePickup(ent)
-	if math.random(1, 3) == 1 then
+	if math.random(1, 1) == 1 then
 		local pick = ents.Create("mb_pickup")
 		pick:SetPos(ent:GetPos())
 		pick:SetPickupType(math.random(1, 3))
 		pick:Spawn()
+
+		local phys = pick:GetPhysicsObject()
+		if IsValid(phys) then
+			phys:EnableMotion(false)
+		end
+
+		pick:SetPos(ent:GetPos() + Vector(0, 0, pick:OBBMins().z))
 	end
 end
 
 function GM:CreateBomb(ply)
 	if !(self:GetGameState() == 2 || self:GetGameState() == 0) then return end
 	if ply.BombLast && ply.BombLast + 0.05 > CurTime() then return end
+	if ply.LastSpawnTime && ply.LastSpawnTime + 1 > CurTime() then return end
 	ply.BombLast = CurTime()
 
 	local count = 0

@@ -39,7 +39,7 @@ function ENT:Initialize()
 
 	if ( SERVER ) then
 
-		self:SetModel("models/hunter/blocks/cube075x075x075.mdl")
+		self:SetModel("models/hunter/blocks/cube025x025x025.mdl")
 
 		self:PhysicsInit( SOLID_VPHYSICS )
 		self:SetMoveType( MOVETYPE_VPHYSICS )
@@ -93,17 +93,20 @@ if ( CLIENT ) then
 				if !self.Melon then
 					self.Melon = ClientsideModel(pickup.model or "models/props_junk/watermelon01.mdl")
 					self.Melon:SetNoDraw(true)
-					-- self.Melon:SetAngles(AngleRand())
+					self.Melon:SetAngles(Angle(0, math.Rand(0, 360), 0))
 				end
-				self.Melon:SetModelScale(1.1 + math.sin((CurTime() - self.CreateTime) * 1.2) * 0.05, 0)
-				self.Melon:SetPos(self:GetPos() + Vector(0, 0, -18 + 6))
+				local ang = self.Melon:GetAngles()
+				ang:RotateAroundAxis(ang:Up(), FrameTime() * 13)
+				self.Melon:SetAngles(ang)
+				self.Melon:SetModelScale(1, 0)
+				self.Melon:SetPos(self:GetPos() + Vector(0, 0, 8))
 				self.Melon:DrawModel()
 
 				local mins = self:OBBMins()
 
 				render.SetMaterial(circle)
 				local col = table.Copy(pickup.color)
-				col.a = 120
+				col.a = 180
 				render.DrawQuadEasy(self:GetPos() + Vector(0, 0, mins.z), Vector(0,0, 1), 32, 32, col, 0)
 			end
 		else
@@ -143,10 +146,16 @@ function ENT:StartTouch(ent)
 	if IsValid(ent) && ent:IsPlayer() then
 		local pickup = GAMEMODE.Pickups[self:GetPickupType()]
 		if pickup then
+			if pickup.CanPickup then
+				if !pickup:CanPickup(ent) then
+					return
+				end
+			end
 			if pickup.OnPickup then
 				pickup:OnPickup(ent)
 			end
 		end
+		ent:EmitSound("ambient/levels/canals/windchime2.wav", 100, 160)
 		self:Remove()
 	end
 end

@@ -16,6 +16,16 @@ function GM:PlayerInitialSpawn(ply)
 	end
 
 	self.LastPlayerSpawn = CurTime()
+
+	net.Start("spawn_zones")
+	for k, ent in pairs(ents.FindByClass("spawn_zone")) do
+		net.WriteUInt(k, 16)
+		net.WriteVector(ent:OBBMins())
+		net.WriteVector(ent:OBBMaxs())
+		net.WriteFloat(ent.grid.sqsize)
+	end
+	net.WriteUInt(0, 16)
+	net.Send(ply)
 end
 
 function GM:PlayerLoadedLocalPlayer(ply)
@@ -60,7 +70,7 @@ function GM:PlayerSpawn( ply )
 
 	-- ply:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 	ply:SetCustomCollisionCheck(true)
-	ply:SetHull(Vector(-10, -10, 0), Vector(10, 10, 72))
+	GAMEMODE:PlayerSetNewHull(ply)
 	net.Start("hull_set")
 	net.Broadcast()
 
@@ -69,6 +79,8 @@ function GM:PlayerSpawn( ply )
 	local col = team.GetColor(ply:Team())
  	local vec = Vector(col.r / 255,col.g / 255,col.b / 255)
  	ply:SetPlayerColor(vec)
+
+ 	ply.LastSpawnTime = CurTime()
 end
 
 function GM:PlayerSetupHands(ply)

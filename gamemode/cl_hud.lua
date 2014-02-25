@@ -40,7 +40,7 @@ function GM:HUDPaint()
 	end
 	-- self:DrawMoney()
 	self:DrawGameHUD()
-	-- self:DrawPerks()
+	self:DrawUpgrades()
 	-- DebugInfo(1, tostring(LocalPlayer():GetVelocity():Length()))
 end
 
@@ -197,6 +197,18 @@ function GM:DrawHealthFace(ply)
 		render.SetBlend( 1 )
 		
 		cam.IgnoreZ( false )
+end
+
+function GM:DrawUpgrades()
+	local x = 20 + math.ceil(ScrW() * 0.09) + 20
+	local w,h = math.ceil(ScrW() * 0.09), 80
+	h = w
+	local y = ScrH() - 20 - h
+
+	local f15 = draw.GetFontHeight("RobotoHUD-15")
+	draw.DrawText("Max Bombs: " .. self:GetMaxBombs(), "RobotoHUD-15", x, y , color_white, 0)
+	draw.DrawText("Speed: " .. self:GetRunningBoots(), "RobotoHUD-15", x, y + f15 + 4, color_white, 0)
+	draw.DrawText("Bomb Power: " .. self:GetBombPower(), "RobotoHUD-15", x, y + f15 * 2 + 4 * 2, color_white, 0)
 end
 
 

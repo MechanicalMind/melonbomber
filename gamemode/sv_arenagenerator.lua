@@ -213,7 +213,7 @@ function Gen:generate()
 		if x % 2 == 0 && y % 2 == 0 then
 			self:createWall(x, y)
 		else
-			if math.random(4) == 1 then
+			if math.random(3) == 1 then
 				self:createBox(x, y)
 			end
 		end

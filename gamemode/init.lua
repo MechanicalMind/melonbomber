@@ -52,6 +52,7 @@ function GM:InitPostEntity()
 	self:InitPostEntityAndMapCleanup()
 end
 
+util.AddNetworkString("spawn_zones")
 function GM:InitPostEntityAndMapCleanup() 
 	for k, ent in pairs(ents.GetAll()) do
 		if ent:GetClass():find("door") then
@@ -60,7 +61,6 @@ function GM:InitPostEntityAndMapCleanup()
 	end
 	for k, ent in pairs(ents.FindByClass("spawn_zone")) do
 		self:SetupSpawnZone(ent)
-		
 	end
 	for k, ply in pairs(player.GetAll()) do
 		if ply:Alive() then
@@ -68,6 +68,7 @@ function GM:InitPostEntityAndMapCleanup()
 		end
 	end
 end
+
 
 local jab = 35.6
 function GM:SetupSpawnZone(zone)
@@ -126,6 +127,9 @@ function GM:OnReloaded()
 end
 
 function GM:CleanupMap()
+	for k, ent in pairs(ents.FindByClass("prop_ragdoll")) do
+		ent:Remove()
+	end
 	game.CleanUpMap()
 	hook.Call("InitPostEntityAndMapCleanup", self)
 	hook.Call("MapCleanup", self)

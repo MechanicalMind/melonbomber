@@ -10,6 +10,7 @@ include("cl_scoreboard.lua")
 include("cl_spectate.lua")
 include("cl_health.lua")
 include("sh_pickups.lua")
+include("cl_upgrades.lua")
 
 function GM:Initialize() 
 end
@@ -17,7 +18,7 @@ end
 function GM:InitPostEntity()
 	net.Start("clientIPE")
 	net.SendToServer()
-	LocalPlayer():SetHull(Vector(-10, -10, 0), Vector(10, 10, 72))
+	GAMEMODE:PlayerSetNewHull(LocalPlayer())
 end
 
 function GM:Think()
@@ -102,6 +103,42 @@ function GM:ShouldDrawLocalPlayer()
 	return true
 end
 
+GM.Zones = {}
+
+net.Receive("spawn_zones", function ()
+	GAMEMODE.Zones = {}
+	while true do
+		local k = net.ReadUInt(16)
+		if k == 0 then break end
+		local mins = net.ReadVector()
+		local maxs = net.ReadVector()
+		local sqsize = net.ReadFloat()
+
+		local tab = {}
+		tab.key = k
+		tab.mins = mins
+		tab.maxs = maxs
+		tab.sqsize = sqsize
+		GAMEMODE.Zones[k] = tab
+	end
+end)
+
+function GM:GetZonePosFromEnt(ent)
+	for k, zone in pairs(GAMEMODE.Zones) do
+		local mins, maxs = zone.mins, zone.maxs
+		mins = mins + ent:OBBMins()
+		maxs = maxs + ent:OBBMaxs()
+		local pos = ent:GetPos()
+		if pos.x > mins.x && pos.x < maxs.x then
+			if pos.y > mins.y && pos.y < maxs.y then
+				local center = (zone.mins + zone.maxs) / 2
+				local t = pos - center
+				return zone, math.Round(t.x / zone.sqsize), math.Round(t.y / zone.sqsize)
+			end
+		end
+	end
+end
+
 local lastangles = Angle()
 function GM:CreateMove( cmd )
 
@@ -113,14 +150,23 @@ function GM:CreateMove( cmd )
 		cmd:RemoveKey(IN_DUCK)
 		cmd:ClearMovement()
 
+		local rel
+		local zone, x, y = GAMEMODE:GetZonePosFromEnt(LocalPlayer())
+		if zone then
+			local center = (zone.mins + zone.maxs) / 2
+			local t = LocalPlayer():GetPos() - center
+			rel = t - Vector(x * zone.sqsize, y * zone.sqsize, t.z)
+			-- DebugInfo(0, tostring(rel))
+			-- DebugInfo(1, tostring(x))
+			-- DebugInfo(2, tostring(y))
+		end
+
 		local vec = Vector(0, 0, 0)
 		if cmd:KeyDown(IN_FORWARD) then
 			cmd:SetForwardMove(100000)
-			-- lastangles = Angle(0, 90, 0)
 			vec.y = 1
 		elseif cmd:KeyDown(IN_BACK) then
 			cmd:SetForwardMove(100000)
-			-- lastangles = Angle(0, 270, 0)
 			vec.y = -1
 		end
 
@@ -134,6 +180,7 @@ function GM:CreateMove( cmd )
 			vec.x = 1
 		end
 
+
 		if vec:Length() > 0 then
 			lastangles = vec:Angle()
 		end
@@ -141,40 +188,8 @@ function GM:CreateMove( cmd )
 	end
 end
 
-function GM:RenderScene()
-	-- render.Clear(50, 50, 50, 255)
-	
-	-- local pos, ang = EyePos(), EyeAngles()
-	-- local t = hook.Run("CalcView", LocalPlayer(), pos, ang, 70)
-	-- if t then
-	-- 	pos = t.origin or pos
-	-- 	ang = t.angles or ang
-	-- end
-	
-	-- -- cam.StartOrthoView(0, 0, 512, 512)
-	
-	-- local mul = 0.3
-	-- render.RenderView({
-	-- 	ortho = true,
-	-- 	ortholeft = -ScrW() * mul,
-	-- 	orthoright = ScrW() * mul,
-	-- 	orthotop = -ScrH() * mul,
-	-- 	orthobottom = ScrH() * mul,
-	-- 	origin = pos,
-	-- 	angles = ang,
-	-- 	x = 0,
-	-- 	y = 0,
-	-- 	w = ScrW(), 
-	-- 	h = ScrH()
-	-- })
-	
-	-- -- cam.EndOrthoView()
-	
-	-- return true
-end
-
 net.Receive("hull_set", function (len)
 	for k, ply in pairs(player.GetAll()) do
-		ply:SetHull(Vector(-10, -10, 0), Vector(10, 10, 72))
+		GAMEMODE:PlayerSetNewHull(ply)
 	end
 end)
