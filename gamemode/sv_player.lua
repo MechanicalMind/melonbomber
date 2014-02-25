@@ -52,15 +52,17 @@ function GM:PlayerSpawn( ply )
 	hook.Call( "PlayerLoadout", GAMEMODE, ply )
 	hook.Call( "PlayerSetModel", GAMEMODE, ply )
 
+	ply:ResetUpgrades()
 	ply:CalculateSpeed()
 
 	ply:SetHMaxHealth(100)
 	ply:SetHealth(ply:GetHMaxHealth())
 
-	ply:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+	-- ply:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+	ply:SetCustomCollisionCheck(true)
 	ply:SetHull(Vector(-10, -10, 0), Vector(10, 10, 72))
 	net.Start("hull_set")
-	net.Send()
+	net.Broadcast()
 
 	self:PlayerSetupHands(ply)
 
@@ -100,29 +102,36 @@ end
 
 function PlayerMeta:CalculateSpeed()
 	// set the defaults
-	local walk = 200
-	local run = 300
-	local canRun = false
-	local canMove = true
-	local jumpPower = 0
+	local settings = {
+		walkSpeed = 200,
+		runSpeed = 300,
+		jumpPower = 0,
+		canRun = false,
+		canMove = true,
+		canJump = false
+	}
+
+	settings.walkSpeed = settings.walkSpeed + 20 * (self:GetRunningBoots() - 1)
+
+	hook.Call("PlayerCalculateSpeed", ply, settings)
 
 
 	// set out new speeds
-	if canRun then
-		self:SetRunSpeed(run)
+	if settings.canRun then
+		self:SetRunSpeed(settings.runSpeed or 1)
 	else
-		self:SetRunSpeed(walk)
+		self:SetRunSpeed(settings.walkSpeed or 1)
 	end
 	if self:GetMoveType() != MOVETYPE_NOCLIP then
-		if canMove then
+		if settings.canMove then
 			self:SetMoveType(MOVETYPE_WALK)
 		else
 			self:SetMoveType(MOVETYPE_NONE)
 		end
 	end
-	self.CanRun = canRun
-	self:SetWalkSpeed(walk)
-	self:SetJumpPower(jumpPower)
+	self.CanRun = settings.canRun
+	self:SetWalkSpeed(settings.walkSpeed or 1)
+	self:SetJumpPower(settings.jumpPower or 1)
 end
 
 function GM:DoPlayerDeath(ply, attacker, dmginfo)

@@ -18,3 +18,12 @@ end
 function GM:FinishMove(ply, mv)
 
 end
+
+function GM:ShouldCollide(ent1, ent2)
+	if !IsValid(ent1) then return true end
+	if !IsValid(ent2) then return true end
+	if ent1:IsPlayer() && ent2:IsPlayer() then
+		return false
+	end
+	return true
+end

@@ -25,8 +25,10 @@ include("sv_spectate.lua")
 include("sv_respawn.lua")
 include("sv_health.lua")
 include("sv_grid.lua")
+include("sv_upgrades.lua")
 include("sv_arena.lua")
 include("sv_arenagenerator.lua")
+include("sh_pickups.lua")
 
 
 util.AddNetworkString("clientIPE")
@@ -111,16 +113,6 @@ function GM:OnStartRound()
 end
 
 function GM:EntityTakeDamage( ent, dmginfo )
-	if ent:IsPlayer() then
-		if IsValid(dmginfo:GetAttacker()) then
-			local attacker = dmginfo:GetAttacker()
-			if attacker:IsPlayer() then
-				if attacker:Team() == ent:Team() then
-					return true
-				end
-			end
-		end
-	end
 end
 
 function file.ReadDataAndContent(path)

@@ -70,7 +70,7 @@ function ENT:Initialize()
 	end
 
 	self.CreateTime = CurTime()
-	self.ExplodeTime = CurTime() + 2
+	self.ExplodeTime = CurTime() + 3
 	
 end
 
@@ -82,6 +82,8 @@ if ( CLIENT ) then
 			self.Melon:SetNoDraw(true)
 			self.Melon:SetAngles(AngleRand())
 		end
+		local left = (3 - (self.ExplodeTime - CurTime()) ) / 3
+		self.Melon:SetModelScale(left * 0.2 + 1.2 + math.sin((CurTime() - self.CreateTime) * 4) * 0.15, 0)
 		self.Melon:SetPos(self:GetPos() + Vector(0, 0, -18 + 6))
 		self.Melon:DrawModel()
 	end
@@ -144,15 +146,22 @@ function ENT:Think()
 	end
 end
 
-function ENT:Explode()
+function ENT:Explode(zone, combiner)
 	if self.HasExploded then return end
 	self.HasExploded = true
-	self:GibBreakClient(Vector(0, 0, 4))
+	-- self:GibBreakClient(Vector(0, 0, 4))
 	self:Remove()
 
-	local zone, x, y = GAMEMODE:GetGridPosFromEnt(self)
 	if zone then
-		GAMEMODE:CreateExplosion(zone, x, y, math.random(1, 4))
+		local x, y = GAMEMODE:GetGridPosFromEntZone(zone, self)
+		if x then
+			GAMEMODE:CreateExplosion(zone, x, y, self.ExplosionLength, self, combiner)
+		end
+	else
+		local zone, x, y = GAMEMODE:GetGridPosFromEnt(self)
+		if zone then
+			GAMEMODE:CreateExplosion(zone, x, y, self.ExplosionLength, self)
+		end
 	end
 end
 

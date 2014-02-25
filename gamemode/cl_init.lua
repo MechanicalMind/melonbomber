@@ -9,6 +9,7 @@ include("cl_player.lua")
 include("cl_scoreboard.lua")
 include("cl_spectate.lua")
 include("cl_health.lua")
+include("sh_pickups.lua")
 
 function GM:Initialize() 
 end
