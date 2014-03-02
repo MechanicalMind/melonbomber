@@ -57,7 +57,7 @@ function GM:SpectateNext(ply, direction)
 	local players = {}
 	local index = 1
 	for k, v in pairs(player.GetAll()) do
-		if v != ply && v:Alive() && v:Team() == ply:Team() then
+		if v != ply && v:Alive() then
 			table.insert(players, v)
 			if v == ply:GetCSpectatee() then
 				index = #players
@@ -101,9 +101,9 @@ function GM:ChooseSpectatee(ply)
 	if !ply.SpectateTime || ply.SpectateTime < CurTime() then
 
 		local direction 
-		if ply:KeyPressed(IN_ATTACK) then
+		if ply:KeyPressed(IN_ATTACK) || ply:KeyPressed(IN_JUMP) then
 			direction = 1
-		elseif ply:KeyPressed(IN_ATTACK2) then
+		elseif ply:KeyPressed(IN_ATTACK2) || ply:KeyPressed(IN_DUCK) then
 			direction = -1
 		end
 

@@ -63,7 +63,7 @@ function ENT:Initialize()
 		self:PrecacheGibs()
 
 		self.NoCollided = true
-		self:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 		self:DrawShadow(false)
 	else 
 		
@@ -126,7 +126,7 @@ function ENT:Think()
 					// 18 is half block
 					// 35 is half player width
 					// 1 is hacky fix
-					local d = 18 + 35 + 1
+					local d = 18 + 10 + 1
 					if math.abs(t.x) < d && math.abs(t.y) < d then
 						withinRange = true
 						break

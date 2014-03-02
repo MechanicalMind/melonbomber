@@ -37,11 +37,14 @@ end
 
 function GM:HUDPaint()
 	if LocalPlayer():Alive() then
+		self:DrawUpgrades()
 	end
 	-- self:DrawMoney()
 	self:DrawGameHUD()
-	self:DrawUpgrades()
 	-- DebugInfo(1, tostring(LocalPlayer():GetVelocity():Length()))
+
+	self:DrawRoundTimer()
+	hook.Run( "DrawDeathNotice", 0.85, 0.04 )
 end
 
 function GM:DrawGameHUD()
@@ -50,6 +53,10 @@ function GM:DrawGameHUD()
 		ply = self:GetCSpectatee()
 	end
 	self:DrawHealth(ply)
+
+	if ply != LocalPlayer() then
+		draw.ShadowText(ply:Nick(), "RobotoHUD-30", ScrW() / 2, ScrH() - 4, col, 1, 3)
+	end
 end
 
 
@@ -199,6 +206,13 @@ function GM:DrawHealthFace(ply)
 		cam.IgnoreZ( false )
 end
 
+function GM:DrawUpgrade(name, amo, col, x, y)
+	surface.SetFont("RobotoHUD-30")
+	local w, h = surface.GetTextSize(amo)
+	draw.ShadowText(amo, "RobotoHUD-30", x, y, col, 0)
+	draw.ShadowText(name, "RobotoHUD-10", x + w + h * 0.2, y + h * 0.65, col, 0, 1)
+end
+
 function GM:DrawUpgrades()
 	local x = 20 + math.ceil(ScrW() * 0.09) + 20
 	local w,h = math.ceil(ScrW() * 0.09), 80
@@ -206,9 +220,10 @@ function GM:DrawUpgrades()
 	local y = ScrH() - 20 - h
 
 	local f15 = draw.GetFontHeight("RobotoHUD-15")
-	draw.DrawText("Max Bombs: " .. self:GetMaxBombs(), "RobotoHUD-15", x, y , color_white, 0)
-	draw.DrawText("Speed: " .. self:GetRunningBoots(), "RobotoHUD-15", x, y + f15 + 4, color_white, 0)
-	draw.DrawText("Bomb Power: " .. self:GetBombPower(), "RobotoHUD-15", x, y + f15 * 2 + 4 * 2, color_white, 0)
+	local f25 = draw.GetFontHeight("RobotoHUD-30") * 0.8
+	self:DrawUpgrade("Bombs", self:GetMaxBombs(), Color(50,255,50), x, y)
+	self:DrawUpgrade("Speed", self:GetRunningBoots(), Color(0, 150, 255), x, y + f25 + 4)
+	self:DrawUpgrade("Power", self:GetBombPower(), Color(220,50,50), x, y + f25 * 2 + 4 * 2)
 end
 
 
@@ -262,4 +277,18 @@ function GM:HUDShouldDraw(name)
 	if name == "CHudHealth" then return false end
 	if name == "CHudAmmo" then return false end
 	return true
+end
+
+function GM:DrawRoundTimer()
+
+	if self:GetGameState() == 1 then
+		local time = math.ceil(5 - self:GetStateRunningTime())
+		if time > 0 then
+			draw.ShadowText(time, "RobotoHUD-40", ScrW() / 2, ScrH() / 3, color_white, 1, 1)
+		end
+	elseif self:GetGameState() == 2 then
+		if self:GetStateRunningTime() < 2 then
+			draw.ShadowText("GO!", "RobotoHUD-50", ScrW() / 2, ScrH() / 3, color_white, 1, 1)
+		end
+	end
 end

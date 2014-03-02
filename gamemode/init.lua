@@ -20,7 +20,6 @@ include("sv_playercolor.lua")
 include("sv_player.lua")
 include("sv_realism.lua")
 include("sv_rounds.lua")
-include("sv_teams.lua")
 include("sv_spectate.lua")
 include("sv_respawn.lua")
 include("sv_health.lua")
@@ -38,11 +37,6 @@ resource.AddFile("materials/mech/ring.vmt")
 resource.AddFile("materials/mech/ring_thin.vmt")
 resource.AddFile("resource/fonts/Roboto-Black.ttf")
 
-// m9k
-resource.AddWorkshop("128091208")
-resource.AddWorkshop("128093075")
-resource.AddWorkshop("128089118")
-resource.AddWorkshop("144982052")
 
 function GM:Initialize() 
 	self.DeathRagdolls = {}
@@ -77,8 +71,8 @@ function GM:SetupSpawnZone(zone)
 
 	local width = math.floor(size.x / jab / 2)
 	local height = math.floor(size.y / jab / 2)
-	width = math.min(width, 20)
-	height = math.min(height, 20)
+	width = math.min(width, 10)
+	height = math.min(height, 10)
 
 	zone.grid = ClassGrid(jab, width, height)
 	local generator = ClassGenerator(zone.grid, mins, maxs)

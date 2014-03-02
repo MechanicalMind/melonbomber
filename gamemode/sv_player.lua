@@ -2,10 +2,11 @@ local PlayerMeta = FindMetaTable("Player")
 local EntityMeta = FindMetaTable("Entity")
 
 function GM:PlayerInitialSpawn(ply)
-	self:TeamsSetupPlayer(ply)
 	self:RoundsSetupPlayer(ply)
 
 	ply:SetMoney(10000)
+
+	ply:SetTeam(2)
 
 	if self:GetGameState() != 0 then
 		timer.Simple(0, function ()
@@ -52,9 +53,7 @@ end
 util.AddNetworkString("hull_set")
 function GM:PlayerSpawn( ply )
 
-	-- Stop observer mode
-	ply.Spectating = nil
-	ply:UnSpectate()
+	ply:UnCSpectate()
 
 	player_manager.OnPlayerSpawn( ply )
 	player_manager.RunClass( ply, "Spawn" )
@@ -115,7 +114,7 @@ end
 function PlayerMeta:CalculateSpeed()
 	// set the defaults
 	local settings = {
-		walkSpeed = 200,
+		walkSpeed = 160,
 		runSpeed = 300,
 		jumpPower = 0,
 		canRun = false,
@@ -123,7 +122,7 @@ function PlayerMeta:CalculateSpeed()
 		canJump = false
 	}
 
-	settings.walkSpeed = settings.walkSpeed + 20 * (self:GetRunningBoots() - 1)
+	settings.walkSpeed = settings.walkSpeed + 15 * (self:GetRunningBoots() - 1)
 
 	hook.Call("PlayerCalculateSpeed", ply, settings)
 
@@ -221,7 +220,7 @@ function GM:ScaleNPCDamage( npc, hitgroup, dmginfo )
 end
 
 function GM:PlayerDeathSound()
-	return false
+	return true
 end
 
 util.AddNetworkString("heist_money")
@@ -250,33 +249,17 @@ end
 
 function GM:PlayerSelectSpawn( ply )
 
-	local has = {}
-	for k, ent in pairs(ents.FindByClass("spawn_zone")) do
-		if ent.walkable then
-			table.insert(has, ent)
-		end
+	local pos, zone, sq = self:ArenaFindPlayerSpawn(ply)
+	if pos then
+		self:ClearBoxesAroundSquare(zone, sq.x, sq.y)
+		ply:SetPos(pos)
+	else
+		self:PlayerSelectSpawnOld(ply)
 	end
-	if #has <= 0 then 
-		self:PlayerSelectSpawn2(ply)
-		return 
-	end
-
-	local zone = has[math.random(#has)]
-	local jab = zone.walkable.sqsize
-
-	local sq = table.Random(zone.walkable.squares)
-
-	local mins, maxs = zone:OBBMins(), zone:OBBMaxs()
-	local center = (mins + maxs) / 2
-
-	local pos = center + Vector(jab, 0, 0) * sq.x  + Vector(0, jab, 0) * sq.y
-	pos.z = mins.z + 4
-	ply:SetPos(pos)
-
 	
 end
 
-function GM:PlayerSelectSpawn2( pl )
+function GM:PlayerSelectSpawnOld( pl )
 
 	if ( GAMEMODE.TeamBased ) then
 	
@@ -404,21 +387,59 @@ function GM:PlayerDeath(ply, Inflictor, attacker )
 
 	ply.NextSpawnTime = CurTime() + 1
 	ply.DeathTime = CurTime()
-	ply.SpectateTime = CurTime() + 4
+
+	// time until player can spectate another player
+	ply.SpectateTime = CurTime() + 2
 
 	if IsValid(attacker) && attacker:IsPlayer() && attacker != ply then
 		attacker:AddMoney(100)
-		attacker:AddExp(10)
 	end
-	
+
+	-- Convert the inflictor to the weapon that they're holding if we can.
+	-- This can be right or wrong with NPCs since combine can be holding a 
+	-- pistol but kill you by hitting you with their arm.
 	if ( Inflictor && Inflictor == attacker && (Inflictor:IsPlayer() || Inflictor:IsNPC()) ) then
 	
 		Inflictor = Inflictor:GetActiveWeapon()
-		if ( !Inflictor || Inflictor == NULL ) then Inflictor = attacker end
-	
+		if ( !IsValid( Inflictor ) ) then Inflictor = attacker end
+
 	end
 
 	self:RagdollSetDeathDetails(ply, Inflictor, attacker)
+
+	if (attacker == ply) then
+	
+		umsg.Start( "PlayerKilledSelf" )
+			umsg.Entity( ply )
+		umsg.End()
+		
+		MsgAll( attacker:Nick() .. " suicided!\n" )
+		
+	return end
+
+	if ( attacker:IsPlayer() ) then
+	
+		umsg.Start( "PlayerKilledByPlayer" )
+		
+			umsg.Entity( ply )
+			umsg.String( Inflictor:GetClass() )
+			umsg.Entity( attacker )
+		
+		umsg.End()
+		
+		MsgAll( attacker:Nick() .. " killed " .. ply:Nick() .. " using " .. Inflictor:GetClass() .. "\n" )
+		
+	return end
+	
+	umsg.Start( "PlayerKilled" )
+	
+		umsg.Entity( ply )
+		umsg.String( Inflictor:GetClass() )
+		umsg.String( attacker:GetClass() )
+
+	umsg.End()
+	
+	MsgAll( ply:Nick() .. " was killed by " .. attacker:GetClass() .. "\n" )
 end
 
 

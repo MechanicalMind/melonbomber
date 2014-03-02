@@ -44,7 +44,7 @@ function GM:SetGameState(state)
 	net.Broadcast()
 end
 
-function GM:StartRound()
+function GM:SetupRound()
 	local c = 0
 	for k, ply in pairs(player.GetAll()) do
 		if ply:Team() != 1 then // ignore spectators
@@ -59,52 +59,59 @@ function GM:StartRound()
 		return
 	end
 
-	self:BalanceTeams(true)
-
+	local i = 1
 	for k, ply in pairs(player.GetAll()) do
 		if ply:Team() != 1 then // ignore spectators
 			ply:SetNWBool("RoundInGame", true)
 			ply:KillSilent()
 			ply:Spawn()
+
+			local col = self:AssignColor(i, c)
+			ply:SetPlayerColor(Vector(col.r / 255, col.g / 255, col.b / 255))
+			i = i + 1
+
+			ply:Freeze(true)
 		else
 			ply:SetNWBool("RoundInGame", false)
 		end
 	end
 	self:CleanupMap()
-	local ct = ChatText()
-	ct:Add("Round has started")
-	ct:SendAll()
+	
 	self:SetGameState(1)
 	self.Rounds = self.Rounds + 1
 end
 
-function GM:EndRound(reason)
+function GM:StartRound()
+	self:SetGameState(2)
 
-	local winningTeam
+	for k, ply in pairs(self:GetPlayingPlayers()) do
+		ply:Freeze(false)
+	end
+
+	local ct = ChatText()
+	ct:Add("Round has started")
+	ct:SendAll()
+
+end
+
+function GM:EndRound(reason, winner)
+	self.RoundWinner = winner
+	
 	if reason == 1 then
 		local ct = ChatText()
 		ct:Add("Tie everybody loses")
 		ct:SendAll()
 	elseif reason == 2 then
 		local ct = ChatText()
-		ct:Add(team.GetName(2), team.GetColor(2))
-		ct:Add(" win")
+		local col = winner:GetPlayerColor()
+		col = Color(col.r * 255, col.g * 255, col.b * 255)
+		ct:Add(winner:Nick(), col)
+		ct:Add(" wins")
 		ct:SendAll()
-		winningTeam = 2
-	elseif reason == 3 then
-		local ct = ChatText()
-		ct:Add(team.GetName(3), team.GetColor(3))
-		ct:Add(" win")
-		ct:SendAll()
-		winningTeam = 3
 	end
 
 	for k, ply in pairs(self:GetPlayingPlayers()) do
-		if ply:Team() == winningTeam then
-			ply:AddMoney(2500)
-		else
-			ply:AddMoney(1000)
-		end
+		
 	end
 	self:SetGameState(3)
 end
@@ -121,27 +128,22 @@ function GM:RoundsSetupPlayer(ply)
 end
 
 function GM:CheckForVictory()
-	local red, blue = 0, 0
+	local c = 0
+	local last
 	for k, ply in pairs(self:GetPlayingPlayers()) do
 		if ply:Alive() then
-			if ply:Team() == 2 then
-				red = red + 1
-			elseif ply:Team() == 3 then
-				blue = blue + 1
-			end
+			c = c + 1
+			last = ply
 		end
 	end
-	if red == 0 && blue == 0 then
+
+	if c == 0 then
 		self:EndRound(1)
 		return
 	end
 
-	if red == 0 then
-		self:EndRound(3)
-		return
-	end
-	if blue == 0 then
-		self:EndRound(2)
+	if c == 1 then
+		self:EndRound(2, last)
 		return
 	end
 end
@@ -155,21 +157,61 @@ function GM:RoundsThink()
 			end
 		end
 		if c >= 2 then
-			self:StartRound()
+			self:SetupRound()
 		end
 	elseif self:GetGameState() == 1 then
 		if self:GetStateRunningTime() > 5 then
-			self:SetGameState(2)
+			self:StartRound()
 		end
 	elseif self:GetGameState() == 2 then
 		self:CheckForVictory()
 	elseif self:GetGameState() == 3 then
 		if self:GetStateRunningTime() > 5 then
-			self:StartRound()
+			self:SetupRound()
 		end
 	end
 end
 
 function GM:DoRoundDeaths(ply, attacker)
 
+end
+
+local colors = {
+	HSVToColor(0, 0.7, 0.98),
+	HSVToColor(110, 0.79, 0.9),
+	HSVToColor(240, 0.8, 0.93),
+	HSVToColor(60, 0.85, 0.94),
+	HSVToColor(270, 0.81, 0.94),
+	HSVToColor(30, 0.97, 0.93),
+	HSVToColor(340, 0.77, 0.96),
+	HSVToColor(190, 0.99, 0.98),
+	HSVToColor(300, 0.71, 0.95),
+	HSVToColor(80, 0.89, 0.57),
+	HSVToColor(259, 0.87, 0.57),
+	HSVToColor(120, 0.98, 0.39),
+}
+
+function GM:AssignColor(i, count)
+	-- if count <= #colors then
+	-- 	col = table.Copy(colors[i])
+	-- 	return col
+	-- end
+	i = i - 1
+	local hue = i / count * 360 + math.Rand(0, i / count / 2)
+	local v = (i % 3) / 3
+	local col = HSVToColor(hue, math.Rand(0.7, 1), 0.5 + v * 0.5)
+	return col
+end
+
+function GM:TestColors()
+-- local ct = ChatText()
+-- local count = 7
+-- for i = 1, count do
+-- 	local col = GM:AssignColor(i, count)
+-- 	ct:Add("player " .. i .. ", ", col)
+-- 	local h, s, v = ColorToHSV(col)
+-- 	-- print("player " .. i, "HSVToColor(" .. h .. ", " .. math.Round(s * 100) / 100 .. ", " .. math.Round(v * 100) / 100 .. ")")
+-- 	-- print("Color(" .. col.r .. ", " .. col.g .. ", " .. col.b .. ")")
+-- end
+-- ct:SendAll()
 end

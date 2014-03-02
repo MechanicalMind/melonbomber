@@ -12,7 +12,7 @@ local function addPickup(name, color, model)
 	return tab
 end
 
-local pick = addPickup("Speed", Color(0,150,255), "models/props_junk/Shoe001a.mdl")
+local pick = addPickup("Speed", Color(0, 150, 255), "models/props_junk/Shoe001a.mdl")
 function pick:OnPickup(ply)
 	ply:SetRunningBoots(ply:GetRunningBoots() + 1)
 end

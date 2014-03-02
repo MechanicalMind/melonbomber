@@ -103,6 +103,7 @@ function GM:SpecificExplosion(zone, x, y, bomb)
 
 	local eff = EffectData()
 	eff:SetOrigin(t + Vector(0, 0, 15))
+	eff:SetScale(zone.grid.sqsize / 2)
 	util.Effect("pk_elecplosion", eff)
 
 	sound.Play("BaseExplosionEffect.Sound", t, 75, math.Rand(-80, 120))
@@ -147,7 +148,7 @@ function GM:SpecificExplosion(zone, x, y, bomb)
 							dmg:SetAttacker(bomb)
 						end
 						dmg:SetDamagePosition(bomb:GetPos())
-						dmg:SetDamageForce((ent:GetShootPos() - bomb:GetPos()):GetNormal() * 40 )
+						dmg:SetDamageForce((ent:GetShootPos() - bomb:GetPos()):GetNormal() * 10 )
 					end
 					dmg:SetDamage(400)
 					ent:TakeDamageInfo(dmg)
@@ -159,7 +160,7 @@ end
 
 function GM:GibCrate(ent)
 
-	for i = 1, math.random(2, 5) do
+	for i = 1, math.random(1, 3) do
 		local i = math.random(1, 8)
 		if i == 8 then i = 9 end
 		local gib = ents.Create("prop_physics")
@@ -178,7 +179,7 @@ function GM:GibCrate(ent)
 end
 
 function GM:CreatePickup(ent)
-	if math.random(1, 1) == 1 then
+	if math.random(1, 3) == 1 then
 		local pick = ents.Create("mb_pickup")
 		pick:SetPos(ent:GetPos())
 		pick:SetPickupType(math.random(1, 3))
@@ -234,4 +235,55 @@ function GM:CreateBomb(ply)
 	end
 
 	
+end
+
+function GM:ArenaFindPlayerSpawn(ply)
+	local has = {}
+	for k, ent in pairs(ents.FindByClass("spawn_zone")) do
+		if ent.walkable then
+			table.insert(has, ent)
+		end
+	end
+	if #has <= 0 then 
+		return 
+	end
+
+	local zone = has[math.random(#has)]
+	local jab = zone.walkable.sqsize
+
+	local sq = table.Random(zone.walkable.squares)
+	-- local sq = {x = math.random(-zone.width, zone.width - 1), y = math.random(-zone.height, zone.height - 1)}
+
+	local mins, maxs = zone:OBBMins(), zone:OBBMaxs()
+	local center = (mins + maxs) / 2
+
+	local pos = center + Vector(jab, 0, 0) * sq.x  + Vector(0, jab, 0) * sq.y
+	pos.z = mins.z + 4
+
+	return pos, zone, sq
+
+end
+
+function GM:ClearBoxesAroundSquare(zone, x, y, len)
+	len = len or 1
+
+	local mins, maxs = zone:OBBMins(), zone:OBBMaxs()
+	local center = (mins + maxs) / 2
+	local s = zone.grid.sqsize * len - 2 + zone.grid.sqsize / 2
+	local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
+	t.z = zone:OBBMins().z
+
+	for k, ent in pairs(ents.FindByClass("prop_physics")) do
+		local mins, maxs = t + Vector(-s, -s, mins.z), t + Vector(s, s, maxs.z)
+		mins = mins - ent:OBBMaxs()
+		maxs = maxs - ent:OBBMins()
+		local pos = ent:GetPos()
+		if pos.x > mins.x && pos.x < maxs.x then
+			if pos.y > mins.y && pos.y < maxs.y then
+				if ent.gridBreakable then
+					ent:Remove()
+				end
+			end
+		end
+	end
 end
