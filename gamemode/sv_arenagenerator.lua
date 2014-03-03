@@ -190,7 +190,7 @@ function Gen:createWall(x, y, t)
 
 	ent.gridX = x
 	ent.gridY = y
-	ent.gridType = "box"
+	ent.gridType = "wall"
 	ent.gridWalkable = false
 	table.insert(self.plants, ent)
 

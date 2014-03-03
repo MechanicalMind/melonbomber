@@ -41,17 +41,17 @@ end
 
 function Grid:canAccess(x, y)
 	if x < -self.width then return false end
-	if x > self.width then return false end
+	if x > self.width - 1 then return false end
 	if y < -self.height then return false end
-	if y > self.height then return false end
+	if y > self.height - 1 then return false end
 	local sq = self:getSquare(x, y)
-	if sq == nil then return true end
+	if !IsValid(sq) then return true end
 	if sq.gridWalkable then return true end
 	return false 
 end
 
 function Grid:generateAccessible()
-	local walkable = Grid(self.sqsize)
+	local walkable = Grid(self.sqsize, self.width, self.height)
 	local todo = {}
 
 	local function doit(x, y, pow)
@@ -90,4 +90,19 @@ function Grid:generateAccessible()
 		i = i + 1
 	end
 	return walkable
+end
+
+function Grid:generateEmpty()
+	local empty = Grid(self.sqsize, self.width, self.height)
+
+	for x = -self.width, self.width - 1 do
+		for y = -self.height, self.height - 1 do
+			local sq = self:getSquare(x, y)
+			if !IsValid(sq) then
+				empty:setSquare(x, y, {x = x, y = y, sq = self:getSquare(x, y)})
+			end
+		end
+	end
+
+	return empty
 end

@@ -29,33 +29,53 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 	self:CombineExplosion(zone, x, y, bomb, combo)
 	// x+
 	for i = 1, length do
-		self:CombineExplosion(zone, x + i, y, bomb, combo)
-		if IsValid(zone.grid:getSquare(x + i, y)) then
+		local sq = zone.grid:getSquare(x + i, y)
+		if IsValid(sq) then
+			if sq.gridType != "wall" then
+				self:CombineExplosion(zone, x + i, y, bomb, combo)
+			end
 			break
+		else
+			self:CombineExplosion(zone, x + i, y, bomb, combo)
 		end
 	end
 
 	// x-
 	for i = 1, length do
-		self:CombineExplosion(zone, x - i, y, bomb, combo)
-		if IsValid(zone.grid:getSquare(x - i, y)) then
+		local sq = zone.grid:getSquare(x - i, y)
+		if IsValid(sq) then
+			if sq.gridType != "wall" then
+				self:CombineExplosion(zone, x - i, y, bomb, combo)
+			end
 			break
+		else
+			self:CombineExplosion(zone, x - i, y, bomb, combo)
 		end
 	end
 
 	// y+
 	for i = 1, length do
-		self:CombineExplosion(zone, x, y + i, bomb, combo)
-		if IsValid(zone.grid:getSquare(x, y + i)) then
+		local sq = zone.grid:getSquare(x, y + i)
+		if IsValid(sq) then
+			if sq.gridType != "wall" then
+				self:CombineExplosion(zone, x, y + i, bomb, combo)
+			end
 			break
+		else
+			self:CombineExplosion(zone, x, y + i, bomb, combo)
 		end
 	end
 
 	// y-
 	for i = 1, length do
-		self:CombineExplosion(zone, x, y - i, bomb, combo)
-		if IsValid(zone.grid:getSquare(x, y - i)) then
+		local sq = zone.grid:getSquare(x, y - i)
+		if IsValid(sq) then
+			if sq.gridType != "wall" then
+				self:CombineExplosion(zone, x, y - i, bomb, combo)
+			end
 			break
+		else
+			self:CombineExplosion(zone, x, y - i, bomb, combo)
 		end
 	end
 
@@ -191,7 +211,23 @@ function GM:CreatePickup(ent)
 		end
 
 		pick:SetPos(ent:GetPos() + Vector(0, 0, pick:OBBMins().z))
+		return pick
 	end
+end
+
+function GM:CreatePowerup(typ, pos)
+	local pick = ents.Create("mb_pickup")
+	pick:SetPos(pos)
+	pick:SetPickupType(typ)
+	pick:Spawn()
+
+	local phys = pick:GetPhysicsObject()
+	if IsValid(phys) then
+		phys:EnableMotion(false)
+	end
+
+	pick:SetPos(pos + Vector(0, 0, -pick:OBBMins().z + 1))
+	return pick
 end
 
 function GM:CreateBomb(ply)
@@ -283,6 +319,34 @@ function GM:ClearBoxesAroundSquare(zone, x, y, len)
 				if ent.gridBreakable then
 					ent:Remove()
 				end
+			end
+		end
+	end
+end
+
+
+function GM:ScatterPowerups(ply)
+
+	local zone, x, y = self:GetGridPosFromEnt(ply)
+	if zone then
+		local empty = zone.grid:generateEmpty()
+
+		local drops = {}
+		drops[1] = ply:GetRunningBoots() - 1
+		drops[2] = ply:GetBombPower() - 1
+		drops[3] = ply:GetMaxBombs() - 1
+
+		for k, v in pairs(drops) do
+			for i = 1, v do
+				local sq = table.Random(empty.squares)
+				empty:setSquare(sq.x, sq.y, nil)
+
+				local mins, maxs = zone:OBBMins(), zone:OBBMaxs()
+				local center = (mins + maxs) / 2
+				local t = Vector(sq.x * zone.grid.sqsize, sq.y * zone.grid.sqsize) + center
+				t.z = zone:OBBMins().z
+
+				local pick = self:CreatePowerup(k, t)
 			end
 		end
 	end

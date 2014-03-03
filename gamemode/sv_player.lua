@@ -156,6 +156,8 @@ function GM:DoPlayerDeath(ply, attacker, dmginfo)
 		ply:CSpectate(OBS_MODE_CHASE, ent)
 	end
 
+	self:ScatterPowerups(ply)
+
 	ply:AddDeaths(1)
 
 	if attacker:IsValid() && attacker:IsPlayer() then
@@ -407,39 +409,6 @@ function GM:PlayerDeath(ply, Inflictor, attacker )
 
 	self:RagdollSetDeathDetails(ply, Inflictor, attacker)
 
-	if (attacker == ply) then
-	
-		umsg.Start( "PlayerKilledSelf" )
-			umsg.Entity( ply )
-		umsg.End()
-		
-		MsgAll( attacker:Nick() .. " suicided!\n" )
-		
-	return end
-
-	if ( attacker:IsPlayer() ) then
-	
-		umsg.Start( "PlayerKilledByPlayer" )
-		
-			umsg.Entity( ply )
-			umsg.String( Inflictor:GetClass() )
-			umsg.Entity( attacker )
-		
-		umsg.End()
-		
-		MsgAll( attacker:Nick() .. " killed " .. ply:Nick() .. " using " .. Inflictor:GetClass() .. "\n" )
-		
-	return end
-	
-	umsg.Start( "PlayerKilled" )
-	
-		umsg.Entity( ply )
-		umsg.String( Inflictor:GetClass() )
-		umsg.String( attacker:GetClass() )
-
-	umsg.End()
-	
-	MsgAll( ply:Nick() .. " was killed by " .. attacker:GetClass() .. "\n" )
 end
 
 

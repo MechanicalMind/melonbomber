@@ -118,12 +118,22 @@ function file.ReadDataAndContent(path)
 end
 
 function GM:OnReloaded()
+	for k, ent in pairs(ents.FindByClass("spawn_zone")) do
+		if ent.grid then
+			setClass(ent.grid, ClassGrid)
+		end
+	end
 end
 
 function GM:CleanupMap()
-	for k, ent in pairs(ents.FindByClass("prop_ragdoll")) do
-		ent:Remove()
-	end
+	-- for k, ply in pairs(player.GetAll()) do
+	-- 	if IsValid(ply:GetCSpectatee()) && ply:GetCSpectatee():GetClass() == "prop_ragdoll" then
+	-- 		ply:UnCSpectate()
+	-- 	end 
+	-- end
+	-- for k, ent in pairs(ents.FindByClass("prop_ragdoll")) do
+	-- 	ent:Remove()
+	-- end
 	game.CleanUpMap()
 	hook.Call("InitPostEntityAndMapCleanup", self)
 	hook.Call("MapCleanup", self)

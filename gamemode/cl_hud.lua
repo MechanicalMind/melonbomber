@@ -44,7 +44,6 @@ function GM:HUDPaint()
 	-- DebugInfo(1, tostring(LocalPlayer():GetVelocity():Length()))
 
 	self:DrawRoundTimer()
-	hook.Run( "DrawDeathNotice", 0.85, 0.04 )
 end
 
 function GM:DrawGameHUD()
@@ -165,34 +164,37 @@ function GM:DrawHealthFace(ply)
 		self:CreateHealthFace(ply)
 	end
 
-	if self.HealthFace:GetModel() != ply:GetModel() then
-		self:CreateHealthFace(ply)
-	end	
+	if IsValid(self.HealthFace) then
+		if self.HealthFace:GetModel() != ply:GetModel() then
+			self:CreateHealthFace(ply)
+		end	
 
-	self.HealthFace.PlayerColor = ply:GetPlayerColor()
+		self.HealthFace.PlayerColor = ply:GetPlayerColor()
 
-	local bone = self.HealthFace:LookupBone("ValveBiped.Bip01_Head1")
-	local pos = Vector(0, 0, 70)
-	local bang = Angle()
-	if bone then
-		pos, bang = self.HealthFace:GetBonePosition(bone)
+		local bone = self.HealthFace:LookupBone("ValveBiped.Bip01_Head1")
+		local pos = Vector(0, 0, 70)
+		local bang = Angle()
+		if bone then
+			pos, bang = self.HealthFace:GetBonePosition(bone)
+		end
+
+		cam.Start3D( pos + Vector(19, 0, 2), Vector(-1,0,0):Angle(), 70, x, y, w, h, 5, 4096 )
+		cam.IgnoreZ( true )
+		
+		render.OverrideDepthEnable( false )
+		render.SuppressEngineLighting( true )
+		render.SetLightingOrigin(pos)
+		render.ResetModelLighting(1, 1, 1)
+		render.SetColorModulation(1, 1, 1)
+		render.SetBlend(1)
+		
+		self.HealthFace:DrawModel()
+		
+		render.SuppressEngineLighting( false )
+		cam.IgnoreZ( false )
+		cam.End3D()
+
 	end
-
-	cam.Start3D( pos + Vector(19, 0, 2), Vector(-1,0,0):Angle(), 70, x, y, w, h, 5, 4096 )
-	cam.IgnoreZ( true )
-	
-	render.OverrideDepthEnable( false )
-	render.SuppressEngineLighting( true )
-	render.SetLightingOrigin(pos)
-	render.ResetModelLighting(1, 1, 1)
-	render.SetColorModulation(1, 1, 1)
-	render.SetBlend(1)
-	
-	self.HealthFace:DrawModel()
-	
-	render.SuppressEngineLighting( false )
-	cam.IgnoreZ( false )
-	cam.End3D()
 
 	render.SetStencilEnable( false )
  

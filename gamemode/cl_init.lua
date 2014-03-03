@@ -65,17 +65,6 @@ function GM:OnReloaded()
 end
 
 
-// make sure slot poses are below 6
-// we are using 3rd party guns so we can't just edit them
-// the weapon select menu breaks down if the number is greater than 5
-timer.Simple(1, function ()
-
-	for k, wep in pairs(weapons.GetList()) do
-		-- wep.SlotPos = wep.SlotPos % 6
-		wep.SlotPos = 1
-	end
-end)
-
 function GM:CalcView(ply, pos, angles, fov)
 	if self:IsCSpectating() && IsValid(self:GetCSpectatee()) && self:GetCSpectatee():IsPlayer() then
 		ply = self:GetCSpectatee()
