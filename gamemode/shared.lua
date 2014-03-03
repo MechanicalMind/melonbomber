@@ -3,8 +3,8 @@ GM.Author 	= "MechanicalMind"
 GM.Email 	= ""
 GM.Website 	= "www.codingconcoctions.com/"
 
-team.SetUp(1, "Spectators", Color(225, 50, 50))
-team.SetUp(2, "Player", Color(50, 50, 225))
+team.SetUp(1, "Spectators", Color(50, 50, 50))
+team.SetUp(2, "Player", Color(150, 150, 150))
 
 local up = Vector(0, 0, 1):Angle()
 

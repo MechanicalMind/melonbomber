@@ -67,7 +67,6 @@ function GM:PlayerSpawn( ply )
 	ply:SetHMaxHealth(100)
 	ply:SetHealth(ply:GetHMaxHealth())
 
-	-- ply:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 	ply:SetCustomCollisionCheck(true)
 	GAMEMODE:PlayerSetNewHull(ply)
 	net.Start("hull_set")
@@ -418,11 +417,17 @@ end
 function GM:KeyPress(ply, key, c, d)
 	if ply:Alive() then
 		if key == IN_ATTACK then
-			self:CreateBomb(ply)
+			self:PlayerPlaceBomb(ply)
+		elseif key == IN_ATTACK2 then
+			self:PlayerAltFire(ply)
 		end
 	end
 end
 
 function GM:PlayerSwitchFlashlight(ply)
+	return false
+end
+
+function GM:PlayerShouldTaunt( ply, actid )
 	return false
 end

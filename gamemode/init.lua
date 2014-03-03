@@ -71,8 +71,8 @@ function GM:SetupSpawnZone(zone)
 
 	local width = math.floor(size.x / jab / 2)
 	local height = math.floor(size.y / jab / 2)
-	width = math.min(width, 10)
-	height = math.min(height, 10)
+	width = math.min(width, 12)
+	height = math.min(height, 12)
 
 	zone.grid = ClassGrid(jab, width, height)
 	local generator = ClassGenerator(zone.grid, mins, maxs)

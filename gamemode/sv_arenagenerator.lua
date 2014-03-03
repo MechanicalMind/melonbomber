@@ -159,6 +159,7 @@ function Gen:createBox(x, y)
 	ent.gridType = "box"
 	ent.gridWalkable = true
 	ent.gridBreakable = true
+	ent.gridSolid = true
 	table.insert(self.plants, ent)
 
 	self.grid:setSquare(x, y, ent)
@@ -192,6 +193,7 @@ function Gen:createWall(x, y, t)
 	ent.gridY = y
 	ent.gridType = "wall"
 	ent.gridWalkable = false
+	ent.gridSolid = true
 	table.insert(self.plants, ent)
 
 	self.grid:setSquare(x, y, ent)

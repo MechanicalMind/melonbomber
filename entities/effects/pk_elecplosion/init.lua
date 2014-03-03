@@ -29,13 +29,14 @@ function EFFECT:Init( data )
 	
 	for i = 1, 7 do
 		
-		local particle = self.Emitter:Add( "particle/particle_smokegrenade1", self.pos + VectorRand() * self.Scale / 2)
+		-- local particle = self.Emitter:Add( "particle/particle_smokegrenade1", self.pos + VectorRand() * self.Scale / 2)
+		local particle = self.Emitter:Add( "particle/smokesprites_000" .. math.random(1, 9), self.pos + VectorRand() * self.Scale / 2)
 		particle:SetVelocity( VectorRand(0, 0, 10) )
 		particle:SetDieTime( 5.2)
-		particle:SetStartAlpha( 255 )
+		particle:SetStartAlpha( 50 )
 		particle:SetEndAlpha( 0 )
-		particle:SetStartSize( 20 )
-		particle:SetEndSize( 40 )   
+		particle:SetStartSize( 30 )
+		particle:SetEndSize( 50 )   
 		particle:SetRoll( math.random(0,360) )
 		//particle:SetRollDelta( 0 )
 		particle:SetColor( 150, 150, 150 )

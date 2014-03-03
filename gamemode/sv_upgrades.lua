@@ -4,6 +4,7 @@ function PlayerMeta:ResetUpgrades()
 	self.MaxBombs = 1
 	self.RunningBoots = 1
 	self.PowerUps = 1
+	self.Upgrades = {}
 	hook.Call("PlayerResetUpgrades", self)
 	self:NetworkUpgrades()
 end
@@ -42,5 +43,22 @@ function PlayerMeta:NetworkUpgrades()
 	net.WriteUInt(self:GetRunningBoots(), 8)
 	net.WriteUInt(self:GetMaxBombs(), 8)
 	net.WriteUInt(self:GetBombPower(), 8)
+	for k, v in pairs(self.Upgrades) do
+		net.WriteUInt(v, 16)
+	end
+	net.WriteUInt(0, 16)
 	net.Send(self)
+end
+
+function PlayerMeta:AddUpgrade(key)
+	table.insert(self.Upgrades, key)
+end
+
+function PlayerMeta:HasUpgrade(key)
+	for k, v in pairs(self.Upgrades) do
+		if v == key then
+			return true
+		end
+	end
+	return false
 end

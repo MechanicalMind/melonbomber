@@ -1,3 +1,4 @@
+GM.Upgrades = {}
 
 function GM:GetMaxBombs()
 	return self.MaxBombs or 1
@@ -16,4 +17,10 @@ net.Receive("melons_upgrades", function (len)
 	GAMEMODE.RunningBoots = net.ReadUInt(8)
 	GAMEMODE.MaxBombs = net.ReadUInt(8)
 	GAMEMODE.PowerUps = net.ReadUInt(8)
+	GAMEMODE.Upgrades = {}
+	while true do
+		local v = net.ReadUInt(16)
+		if v == 0 then break end
+		table.insert(GAMEMODE.Upgrades, v)
+	end
 end)

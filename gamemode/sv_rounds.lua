@@ -197,21 +197,23 @@ function GM:AssignColor(i, count)
 	-- 	return col
 	-- end
 	i = i - 1
-	local hue = i / count * 360 + math.Rand(0, i / count / 2)
+	-- local hue = i / count * 360 + math.Rand(0, i / count / 2)
 	local v = (i % 3) / 3
-	local col = HSVToColor(hue, math.Rand(0.7, 1), 0.5 + v * 0.5)
+	local hue = (i * 360 / 1.61803) % 360
+	local col = HSVToColor(hue, math.Rand(0.7, 1), 0.7 + v * 0.3)
 	return col
 end
 
-function GM:TestColors()
--- local ct = ChatText()
--- local count = 7
--- for i = 1, count do
--- 	local col = GM:AssignColor(i, count)
--- 	ct:Add("player " .. i .. ", ", col)
--- 	local h, s, v = ColorToHSV(col)
--- 	-- print("player " .. i, "HSVToColor(" .. h .. ", " .. math.Round(s * 100) / 100 .. ", " .. math.Round(v * 100) / 100 .. ")")
--- 	-- print("Color(" .. col.r .. ", " .. col.g .. ", " .. col.b .. ")")
--- end
--- ct:SendAll()
+function GM:TestColors(count)
+	count = count or 1
+	local ct = ChatText()
+	for i = 1, count do
+		local col = self:AssignColor(i, count)
+		ct:Add("player " .. i .. ", ", col)
+		local h, s, v = ColorToHSV(col)
+		-- print("player " .. i, "HSVToColor(" .. h .. ", " .. math.Round(s * 100) / 100 .. ", " .. math.Round(v * 100) / 100 .. ")")
+		-- print("Color(" .. col.r .. ", " .. col.g .. ", " .. col.b .. ")")
+	end
+	ct:SendAll()
 end
+

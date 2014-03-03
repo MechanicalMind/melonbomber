@@ -59,6 +59,7 @@ function ENT:Initialize()
 		self:DrawShadow(false)
 	else 
 		
+		self.DecorParts = {}
 	end
 
 	self.CreateTime = CurTime()
@@ -85,6 +86,14 @@ end
 
 if ( CLIENT ) then
 
+	function ENT:MakeDecorPart(name, model)
+		if self.DecorParts[name] then
+			return self.DecorParts[name]
+		end
+		self.DecorParts[name] = ClientsideModel(model or "models/props_junk/watermelon01.mdl")
+		return self.DecorParts[name]
+	end
+
 	local circle = Material("SGM/playercircle")
 	function ENT:Draw()
 		if GAMEMODE.Pickups then
@@ -94,20 +103,29 @@ if ( CLIENT ) then
 					self.Melon = ClientsideModel(pickup.model or "models/props_junk/watermelon01.mdl")
 					self.Melon:SetNoDraw(true)
 					self.Melon:SetAngles(Angle(0, math.Rand(0, 360), 0))
+					if pickup.ModelMaterial then
+						self.Melon:SetMaterial(pickup.ModelMaterial)
+					end
 				end
-				local ang = self.Melon:GetAngles()
-				ang:RotateAroundAxis(ang:Up(), FrameTime() * 13)
-				self.Melon:SetAngles(ang)
-				self.Melon:SetModelScale(1, 0)
-				self.Melon:SetPos(self:GetPos() + Vector(0, 0, 8))
-				self.Melon:DrawModel()
+				if self.Melon then
+					local ang = self.Melon:GetAngles()
+					ang:RotateAroundAxis(ang:Up(), FrameTime() * 13)
+					self.Melon:SetAngles(ang)
+					self.Melon:SetModelScale(pickup.AddScale or 1, 0)
+					self.Melon:SetPos(self:GetPos() + Vector(0, 0, 8))
+					self.Melon:DrawModel()
+				end
+
+				if pickup.DrawDecor then
+					pickup:DrawDecor(self)
+				end
 
 				local mins = self:OBBMins()
 
 				render.SetMaterial(circle)
 				local col = table.Copy(pickup.color)
 				col.a = 180
-				render.DrawQuadEasy(self:GetPos() + Vector(0, 0, mins.z), Vector(0,0, 1), 32, 32, col, 0)
+				render.DrawQuadEasy(self:GetPos() + Vector(0, 0, mins.z + 1.1), Vector(0,0, 1), 32, 32, col, 0)
 			end
 		else
 			self:DrawModel()
@@ -120,6 +138,10 @@ function ENT:OnRemove()
 	if CLIENT then
 		if IsValid(self.Melon) then
 			self.Melon:Remove()
+		end
+
+		for k, ent in pairs(self.DecorParts) do
+			ent:Remove()
 		end
 	end
 end
@@ -151,6 +173,7 @@ function ENT:StartTouch(ent)
 					return
 				end
 			end
+			ent:AddUpgrade(pickup.id)
 			if pickup.OnPickup then
 				pickup:OnPickup(ent)
 			end

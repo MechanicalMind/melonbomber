@@ -34,7 +34,11 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 			if sq.gridType != "wall" then
 				self:CombineExplosion(zone, x + i, y, bomb, combo)
 			end
-			break
+			if sq.gridBreakable && bomb:GetPierce() then
+
+			else
+				break
+			end
 		else
 			self:CombineExplosion(zone, x + i, y, bomb, combo)
 		end
@@ -47,7 +51,11 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 			if sq.gridType != "wall" then
 				self:CombineExplosion(zone, x - i, y, bomb, combo)
 			end
-			break
+			if sq.gridBreakable && bomb:GetPierce() then
+
+			else
+				break
+			end
 		else
 			self:CombineExplosion(zone, x - i, y, bomb, combo)
 		end
@@ -60,7 +68,11 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 			if sq.gridType != "wall" then
 				self:CombineExplosion(zone, x, y + i, bomb, combo)
 			end
-			break
+			if sq.gridBreakable && bomb:GetPierce() then
+
+			else
+				break
+			end
 		else
 			self:CombineExplosion(zone, x, y + i, bomb, combo)
 		end
@@ -73,7 +85,11 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 			if sq.gridType != "wall" then
 				self:CombineExplosion(zone, x, y - i, bomb, combo)
 			end
-			break
+			if sq.gridBreakable && bomb:GetPierce() then
+
+			else
+				break
+			end
 		else
 			self:CombineExplosion(zone, x, y - i, bomb, combo)
 		end
@@ -200,24 +216,28 @@ end
 
 function GM:CreatePickup(ent)
 	if math.random(1, 3) == 1 then
-		local pick = ents.Create("mb_pickup")
-		pick:SetPos(ent:GetPos())
-		pick:SetPickupType(math.random(1, 3))
-		pick:Spawn()
-
-		local phys = pick:GetPhysicsObject()
-		if IsValid(phys) then
-			phys:EnableMotion(false)
+		local zone, x, y = self:GetGridPosFromEnt(ent)
+		if zone then
+			local pick = self:CreatePowerup(math.random(1, 3), zone, x, y)
+			return pick
 		end
-
-		pick:SetPos(ent:GetPos() + Vector(0, 0, pick:OBBMins().z))
-		return pick
+	elseif math.random(1, 13) == 1 then
+		local zone, x, y = self:GetGridPosFromEnt(ent)
+		if zone then
+			local pick = self:CreatePowerup(math.random(4, 6), zone, x, y)
+			return pick
+		end
 	end
 end
 
-function GM:CreatePowerup(typ, pos)
+function GM:CreatePowerup(typ, zone, x, y)
+	local mins, maxs = zone:OBBMins(), zone:OBBMaxs()
+	local center = (mins + maxs) / 2
+	local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
+	t.z = zone:OBBMins().z
+
 	local pick = ents.Create("mb_pickup")
-	pick:SetPos(pos)
+	pick:SetPos(t)
 	pick:SetPickupType(typ)
 	pick:Spawn()
 
@@ -226,11 +246,11 @@ function GM:CreatePowerup(typ, pos)
 		phys:EnableMotion(false)
 	end
 
-	pick:SetPos(pos + Vector(0, 0, -pick:OBBMins().z + 1))
+	pick:SetPos(t + Vector(0, 0, -pick:OBBMins().z))
 	return pick
 end
 
-function GM:CreateBomb(ply)
+function GM:PlayerPlaceBomb(ply)
 	if !(self:GetGameState() == 2 || self:GetGameState() == 0) then return end
 	if ply.BombLast && ply.BombLast + 0.05 > CurTime() then return end
 	if ply.LastSpawnTime && ply.LastSpawnTime + 1 > CurTime() then return end
@@ -252,26 +272,72 @@ function GM:CreateBomb(ply)
 		local sq = zone.grid:getSquare(x, y)
 		if IsValid(sq) then return end
 
-		local center = (zone:OBBMins() + zone:OBBMaxs()) / 2
-		local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
-		t.z = zone:OBBMins().z + 18
-		local ent = ents.Create("mb_melon")
-		ent:SetPos(t)
-		ent:SetBombOwner(ply)
-		ent:SetAngles(Angle(0, 0, 0))
-		ent:Spawn()
-		ent.ExplosionLength = ply:GetBombPower()
+		self:CreateBomb(zone, x, y, ply, count)
+	end
+end
 
-		local phys = ent:GetPhysicsObject()
-		if IsValid(phys) then
-			phys:EnableMotion(false)
-		end
+function GM:CreateBomb(zone, x, y, owner, count)
+	local center = (zone:OBBMins() + zone:OBBMaxs()) / 2
+	local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
+	t.z = zone:OBBMins().z + 18
+	local ent = ents.Create("mb_melon")
+	ent:SetPos(t)
+	ent:SetBombOwner(owner)
+	ent:SetAngles(Angle(0, 0, 0))
+	ent:SetExplosionLength(owner:GetBombPower())
+	if owner:HasUpgrade(5) && count == 0 then
+		ent:SetPowerBomb(true)
+	elseif owner:HasUpgrade(4) then
+		ent:SetPierce(true)
+	end
+	ent.gridSolid = true
+	ent:Spawn()
 
-		zone.grid:setSquare(x, y, ent)
+	local phys = ent:GetPhysicsObject()
+	if IsValid(phys) then
+		phys:EnableMotion(false)
 	end
 
-	
+	zone.grid:setSquare(x, y, ent)
 end
+
+function GM:PlayerAltFire(ply)
+	if !(self:GetGameState() == 2 || self:GetGameState() == 0) then return end
+	if ply.BombLast && ply.BombLast + 0.05 > CurTime() then return end
+	if ply.LastSpawnTime && ply.LastSpawnTime + 1 > CurTime() then return end
+	ply.BombLast = CurTime()
+
+	local count = 0
+	for k, ent in pairs(ents.FindByClass("mb_melon")) do
+		if ent:GetBombOwner() == ply then
+			count = count + 1
+		end
+	end
+
+	if count > 0 && ply:HasUpgrade(1000) then
+
+	elseif ply:HasUpgrade(6) then
+		local zone, x, y = self:GetGridPosFromEnt(ply)
+		if zone then
+			local dir = Angle(0, math.Round(ply:GetAngles().y / 90) * 90, 0):Forward()
+			for i = 0, ply:GetMaxBombs() - count - 1 do
+				local sx, sy = x + math.Round(dir.x) * i, y + math.Round(dir.y) * i 
+				local sq = zone.grid:getSquare(sx, sy)
+				if IsValid(sq) then
+					if sq.gridSolid then
+						break
+					else
+						sq:Remove()
+					end
+				end
+
+				self:CreateBomb(zone, sx, sy, ply, count)
+				count = count + 1
+			end
+		end
+	end
+end
+
 
 function GM:ArenaFindPlayerSpawn(ply)
 	local has = {}
@@ -332,22 +398,19 @@ function GM:ScatterPowerups(ply)
 		local empty = zone.grid:generateEmpty()
 
 		local drops = {}
-		drops[1] = ply:GetRunningBoots() - 1
-		drops[2] = ply:GetBombPower() - 1
-		drops[3] = ply:GetMaxBombs() - 1
+		for k, v in pairs(ply.Upgrades) do
+			drops[v] = (drops[v] or 0) + 1
+		end
 
 		for k, v in pairs(drops) do
 			for i = 1, v do
 				local sq = table.Random(empty.squares)
 				empty:setSquare(sq.x, sq.y, nil)
 
-				local mins, maxs = zone:OBBMins(), zone:OBBMaxs()
-				local center = (mins + maxs) / 2
-				local t = Vector(sq.x * zone.grid.sqsize, sq.y * zone.grid.sqsize) + center
-				t.z = zone:OBBMins().z
-
-				local pick = self:CreatePowerup(k, t)
+				local pick = self:CreatePowerup(k, zone, sq.x, sq.y)
 			end
 		end
+		ply:ResetUpgrades()
 	end
 end
+

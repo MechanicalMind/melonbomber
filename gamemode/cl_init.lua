@@ -135,6 +135,9 @@ function GM:CreateMove( cmd )
 		if cmd:KeyDown(IN_JUMP) then
 			cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_ATTACK))
 		end
+		if cmd:KeyDown(IN_DUCK) then
+			cmd:SetButtons(bit.bor(cmd:GetButtons(), IN_ATTACK2))
+		end
 		cmd:RemoveKey(IN_JUMP)
 		cmd:RemoveKey(IN_DUCK)
 		cmd:ClearMovement()

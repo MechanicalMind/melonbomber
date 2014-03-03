@@ -85,7 +85,24 @@ if ( CLIENT ) then
 		local left = (3 - (self.ExplodeTime - CurTime()) ) / 3
 		self.Melon:SetModelScale(left * 0.2 + 1.2 + math.sin((CurTime() - self.CreateTime) * 4) * 0.15, 0)
 		self.Melon:SetPos(self:GetPos() + Vector(0, 0, -18 + 6))
+		if self:GetPowerBomb() then
+			if !self.Melon.PowerBomb then
+				self.Melon.PowerBomb = true
+				self.Melon:SetMaterial("models/weapons/v_crowbar/crowbar_cyl")
+			end
+		end
 		self.Melon:DrawModel()
+
+		if self:GetPierce() then
+			if !self.SawBlade then
+				self.SawBlade = ClientsideModel("models/props_junk/sawblade001a.mdl")
+				self.SawBlade:SetNoDraw(true)
+				self.SawBlade:SetAngles(Angle(0, math.Rand(0, 360), 0))
+			end
+			self.SawBlade:SetModelScale(left * 0.2 + 0.8 + math.sin((CurTime() - self.CreateTime) * 4) * 0.15, 0)
+			self.SawBlade:SetPos(self:GetPos() + Vector(0, 0, -18 + 6))
+			self.SawBlade:DrawModel()
+		end
 	end
 
 end
@@ -158,12 +175,12 @@ function ENT:Explode(zone, combiner)
 	if zone then
 		local x, y = GAMEMODE:GetGridPosFromEntZone(zone, self)
 		if x then
-			GAMEMODE:CreateExplosion(zone, x, y, self.ExplosionLength, self, combiner)
+			GAMEMODE:CreateExplosion(zone, x, y, self:GetExplosionLength(), self, combiner)
 		end
 	else
 		local zone, x, y = GAMEMODE:GetGridPosFromEnt(self)
 		if zone then
-			GAMEMODE:CreateExplosion(zone, x, y, self.ExplosionLength, self)
+			GAMEMODE:CreateExplosion(zone, x, y, self:GetExplosionLength(), self)
 		end
 	end
 end
@@ -187,4 +204,31 @@ end
 
 function ENT:SetBombOwner(ply)
 	self.BombOwner = ply
+end
+
+function ENT:SetPierce(bool)
+	self:SetNWBool("BombPierce", bool)
+end
+
+function ENT:GetPierce()
+	return self:GetNWBool("BombPierce")
+end
+
+function ENT:SetPowerBomb(bool)
+	self:SetNWBool("BombPowerBomb", bool)
+end
+
+function ENT:GetPowerBomb()
+	return self:GetNWBool("BombPowerBomb")
+end
+
+function ENT:SetExplosionLength(len)
+	self.ExplosionLength = len
+end
+
+function ENT:GetExplosionLength()
+	if self:GetPowerBomb() then
+		return 10
+	end
+	return self.ExplosionLength or 1
 end

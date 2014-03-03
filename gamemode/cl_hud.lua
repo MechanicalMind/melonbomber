@@ -37,7 +37,6 @@ end
 
 function GM:HUDPaint()
 	if LocalPlayer():Alive() then
-		self:DrawUpgrades()
 	end
 	-- self:DrawMoney()
 	self:DrawGameHUD()
@@ -47,6 +46,10 @@ function GM:HUDPaint()
 end
 
 function GM:DrawGameHUD()
+	if LocalPlayer():Alive() then
+		self:DrawUpgrades()
+	end
+
 	local ply = LocalPlayer()
 	if self:IsCSpectating() && IsValid(self:GetCSpectatee()) && self:GetCSpectatee():IsPlayer() then
 		ply = self:GetCSpectatee()
@@ -54,7 +57,7 @@ function GM:DrawGameHUD()
 	self:DrawHealth(ply)
 
 	if ply != LocalPlayer() then
-		draw.ShadowText(ply:Nick(), "RobotoHUD-30", ScrW() / 2, ScrH() - 4, col, 1, 3)
+		draw.ShadowText(ply:Nick(), "RobotoHUD-30", ScrW() / 2, ScrH() - 4, col, 1, 4)
 	end
 end
 
@@ -226,6 +229,10 @@ function GM:DrawUpgrades()
 	self:DrawUpgrade("Bombs", self:GetMaxBombs(), Color(50,255,50), x, y)
 	self:DrawUpgrade("Speed", self:GetRunningBoots(), Color(0, 150, 255), x, y + f25 + 4)
 	self:DrawUpgrade("Power", self:GetBombPower(), Color(220,50,50), x, y + f25 * 2 + 4 * 2)
+
+	-- for k, v in pairs(self.Upgrades) do
+
+	-- end
 end
 
 
