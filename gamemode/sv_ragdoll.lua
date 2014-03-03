@@ -32,7 +32,9 @@ dtypes[DMG_BUCKSHOT]="Bullet"
 local DeathRagdollsPerPlayer = 3
 local DeathRagdollsPerServer = 22
 
-PlayerMeta.CreateRagdollOld = PlayerMeta.CreateRagdoll
+if !PlayerMeta.CreateRagdollOld then
+	PlayerMeta.CreateRagdollOld = PlayerMeta.CreateRagdoll
+end
 function PlayerMeta:CreateRagdoll(attacker, dmginfo)
 	local ent = self:GetNWEntity("DeathRagdoll")
 
@@ -135,7 +137,9 @@ function PlayerMeta:CreateRagdoll(attacker, dmginfo)
 	table.insert(GAMEMODE.DeathRagdolls,ent)
 end
 
-PlayerMeta.GetRagdollEntityOld = PlayerMeta.GetRagdollEntity
+if !PlayerMeta.GetRagdollEntityOld then
+	PlayerMeta.GetRagdollEntityOld = PlayerMeta.GetRagdollEntity
+end
 function PlayerMeta:GetRagdollEntity()
 	local ent = self:GetNWEntity("DeathRagdoll")
 	if IsValid(ent) then
@@ -144,7 +148,9 @@ function PlayerMeta:GetRagdollEntity()
 	return self:GetRagdollEntityOld()
 end
 
-PlayerMeta.GetRagdollOwnerOld = PlayerMeta.GetRagdollOwner
+if !PlayerMeta.GetRagdollOwnerOld then
+	PlayerMeta.GetRagdollOwnerOld = PlayerMeta.GetRagdollOwner
+end
 function EntityMeta:GetRagdollOwner()
 	local ent = self:GetNWEntity("RagdollOwner")
 	if IsValid(ent) then
