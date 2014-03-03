@@ -82,8 +82,12 @@ if ( CLIENT ) then
 			self.Melon:SetNoDraw(true)
 			self.Melon:SetAngles(AngleRand())
 		end
-		local left = (3 - (self.ExplodeTime - CurTime()) ) / 3
-		self.Melon:SetModelScale(left * 0.2 + 1.2 + math.sin((CurTime() - self.CreateTime) * 4) * 0.15, 0)
+		local left = math.min(1, (3 - (self.ExplodeTime - CurTime()) ) / 3)
+		local size = left * 0.2 + 1.2 + math.sin((CurTime() - self.CreateTime) * 4) * 0.15
+		if self:GetRemoteDetonate() then
+			size = left * 0.2 + 1.2
+		end
+		self.Melon:SetModelScale(size, 0)
 		self.Melon:SetPos(self:GetPos() + Vector(0, 0, -18 + 6))
 		if self:GetPowerBomb() then
 			if !self.Melon.PowerBomb then
@@ -99,9 +103,23 @@ if ( CLIENT ) then
 				self.SawBlade:SetNoDraw(true)
 				self.SawBlade:SetAngles(Angle(0, math.Rand(0, 360), 0))
 			end
-			self.SawBlade:SetModelScale(left * 0.2 + 0.8 + math.sin((CurTime() - self.CreateTime) * 4) * 0.15, 0)
+			self.SawBlade:SetModelScale(size * 0.6, 0)
 			self.SawBlade:SetPos(self:GetPos() + Vector(0, 0, -18 + 6))
 			self.SawBlade:DrawModel()
+		end
+
+		if self:GetRemoteDetonate() then
+			if !self.Antenna then
+				self.Antenna = ClientsideModel("models/props_rooftop/roof_dish001.mdl")
+				self.Antenna:SetNoDraw(true)
+				self.Antenna:SetAngles(Angle(0, math.Rand(0, 360), 0))
+			end
+			local ang = self.Antenna:GetAngles()
+			ang:RotateAroundAxis(ang:Up(), FrameTime() * 13)
+			self.Antenna:SetAngles(ang)
+			self.Antenna:SetModelScale(size * 0.3, 0)
+			self.Antenna:SetPos(self:GetPos() + Vector(0, 0, -18 + 6))
+			self.Antenna:DrawModel()
 		end
 	end
 
@@ -157,7 +175,7 @@ function ENT:Think()
 			end
 		end
 
-		if self.ExplodeTime < CurTime() then
+		if self.ExplodeTime < CurTime() && !self:GetRemoteDetonate() then
 			self:Explode()
 		end
 
@@ -220,6 +238,14 @@ end
 
 function ENT:GetPowerBomb()
 	return self:GetNWBool("BombPowerBomb")
+end
+
+function ENT:SetRemoteDetonate(bool)
+	self:SetNWBool("BombRemoteDetonate", bool)
+end
+
+function ENT:GetRemoteDetonate()
+	return self:GetNWBool("BombRemoteDetonate")
 end
 
 function ENT:SetExplosionLength(len)

@@ -96,12 +96,16 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 	end
 
 	if !combiner then
-		for k, v in pairs(combo.squares) do
-			local x, y = k:match("([^:]+):([^:]+)")
-			x = tonumber(x)
-			y = tonumber(y)
-			self:SpecificExplosion(zone, x, y, v)
-		end
+		self:FinishExplosion(zone, combo)
+	end
+end
+
+function GM:FinishExplosion(zone, combo)
+	for k, v in pairs(combo.squares) do
+		local x, y = k:match("([^:]+):([^:]+)")
+		x = tonumber(x)
+		y = tonumber(y)
+		self:SpecificExplosion(zone, x, y, v)
 	end
 end
 
@@ -110,21 +114,6 @@ function GM:CombineExplosion(zone, x, y, bomb, combiner)
 	local center = (zone:OBBMins() + zone:OBBMaxs()) / 2
 	local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
 	t.z = zone:OBBMins().z
-
-	-- for k, ent in pairs(ents.GetAll()) do
-	-- 	local s = zone.grid.sqsize / 2 - 1
-	-- 	local mins, maxs = t + Vector(-s, -s, 0), t + Vector(s, s, 32)
-	-- 	mins = mins - ent:OBBMaxs()
-	-- 	maxs = maxs - ent:OBBMins()
-	-- 	local pos = ent:GetPos()
-	-- 	if pos.x > mins.x && pos.x < maxs.x then
-	-- 		if pos.y > mins.y && pos.y < maxs.y then
-	-- 			if ent:GetClass() == "mb_melon" then
-	-- 				ent:Explode(zone, combiner)
-	-- 			end
-	-- 		end
-	-- 	end
-	-- end
 
 	local ent = zone.grid:getSquare(x, y)
 	if IsValid(ent) && ent:GetClass() == "mb_melon" then
@@ -137,10 +126,12 @@ function GM:SpecificExplosion(zone, x, y, bomb)
 	local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
 	t.z = zone:OBBMins().z
 
-	local eff = EffectData()
-	eff:SetOrigin(t + Vector(0, 0, 15))
-	eff:SetScale(zone.grid.sqsize / 2)
-	util.Effect("pk_elecplosion", eff)
+	timer.Simple(0, function ()
+		local eff = EffectData()
+		eff:SetOrigin(t + Vector(0, 0, 15))
+		eff:SetScale(zone.grid.sqsize / 2)
+		util.Effect("pk_elecplosion", eff)
+	end)
 
 	sound.Play("BaseExplosionEffect.Sound", t, 75, math.Rand(-80, 120))
 
@@ -224,7 +215,7 @@ function GM:CreatePickup(ent)
 	elseif math.random(1, 13) == 1 then
 		local zone, x, y = self:GetGridPosFromEnt(ent)
 		if zone then
-			local pick = self:CreatePowerup(math.random(4, 6), zone, x, y)
+			local pick = self:CreatePowerup(math.random(4, 7), zone, x, y)
 			return pick
 		end
 	end
@@ -287,8 +278,13 @@ function GM:CreateBomb(zone, x, y, owner, count)
 	ent:SetExplosionLength(owner:GetBombPower())
 	if owner:HasUpgrade(5) && count == 0 then
 		ent:SetPowerBomb(true)
-	elseif owner:HasUpgrade(4) then
-		ent:SetPierce(true)
+	else
+		if owner:HasUpgrade(4) then
+			ent:SetPierce(true)
+		end
+	end
+	if owner:HasUpgrade(7) then
+		ent:SetRemoteDetonate(true)
 	end
 	ent.gridSolid = true
 	ent:Spawn()
@@ -314,8 +310,13 @@ function GM:PlayerAltFire(ply)
 		end
 	end
 
-	if count > 0 && ply:HasUpgrade(1000) then
-
+	if count > 0 && ply:HasUpgrade(7) then
+		for k, ent in pairs(ents.FindByClass("mb_melon")) do
+			if ent:GetBombOwner() == ply then
+				ent:Explode(zone, combo)
+				break
+			end
+		end
 	elseif ply:HasUpgrade(6) then
 		local zone, x, y = self:GetGridPosFromEnt(ply)
 		if zone then
@@ -413,4 +414,3 @@ function GM:ScatterPowerups(ply)
 		ply:ResetUpgrades()
 	end
 end
-

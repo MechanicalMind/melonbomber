@@ -12,6 +12,14 @@ function GM:GetBombPower()
 	return self.PowerUps or 1
 end
 
+function GM:HasUpgrade(key)
+	for k, v in pairs(self.Upgrades) do
+		if v == key then
+			return true
+		end
+	end
+	return false
+end
 
 net.Receive("melons_upgrades", function (len)
 	GAMEMODE.RunningBoots = net.ReadUInt(8)

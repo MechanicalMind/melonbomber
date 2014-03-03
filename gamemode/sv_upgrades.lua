@@ -52,6 +52,7 @@ end
 
 function PlayerMeta:AddUpgrade(key)
 	table.insert(self.Upgrades, key)
+	self:NetworkUpgrades()
 end
 
 function PlayerMeta:HasUpgrade(key)

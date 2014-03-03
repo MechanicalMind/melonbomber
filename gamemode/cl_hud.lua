@@ -230,9 +230,14 @@ function GM:DrawUpgrades()
 	self:DrawUpgrade("Speed", self:GetRunningBoots(), Color(0, 150, 255), x, y + f25 + 4)
 	self:DrawUpgrade("Power", self:GetBombPower(), Color(220,50,50), x, y + f25 * 2 + 4 * 2)
 
-	-- for k, v in pairs(self.Upgrades) do
-
-	-- end
+	local f20 = draw.GetFontHeight("RobotoHUD-20")
+	local i = 0
+	for k, pickup in pairs(GAMEMODE.Pickups) do
+		if !pickup.NoList && self:HasUpgrade(k) then
+			draw.ShadowText(pickup.name, "RobotoHUD-20", ScrW() - 4, ScrH() - 4 - f20 * i, pickup.color or color_white, 2, 4)
+			i = i + 1
+		end
+	end
 end
 
 

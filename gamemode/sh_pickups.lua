@@ -15,22 +15,25 @@ end
 
 local pick = addPickup(1, "Speed", Color(0, 150, 255), "models/props_junk/Shoe001a.mdl")
 pick.AddScale = 1.3
+pick.NoList = true
 function pick:OnPickup(ply)
 	ply:SetRunningBoots(ply:GetRunningBoots() + 1)
 end
 
 local pick = addPickup(2, "Bomb Power", Color(220,50,50), "models/props_junk/gascan001a.mdl")
+pick.NoList = true
 function pick:OnPickup(ply)
 	ply:SetBombPower(ply:GetBombPower() + 1)
 end
 
 
 local pick = addPickup(3, "Max Bombs", Color(50,255,50), "models/props_junk/watermelon01.mdl")
+pick.NoList = true
 function pick:OnPickup(ply)
 	ply:SetMaxBombs(ply:GetMaxBombs() + 1)
 end
 
-local pick = addPickup(4, "Pierce", Color(0, 70, 220), "models/props_junk/sawblade001a.mdl")
+local pick = addPickup(4, "Piercing", Color(0, 70, 220), "models/props_junk/sawblade001a.mdl")
 pick.AddScale = 0.6
 function pick:OnPickup(ply)
 end
@@ -41,7 +44,7 @@ function pick:OnPickup(ply)
 end
 
 
-local pick = addPickup(6, "Remote Detonation", Color(150, 0, 180), "models/props_junk/watermelon01.mdl")
+local pick = addPickup(6, "Line Bomb", Color(150, 0, 180), "models/props_junk/watermelon01.mdl")
 function pick:OnPickup(ply)
 end
 function pick:DrawDecor(ent)
@@ -53,6 +56,11 @@ function pick:DrawDecor(ent)
 		part:DrawModel()
 	end
 	local part = ent:MakeDecorPart("melon3", "models/props_junk/watermelon01.mdl")
+end
+
+local pick = addPickup(7, "Remote detonation", Color(220, 190, 0), "models/props_rooftop/roof_dish001.mdl")
+pick.AddScale = 0.4
+function pick:OnPickup(ply)
 end
 
 
