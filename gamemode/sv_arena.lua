@@ -135,24 +135,13 @@ function GM:SpecificExplosion(zone, x, y, bomb)
 
 	sound.Play("BaseExplosionEffect.Sound", t, 75, math.Rand(-80, 120))
 
-	for k, ent in pairs(ents.FindByClass("mb_pickup")) do
-		local s = zone.grid.sqsize / 2 - 1
-		local mins, maxs = t + Vector(-s, -s, 0), t + Vector(s, s, 32)
-		mins = mins - ent:OBBMaxs()
-		maxs = maxs - ent:OBBMins()
-		local pos = ent:GetPos()
-		if pos.x > mins.x && pos.x < maxs.x then
-			if pos.y > mins.y && pos.y < maxs.y then
-				ent:Remove()
-			end
-		end
-	end
-
 	local ent = zone.grid:getSquare(x, y)
 	if IsValid(ent) then
 		if ent.gridBreakable then
 			self:GibCrate(ent)
 			self:CreatePickup(ent)
+			ent:Remove()
+		elseif ent:GetClass() == "mb_pickup" then
 			ent:Remove()
 		end
 	end
@@ -238,6 +227,7 @@ function GM:CreatePowerup(typ, zone, x, y)
 	end
 
 	pick:SetPos(t + Vector(0, 0, -pick:OBBMins().z))
+	zone.grid:setSquare(x, y, pick)
 	return pick
 end
 
@@ -321,6 +311,15 @@ function GM:PlayerAltFire(ply)
 		local zone, x, y = self:GetGridPosFromEnt(ply)
 		if zone then
 			local dir = Angle(0, math.Round(ply:GetAngles().y / 90) * 90, 0):Forward()
+			if ply.LastMoveKeyDown == IN_FORWARD then
+				dir = Vector(0, 1, 0)
+			elseif ply.LastMoveKeyDown == IN_BACK then
+				dir = Vector(0, -1, 0)
+			elseif ply.LastMoveKeyDown == IN_MOVELEFT then
+				dir = Vector(-1, 0, 0)
+			elseif ply.LastMoveKeyDown == IN_MOVERIGHT then
+				dir = Vector(1, 0, 0)
+			end
 			for i = 0, ply:GetMaxBombs() - count - 1 do
 				local sx, sy = x + math.Round(dir.x) * i, y + math.Round(dir.y) * i 
 				local sq = zone.grid:getSquare(sx, sy)
@@ -330,6 +329,30 @@ function GM:PlayerAltFire(ply)
 					else
 						sq:Remove()
 					end
+				end
+				local center = (zone:OBBMins() + zone:OBBMaxs()) / 2
+				local t = Vector(sx * zone.grid.sqsize, sy * zone.grid.sqsize) + center
+				t.z = zone:OBBMins().z
+
+				// don't place through players
+				local shouldbreak = false
+				for k, ent in pairs(player.GetAll()) do
+					if ent != ply then
+						local s = zone.grid.sqsize / 2 - 1
+						local mins, maxs = t + Vector(-s, -s, 0), t + Vector(s, s, 32)
+						mins = mins - ent:OBBMaxs()
+						maxs = maxs - ent:OBBMins()
+						local pos = ent:GetPos()
+						if pos.x > mins.x && pos.x < maxs.x then
+							if pos.y > mins.y && pos.y < maxs.y then
+								shouldbreak = true
+								break
+							end
+						end
+					end
+				end
+				if shouldbreak then
+					break
 				end
 
 				self:CreateBomb(zone, sx, sy, ply, count)
@@ -412,5 +435,38 @@ function GM:ScatterPowerups(ply)
 			end
 		end
 		ply:ResetUpgrades()
+	end
+end
+
+function GM:LineBombThink()
+	for k, ply in pairs(player.GetAll()) do
+		lastkey = nil
+		if ply:KeyDown(IN_FORWARD) then
+			lastkey = IN_FORWARD
+		end
+		if ply:KeyDown(IN_BACK) then
+			if lastkey then
+				lastkey = nil
+			else
+				lastkey = IN_BACK
+			end
+		end
+		if ply:KeyDown(IN_MOVELEFT) then
+			if lastkey then
+				lastkey = nil
+			else
+				lastkey = IN_MOVELEFT
+			end
+		end
+		if ply:KeyDown(IN_MOVERIGHT) then
+			if lastkey then
+				lastkey = nil
+			else
+				lastkey = IN_MOVERIGHT
+			end
+		end
+		if lastkey != nil then
+			ply.LastMoveKeyDown = lastkey
+		end
 	end
 end

@@ -1,7 +1,8 @@
-GM.Name 	= "T"
+GM.Name 	= "Melonbomber"
 GM.Author 	= "MechanicalMind"
 GM.Email 	= ""
 GM.Website 	= "www.codingconcoctions.com/"
+GM.Version 	= "1"
 
 team.SetUp(1, "Spectators", Color(50, 50, 50))
 team.SetUp(2, "Player", Color(150, 150, 150))
@@ -22,6 +23,22 @@ end
 function GM:ShouldCollide(ent1, ent2)
 	if !IsValid(ent1) then return true end
 	if !IsValid(ent2) then return true end
+
+	// nocollide melons you are standing on
+	if ent1:IsPlayer() && ent2:GetClass() == "mb_melon" then
+		if ent2:GetNWBool("MelonCollide" .. ent1:EntIndex()) then
+			return true
+		end
+		return false
+	end
+	if ent2:IsPlayer() && ent1:GetClass() == "mb_melon" then
+		if ent1:GetNWBool("MelonCollide" .. ent2:EntIndex()) then
+			return true
+		end
+		return false
+	end
+
+	// nocollide players
 	if ent1:IsPlayer() && ent2:IsPlayer() then
 		return false
 	end

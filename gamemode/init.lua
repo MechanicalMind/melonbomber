@@ -66,13 +66,20 @@ end
 
 local jab = 35.6
 function GM:SetupSpawnZone(zone)
+	local players = self:GetPlayingPlayers()
+	local amo = math.max(2, #players)
+
 	local mins, maxs = zone:OBBMins(), zone:OBBMaxs()
 	local size = maxs - mins
 
+	local area = amo * 30
+
 	local width = math.floor(size.x / jab / 2)
 	local height = math.floor(size.y / jab / 2)
-	width = math.min(width, 10)
-	height = math.min(height, 10)
+	local max = math.Round(math.sqrt(area))
+	print("Max width and height " .. max)
+	width = math.min(width, max)
+	height = math.min(height, max)
 
 	zone.grid = ClassGrid(jab, width, height)
 	local generator = ClassGenerator(zone.grid, mins, maxs)
@@ -85,6 +92,7 @@ end
 function GM:Think()
 	self:RoundsThink()
 	self:SpectateThink()
+	self:LineBombThink()
 end
 
 function GM:ShutDown()

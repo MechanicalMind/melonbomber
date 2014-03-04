@@ -62,9 +62,14 @@ function ENT:Initialize()
 
 		self:PrecacheGibs()
 
-		self.NoCollided = true
-		self:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 		self:DrawShadow(false)
+
+		self.ShouldCollidePlayer = {}
+
+		local phys = self:GetPhysicsObject()
+		if IsValid(phys) then
+			phys:SetMass(5000)
+		end
 	else 
 		
 	end
@@ -152,26 +157,18 @@ end
 
 function ENT:Think()
 	if SERVER then
+		for k, ply in pairs(player.GetAll()) do
+			if ply:Alive() && !self:GetNWBool("MelonCollide" .. ply:EntIndex()) then
+				local t = self:GetPos() - ply:GetPos()
+				// 18 is half block
+				// 35 is half player width
+				// 1 is hacky fix
+				local d = 18 + 10 + 1
+				if math.abs(t.x) < d && math.abs(t.y) < d then
 
-		if self.NoCollided then
-			local withinRange = false
-			for k, ply in pairs(player.GetAll()) do
-				if ply:Alive() then
-					local t = self:GetPos() - ply:GetPos()
-					// 18 is half block
-					// 35 is half player width
-					// 1 is hacky fix
-					local d = 18 + 10 + 1
-					if math.abs(t.x) < d && math.abs(t.y) < d then
-						withinRange = true
-						break
-					end
+				else
+					self:SetNWBool("MelonCollide" .. ply:EntIndex(), true)
 				end
-			end
-
-			// if noone is standing on the bomb make it collide with players
-			if !withinRange then
-				self:SetCollisionGroup(COLLISION_GROUP_NONE)
 			end
 		end
 
@@ -181,6 +178,18 @@ function ENT:Think()
 
 		self:NextThink(CurTime() + 0.1)
 		return true
+	end
+end
+
+function ENT:StartTouch(ent)
+	print("melon", ent)
+	local phys = self:GetPhysicsObject()
+	if IsValid(phys) then
+		if !self.Kicked then
+			self.Kicked = true
+			phys:EnableMotion(true)
+			phys:SetVelocity(Vector(-300, 0, 0))
+		end
 	end
 end
 
