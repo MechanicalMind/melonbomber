@@ -1,5 +1,4 @@
-
-
+local PlayerMeta = FindMetaTable("Player")
 
 function GM:GetMoney()
 	return self.Money or 0

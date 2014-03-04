@@ -1,5 +1,6 @@
 GM.Name 	= "Melonbomber"
 GM.Author 	= "MechanicalMind"
+// Credits to waddlesworth for the logo and icon
 GM.Email 	= ""
 GM.Website 	= "www.codingconcoctions.com/"
 GM.Version 	= "1"

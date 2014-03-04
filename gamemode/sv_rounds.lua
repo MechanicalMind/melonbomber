@@ -1,5 +1,7 @@
+local PlayerMeta = FindMetaTable("Player")
 
 util.AddNetworkString("gamestate")
+util.AddNetworkString("round_victor")
 
 GM.GameState = GAMEMODE and GAMEMODE.GameState or 0
 GM.StateStart = GAMEMODE and GAMEMODE.StateStart or CurTime()
@@ -101,7 +103,22 @@ function GM:EndRound(reason, winner)
 		local ct = ChatText()
 		ct:Add("Tie everybody loses")
 		ct:SendAll()
+
+		net.Start("round_victor")
+		net.WriteUInt(reason, 8)
+		net.Broadcast()
+
 	elseif reason == 2 then
+		winner:SetScore(winner:GetScore() + 1)
+
+		net.Start("round_victor")
+		net.WriteUInt(reason, 8)
+		net.WriteEntity(winner)
+		net.WriteString(winner:Nick())
+		net.WriteVector(winner:GetPlayerColor())
+		net.WriteUInt(winner:GetScore(), 16)
+		net.Broadcast()
+
 		local ct = ChatText()
 		local col = winner:GetPlayerColor()
 		col = Color(col.r * 255, col.g * 255, col.b * 255)
@@ -166,7 +183,7 @@ function GM:RoundsThink()
 	elseif self:GetGameState() == 2 then
 		self:CheckForVictory()
 	elseif self:GetGameState() == 3 then
-		if self:GetStateRunningTime() > 5 then
+		if self:GetStateRunningTime() > 10 then
 			self:SetupRound()
 		end
 	end
@@ -217,3 +234,11 @@ function GM:TestColors(count)
 	ct:SendAll()
 end
 
+
+function PlayerMeta:SetScore(score)
+	self:SetNWInt("MelonScore", score)
+end
+
+function PlayerMeta:GetScore()
+	return self:GetNWInt("MelonScore") or 0
+end

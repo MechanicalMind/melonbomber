@@ -11,6 +11,7 @@ include("cl_spectate.lua")
 include("cl_health.lua")
 include("sh_pickups.lua")
 include("cl_upgrades.lua")
+include("sh_weightedrandom.lua")
 
 function GM:Initialize() 
 end

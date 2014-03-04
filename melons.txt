@@ -1,7 +1,7 @@
 "Gamemode"
 {
-"base"	"base"
-"title"	"Melonbomber"
-"maps"	"^mb_"
-"menusystem"	"1"
+	"base"		"base"
+	"title"		"Melonbomber"
+	"maps"		"^mb_"
+	"menusystem"	"1"
 }

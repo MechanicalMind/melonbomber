@@ -6,6 +6,7 @@ function EFFECT:Init( data )
 
 	self.pos = data:GetOrigin()
 	self.Scale = data:GetScale()
+	self.Mag = data:GetMagnitude()
 			
 	self.Emitter = ParticleEmitter( self.pos ) 
 
@@ -25,7 +26,11 @@ function EFFECT:Init( data )
 		particle:SetEndSize( 0 )   
 		particle:SetRoll( math.random(0,360) )
 		//particle:SetRollDelta( 0 )
-		particle:SetColor( 255,255,255 )
+		if self.Mag > 1 then
+			particle:SetStartSize(6)
+		else
+			particle:SetColor(255, 255, 255)
+		end
 		
 		
 	end
@@ -43,6 +48,14 @@ function EFFECT:Init( data )
 		particle:SetRoll( math.random(0,360) )
 		//particle:SetRollDelta( 0 )
 		particle:SetColor( 255,255,255 )
+
+		if self.Mag > 1 then
+			particle:SetColor(150, 150, 255, 255)
+			particle:SetStartSize(25)
+			particle:SetEndSize(35)
+		else
+			particle:SetColor(255, 255, 255)
+		end
 	end
 	
 	for i = 1, 7 do
@@ -59,7 +72,11 @@ function EFFECT:Init( data )
 		particle:SetEndSize( 50 )   
 		particle:SetRoll( math.random(0,360) )
 		//particle:SetRollDelta( 0 )
-		particle:SetColor( 150, 150, 150 )
+		if self.Mag > 1 then
+			particle:SetColor( 120, 120, 120 )
+		else
+			particle:SetColor( 150, 150, 150 )
+		end
 		
 	end
 		

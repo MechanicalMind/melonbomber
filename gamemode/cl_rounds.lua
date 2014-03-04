@@ -1,3 +1,4 @@
+local PlayerMeta = FindMetaTable("Player")
 
 GM.GameState = GAMEMODE and GAMEMODE.GameState or 0
 GM.StateStart = GAMEMODE and GAMEMODE.StateStart or CurTime()
@@ -17,4 +18,35 @@ end
 net.Receive("gamestate", function (len)
 	GAMEMODE.GameState = net.ReadUInt(32)
 	GAMEMODE.StateStart = net.ReadDouble()
+
+	if GAMEMODE.GameState == 1 then
+		GAMEMODE:ScoreboardHide()
+		-- sound.Play("ambient/alarms/siren.wav", LocalPlayer():GetPos(), 120)
+		GAMEMODE.StartSiren = CreateSound(LocalPlayer(), "ambient/alarms/siren.wav")
+		GAMEMODE.StartSiren:Play()
+		GAMEMODE.StartSiren:ChangeVolume(0.5, 0)
+	elseif GAMEMODE.GameState == 2 then
+		if GAMEMODE.StartSiren then
+			GAMEMODE.StartSiren:FadeOut(0.3)
+		end
+	end
 end)
+
+net.Receive("round_victor", function (len)
+	local tab = {}
+	tab.reason = net.ReadUInt(8)
+	if tab.reason == 2 then
+		tab.winner = net.ReadEntity()
+		tab.winnerName = net.ReadString()
+		tab.winnerColor = net.ReadVector()
+		tab.winnerScore = net.ReadUInt(16)
+	end
+
+	timer.Simple(2, function ()
+		GAMEMODE:ScoreboardRoundResults(tab)
+	end)
+end)
+
+function PlayerMeta:GetScore()
+	return self:GetNWInt("MelonScore") or 0
+end

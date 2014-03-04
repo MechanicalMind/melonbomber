@@ -91,16 +91,21 @@ if ( CLIENT ) then
 		if self:GetRemoteDetonate() then
 			size = left * 0.2 + 1.2
 		end
+		if self:GetPowerBomb() then
+			size = size * 1.2
+		end
 		self.Melon:SetModelScale(size, 0)
+		local pos = self:GetPos()
+
 		if self:GetKicking() then
 			if !self.MelonLastPos then self.MelonLastPos = self:GetPos() end
 			self.MelonLastPos.x = math.Approach(self.MelonLastPos.x, self:GetPos().x, FrameTime() * 175)
 			self.MelonLastPos.y = math.Approach(self.MelonLastPos.y, self:GetPos().y, FrameTime() * 175)
 			self.MelonLastPos.z = math.Approach(self.MelonLastPos.z, self:GetPos().z, FrameTime() * 175)
-			self.Melon:SetPos(self.MelonLastPos + Vector(0, 0, -18 + 6))
-		else
-			self.Melon:SetPos(self:GetPos() + Vector(0, 0, -18 + 6))
+			pos = self.MelonLastPos
 		end
+
+		self.Melon:SetPos(pos + Vector(0, 0, -18 + 6))
 		if self:GetPowerBomb() then
 			if !self.Melon.PowerBomb then
 				self.Melon.PowerBomb = true
@@ -116,7 +121,7 @@ if ( CLIENT ) then
 				self.SawBlade:SetAngles(Angle(0, math.Rand(0, 360), 0))
 			end
 			self.SawBlade:SetModelScale(size * 0.6, 0)
-			self.SawBlade:SetPos(self:GetPos() + Vector(0, 0, -18 + 6))
+			self.SawBlade:SetPos(pos + Vector(0, 0, -18 + 6))
 			self.SawBlade:DrawModel()
 		end
 
@@ -130,7 +135,7 @@ if ( CLIENT ) then
 			ang:RotateAroundAxis(ang:Up(), FrameTime() * 13)
 			self.Antenna:SetAngles(ang)
 			self.Antenna:SetModelScale(size * 0.3, 0)
-			self.Antenna:SetPos(self:GetPos() + Vector(0, 0, -18 + 6))
+			self.Antenna:SetPos(pos + Vector(0, 0, -18 + 6))
 			self.Antenna:DrawModel()
 		end
 	end

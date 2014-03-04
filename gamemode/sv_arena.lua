@@ -50,6 +50,13 @@ function GM:IsGridPosClear(zone, x, y)
 end
 
 function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
+	if bomb:GetPowerBomb() then
+		sound.Play("npc/scanner/cbot_energyexplosion1.wav", bomb:GetPos(), 100, math.Rand(80, 120))
+		sound.Play("BaseExplosionEffect.Sound", bomb:GetPos(), 100, math.Rand(80, 120))
+	else
+		sound.Play("BaseExplosionEffect.Sound", bomb:GetPos(), 100, math.Rand(80, 120))
+	end
+
 	local combo = combiner or ClassGrid()
 	length = length or 1
 	self:CombineExplosion(zone, x, y, bomb, combo)
@@ -60,8 +67,8 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 			if sq.gridType != "wall" then
 				self:CombineExplosion(zone, x + i, y, bomb, combo)
 			end
-			if sq.gridBreakable && bomb:GetPierce() then
-
+			if sq:GetClass() == "mb_melon" || sq:GetClass() == "mb_pickup" || (sq.gridBreakable && bomb:GetPierce()) then
+				// keep going if we have pierce and it was a box
 			else
 				break
 			end
@@ -77,8 +84,8 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 			if sq.gridType != "wall" then
 				self:CombineExplosion(zone, x - i, y, bomb, combo)
 			end
-			if sq.gridBreakable && bomb:GetPierce() then
-
+			if sq:GetClass() == "mb_melon" || sq:GetClass() == "mb_pickup" || (sq.gridBreakable && bomb:GetPierce()) then
+				// keep going if we have pierce and it was a box
 			else
 				break
 			end
@@ -94,8 +101,8 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 			if sq.gridType != "wall" then
 				self:CombineExplosion(zone, x, y + i, bomb, combo)
 			end
-			if sq.gridBreakable && bomb:GetPierce() then
-
+			if sq:GetClass() == "mb_melon" || sq:GetClass() == "mb_pickup" || (sq.gridBreakable && bomb:GetPierce()) then
+				// keep going if we have pierce and it was a box
 			else
 				break
 			end
@@ -111,8 +118,8 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 			if sq.gridType != "wall" then
 				self:CombineExplosion(zone, x, y - i, bomb, combo)
 			end
-			if sq.gridBreakable && bomb:GetPierce() then
-
+			if sq:GetClass() == "mb_melon" || sq:GetClass() == "mb_pickup" || (sq.gridBreakable && bomb:GetPierce()) then
+				// keep going if we have pierce and it was a box
 			else
 				break
 			end
@@ -152,14 +159,17 @@ function GM:SpecificExplosion(zone, x, y, bomb)
 	local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
 	t.z = zone:OBBMins().z
 
+	local mag = 1
+	if bomb:GetPowerBomb() then
+		mag = 2
+	end
 	timer.Simple(0, function ()
 		local eff = EffectData()
 		eff:SetOrigin(t + Vector(0, 0, 15))
 		eff:SetScale(zone.grid.sqsize / 2)
-		util.Effect("pk_elecplosion", eff)
+		eff:SetMagnitude(mag)
+		util.Effect("pk_elecplosion", eff, true, true)
 	end)
-
-	sound.Play("BaseExplosionEffect.Sound", t, 75, math.Rand(-80, 120))
 
 	local ent = zone.grid:getSquare(x, y)
 	if IsValid(ent) then
@@ -218,19 +228,19 @@ function GM:GibCrate(ent)
 			phys:SetVelocity(VectorRand() * 300)
 		end
 	end
+
+	ent:EmitSound("physics/wood/wood_plank_break" .. math.random(1, 4) .. ".wav")
 end
 
 function GM:CreatePickup(ent)
-	if math.random(1, 3) == 1 then
-		local zone, x, y = self:GetGridPosFromEnt(ent)
-		if zone then
-			local pick = self:CreatePowerup(math.random(1, 3), zone, x, y)
-			return pick
-		end
-	elseif math.random(1, 13) == 1 then
-		local zone, x, y = self:GetGridPosFromEnt(ent)
-		if zone then
-			local pick = self:CreatePowerup(math.random(4, 8), zone, x, y)
+	local zone, x, y = self:GetGridPosFromEnt(ent)
+	if zone then
+		if math.random(1, 3) == 1 then
+			local random = WeightedRandom()
+			for k, pickup in pairs(self.Pickups) do
+				random:Add(pickup.Chance or 1, pickup.id)
+			end
+			local pick = self:CreatePowerup(random:Roll(), zone, x, y)
 			return pick
 		end
 	end
