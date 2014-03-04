@@ -68,7 +68,6 @@ function ENT:Initialize()
 
 		local phys = self:GetPhysicsObject()
 		if IsValid(phys) then
-			phys:SetMass(5000)
 		end
 	else 
 		
@@ -93,7 +92,15 @@ if ( CLIENT ) then
 			size = left * 0.2 + 1.2
 		end
 		self.Melon:SetModelScale(size, 0)
-		self.Melon:SetPos(self:GetPos() + Vector(0, 0, -18 + 6))
+		if self:GetKicking() then
+			if !self.MelonLastPos then self.MelonLastPos = self:GetPos() end
+			self.MelonLastPos.x = math.Approach(self.MelonLastPos.x, self:GetPos().x, FrameTime() * 175)
+			self.MelonLastPos.y = math.Approach(self.MelonLastPos.y, self:GetPos().y, FrameTime() * 175)
+			self.MelonLastPos.z = math.Approach(self.MelonLastPos.z, self:GetPos().z, FrameTime() * 175)
+			self.Melon:SetPos(self.MelonLastPos + Vector(0, 0, -18 + 6))
+		else
+			self.Melon:SetPos(self:GetPos() + Vector(0, 0, -18 + 6))
+		end
 		if self:GetPowerBomb() then
 			if !self.Melon.PowerBomb then
 				self.Melon.PowerBomb = true
@@ -174,6 +181,34 @@ function ENT:Think()
 
 		if self.ExplodeTime < CurTime() && !self:GetRemoteDetonate() then
 			self:Explode()
+			return true
+		end
+
+		if self:GetKicking() then
+			if self.KickingDelay && self.KickingDelay > CurTime() then
+
+			else
+				self.KickingDelay = CurTime() + 0.2
+				local zone, x, y = GAMEMODE:GetGridPosFromEnt(self)
+				if zone then
+
+					local sx = x + math.Round(self.KickingDir.x)
+					local sy = y + math.Round(self.KickingDir.y)
+					if GAMEMODE:IsGridPosClear(zone, sx, sy) then
+						self:SetPos(self:GetPos() + self.KickingDir * zone.grid.sqsize)
+						local sq = zone.grid:getSquare(sx, sy)
+						if IsValid(sq) then
+							sq:Remove()
+						end
+						zone.grid:setSquare(sx, sy, self)
+						zone.grid:setSquare(x, y, nil)
+					else
+						self:SetKicking(false)
+					end
+				else
+					self:SetKicking(false)
+				end
+			end
 		end
 
 		self:NextThink(CurTime() + 0.1)
@@ -182,13 +217,19 @@ function ENT:Think()
 end
 
 function ENT:StartTouch(ent)
-	print("melon", ent)
 	local phys = self:GetPhysicsObject()
-	if IsValid(phys) then
-		if !self.Kicked then
-			self.Kicked = true
-			phys:EnableMotion(true)
-			phys:SetVelocity(Vector(-300, 0, 0))
+	if ent:IsPlayer() && ent:HasUpgrade(8) then
+		if IsValid(phys) then
+			if !self:GetKicking() then
+				self:SetKicking(true)
+				self.KickingDelay = CurTime() + 0.1
+
+				// get the direction
+				local ang = (self:GetPos() - ent:GetPos()):Angle()
+				ang.p = 0
+				ang.y = math.Round(ang.y / 90) * 90
+				self.KickingDir = ang:Forward()
+			end
 		end
 	end
 end
@@ -266,4 +307,16 @@ function ENT:GetExplosionLength()
 		return 10
 	end
 	return self.ExplosionLength or 1
+end
+
+function ENT:SetKicking(bool)
+	self.Kicking = bool
+	self:SetNWBool("MelonKicking", bool)
+end
+
+function ENT:GetKicking()
+	if SERVER then
+		return self.Kicking
+	end
+	return self:GetNWBool("MelonKicking", bool)
 end

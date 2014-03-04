@@ -23,6 +23,32 @@ function GM:GetGridPosFromEntZone(zone, ent)
 	end
 end
 
+function GM:IsGridPosClear(zone, x, y)
+	local sq = zone.grid:getSquare(x, y)
+	if IsValid(sq) && sq.gridSolid then return false end
+
+	local center = (zone:OBBMins() + zone:OBBMaxs()) / 2
+	local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
+	t.z = zone:OBBMins().z
+	
+	local s = zone.grid.sqsize / 2 - 1
+	for k, ent in pairs(player.GetAll()) do
+		if ent:Alive() then
+			local mins, maxs = t + Vector(-s, -s, 0), t + Vector(s, s, 32)
+			mins = mins - ent:OBBMaxs()
+			maxs = maxs - ent:OBBMins()
+			local pos = ent:GetPos()
+			if pos.x > mins.x && pos.x < maxs.x then
+				if pos.y > mins.y && pos.y < maxs.y then
+					return false
+				end
+			end
+		end
+	end
+
+	return true
+end
+
 function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 	local combo = combiner or ClassGrid()
 	length = length or 1
@@ -204,7 +230,7 @@ function GM:CreatePickup(ent)
 	elseif math.random(1, 13) == 1 then
 		local zone, x, y = self:GetGridPosFromEnt(ent)
 		if zone then
-			local pick = self:CreatePowerup(math.random(4, 7), zone, x, y)
+			local pick = self:CreatePowerup(math.random(4, 8), zone, x, y)
 			return pick
 		end
 	end
@@ -260,7 +286,7 @@ end
 function GM:CreateBomb(zone, x, y, owner, count)
 	local center = (zone:OBBMins() + zone:OBBMaxs()) / 2
 	local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
-	t.z = zone:OBBMins().z + 18
+	t.z = zone:OBBMins().z
 	local ent = ents.Create("mb_melon")
 	ent:SetPos(t)
 	ent:SetBombOwner(owner)
@@ -278,6 +304,8 @@ function GM:CreateBomb(zone, x, y, owner, count)
 	end
 	ent.gridSolid = true
 	ent:Spawn()
+
+	ent:SetPos(t + Vector(0, 0, -ent:OBBMins().z))
 
 	local phys = ent:GetPhysicsObject()
 	if IsValid(phys) then
@@ -337,7 +365,7 @@ function GM:PlayerAltFire(ply)
 				// don't place through players
 				local shouldbreak = false
 				for k, ent in pairs(player.GetAll()) do
-					if ent != ply then
+					if ent != ply && ent:Alive() then
 						local s = zone.grid.sqsize / 2 - 1
 						local mins, maxs = t + Vector(-s, -s, 0), t + Vector(s, s, 32)
 						mins = mins - ent:OBBMaxs()
@@ -413,6 +441,7 @@ function GM:ClearBoxesAroundSquare(zone, x, y, len)
 		end
 	end
 end
+
 
 
 function GM:ScatterPowerups(ply)

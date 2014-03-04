@@ -125,7 +125,7 @@ if ( CLIENT ) then
 				render.SetMaterial(circle)
 				local col = table.Copy(pickup.color)
 				col.a = 180
-				render.DrawQuadEasy(self:GetPos() + Vector(0, 0, mins.z + 1.1), Vector(0,0, 1), 32, 32, col, 0)
+				render.DrawQuadEasy(self:GetPos() + Vector(0, 0, mins.z + 1.3), Vector(0,0, 1), 32, 32, col, 0)
 			end
 		else
 			self:DrawModel()

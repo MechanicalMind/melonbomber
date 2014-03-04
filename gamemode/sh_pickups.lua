@@ -64,5 +64,10 @@ function pick:OnPickup(ply)
 end
 
 
+local pick = addPickup(8, "Bomb Kick", Color(250, 50, 0), "models/props_junk/Shoe001a.mdl")
+pick.AddScale = 1.3
+function pick:OnPickup(ply)
+end
+
 // remote detonation
 // models/props_rooftop/roof_dish001.mdl
