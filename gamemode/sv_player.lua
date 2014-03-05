@@ -429,5 +429,9 @@ function GM:PlayerSwitchFlashlight(ply)
 end
 
 function GM:PlayerShouldTaunt( ply, actid )
+	return true
+end
+
+function GM:CanPlayerSuicide(ply)
 	return false
 end

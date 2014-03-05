@@ -19,13 +19,19 @@ net.Receive("gamestate", function (len)
 	GAMEMODE.GameState = net.ReadUInt(32)
 	GAMEMODE.StateStart = net.ReadDouble()
 
-	if GAMEMODE.GameState == 1 then
+
+	if GAMEMODE.GameState == 0 then
 		GAMEMODE:ScoreboardHide()
-		-- sound.Play("ambient/alarms/siren.wav", LocalPlayer():GetPos(), 120)
+	elseif GAMEMODE.GameState == 1 then
+		GAMEMODE:ScoreboardHide()
+
+		// siren sound
 		GAMEMODE.StartSiren = CreateSound(LocalPlayer(), "ambient/alarms/siren.wav")
 		GAMEMODE.StartSiren:Play()
 		GAMEMODE.StartSiren:ChangeVolume(0.5, 0)
 	elseif GAMEMODE.GameState == 2 then
+
+		// end siren on start round
 		if GAMEMODE.StartSiren then
 			GAMEMODE.StartSiren:FadeOut(0.3)
 		end

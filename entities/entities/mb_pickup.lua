@@ -99,33 +99,33 @@ if ( CLIENT ) then
 		if GAMEMODE.Pickups then
 			local pickup = GAMEMODE.Pickups[self:GetPickupType()]
 			if pickup then
-				if !self.Melon then
-					self.Melon = ClientsideModel(pickup.model or "models/props_junk/watermelon01.mdl")
-					self.Melon:SetNoDraw(true)
-					self.Melon:SetAngles(Angle(0, math.Rand(0, 360), 0))
-					if pickup.ModelMaterial then
-						self.Melon:SetMaterial(pickup.ModelMaterial)
-					end
-				end
-				if self.Melon then
-					local ang = self.Melon:GetAngles()
-					ang:RotateAroundAxis(ang:Up(), FrameTime() * 13)
-					self.Melon:SetAngles(ang)
-					self.Melon:SetModelScale(pickup.AddScale or 1, 0)
-					self.Melon:SetPos(self:GetPos() + Vector(0, 0, 8))
-					self.Melon:DrawModel()
-				end
-
-				if pickup.DrawDecor then
-					pickup:DrawDecor(self)
-				end
-
 				local mins = self:OBBMins()
 
 				render.SetMaterial(circle)
 				local col = table.Copy(pickup.color)
 				col.a = 180
 				render.DrawQuadEasy(self:GetPos() + Vector(0, 0, mins.z + 1.3), Vector(0,0, 1), 32, 32, col, 0)
+				
+				if pickup.DrawDecor then
+					pickup:DrawDecor(self)
+				else
+					if !self.Melon then
+						self.Melon = ClientsideModel(pickup.model or "models/props_junk/watermelon01.mdl")
+						self.Melon:SetNoDraw(true)
+						self.Melon:SetAngles(Angle(0, math.Rand(0, 360), 0))
+						if pickup.ModelMaterial then
+							self.Melon:SetMaterial(pickup.ModelMaterial)
+						end
+					end
+					if self.Melon then
+						local ang = self.Melon:GetAngles()
+						ang:RotateAroundAxis(ang:Up(), FrameTime() * 13)
+						self.Melon:SetAngles(ang)
+						self.Melon:SetModelScale(pickup.AddScale or 1, 0)
+						self.Melon:SetPos(self:GetPos() + Vector(0, 0, 8))
+						self.Melon:DrawModel()
+					end
+				end
 			end
 		else
 			self:DrawModel()

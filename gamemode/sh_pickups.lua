@@ -54,14 +54,28 @@ pick.Chance = 1
 function pick:OnPickup(ply)
 end
 function pick:DrawDecor(ent)
+	local ang = Angle(0, CurTime() * 13, 0)
+	local part = ent:MakeDecorPart("melon1", "models/props_junk/watermelon01.mdl")
+	if part then
+		part:SetAngles(ang)
+		part:SetPos(ent:GetPos() + Vector(0, 0, 4))
+		part:SetModelScale(0.5, 0)
+		part:DrawModel()
+	end
 	local part = ent:MakeDecorPart("melon2", "models/props_junk/watermelon01.mdl")
 	if part then
-		local ang = ent.Melon:GetAngles()
 		part:SetAngles(ang)
-		part:SetPos(ent:GetPos() + Vector(0, 0, 8 + 12))
+		part:SetPos(ent:GetPos() + Vector(0, 0, 4) + ang:Forward() * 8)
+		part:SetModelScale(0.5, 0)
 		part:DrawModel()
 	end
 	local part = ent:MakeDecorPart("melon3", "models/props_junk/watermelon01.mdl")
+	if part then
+		part:SetAngles(ang)
+		part:SetPos(ent:GetPos() + Vector(0, 0, 4) + ang:Forward() * -8)
+		part:SetModelScale(0.5, 0)
+		part:DrawModel()
+	end
 end
 
 local pick = addPickup(7, "Remote control", Color(220, 190, 0), "models/props_rooftop/roof_dish001.mdl")
@@ -75,6 +89,25 @@ local pick = addPickup(8, "Bomb Kick", Color(250, 100, 0), "models/props_junk/Sh
 pick.AddScale = 1.3
 pick.Chance = 3
 function pick:OnPickup(ply)
+end
+
+function pick:DrawDecor(ent)
+	local ang = Angle(0, CurTime() * 13, 0)
+	local part = ent:MakeDecorPart("boot", "models/props_junk/Shoe001a.mdl")
+	if part then
+		part:SetAngles(ang)
+		part:SetPos(ent:GetPos() + Vector(0, 0, 8) + ang:Forward() * -6)
+		part:SetModelScale(1.2, 0)
+		part:DrawModel()
+	end
+	local part = ent:MakeDecorPart("melon", "models/props_junk/watermelon01.mdl")
+	if part then
+		part:SetAngles(ang)
+		part:SetPos(ent:GetPos() + Vector(0, 0, 6) + ang:Forward() * 4)
+		part:SetModelScale(0.6, 0)
+		part:SetColor(Color(255, 150, 0))
+		part:DrawModel()
+	end
 end
 
 // remote detonation

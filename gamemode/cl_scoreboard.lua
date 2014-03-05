@@ -1,4 +1,4 @@
-if IsValid(GAMEMODE.ScoreboardPanel) then
+if GAMEMODE && IsValid(GAMEMODE.ScoreboardPanel) then
 	GAMEMODE.ScoreboardPanel:Remove()
 end
 
@@ -115,11 +115,11 @@ local function makeTeamList(parent)
 	head:SetTall(draw.GetFontHeight("RobotoHUD-20"))
 	head.perm = true
 	function head:Paint(w, h)
-		draw.ShadowText("Name", "RobotoHUD-20", w - 4, 0, color_white, 2)
+		draw.ShadowText("Name", "RobotoHUD-20", 4, 0, color_white, 0)
 
 		draw.ShadowText("Score", "RobotoHUD-20", w / 2, 0, color_white, 0)
 
-		draw.ShadowText("Ping", "RobotoHUD-20", 4, 0, color_white, 0)
+		draw.ShadowText("Ping", "RobotoHUD-20", w - 4, 0, color_white, 2)
 	end
 	mlist:AddItem(head)
 
@@ -170,7 +170,7 @@ function GM:ScoreboardShow()
 			local tw,th = surface.GetTextSize(t)
 			draw.ShadowText(t, "RobotoHUD-25", 4, 0, Color(132, 199, 29), 0)
 
-			draw.ShadowText("by Mechanical Mind version " .. tostring(GAMEMODE.Version or "error"), "RobotoHUD-15", 4 + tw + 24, h  * 0.9, Color(220, 220, 220), 0, 4)
+			draw.ShadowText("by Mechanical Mind, version " .. tostring(GAMEMODE.Version or "error"), "RobotoHUD-15", 4 + tw + 24, h  * 0.9, Color(220, 220, 220), 0, 4)
 		end
 
 		function menu.Credits:PerformLayout()
