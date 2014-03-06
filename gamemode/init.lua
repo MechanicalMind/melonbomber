@@ -29,6 +29,7 @@ include("sv_arena.lua")
 include("sv_arenagenerator.lua")
 include("sh_pickups.lua")
 include("sh_weightedrandom.lua")
+include("sv_killfeed.lua")
 
 
 util.AddNetworkString("clientIPE")

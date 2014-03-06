@@ -43,6 +43,7 @@ function GM:HUDPaint()
 	-- DebugInfo(1, tostring(LocalPlayer():GetVelocity():Length()))
 
 	self:DrawRoundTimer()
+	self:DrawKillFeed()
 end
 
 function GM:DrawGameHUD()

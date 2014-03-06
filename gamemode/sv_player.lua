@@ -382,7 +382,7 @@ function GM:PlayerDeathThink(ply)
 	end
 end
 
-function GM:PlayerDeath(ply, Inflictor, attacker )
+function GM:PlayerDeath(ply, inflictor, attacker )
 
 	self:DoRoundDeaths(ply, attacker)
 
@@ -399,15 +399,16 @@ function GM:PlayerDeath(ply, Inflictor, attacker )
 	-- Convert the inflictor to the weapon that they're holding if we can.
 	-- This can be right or wrong with NPCs since combine can be holding a 
 	-- pistol but kill you by hitting you with their arm.
-	if ( Inflictor && Inflictor == attacker && (Inflictor:IsPlayer() || Inflictor:IsNPC()) ) then
+	if IsValid(inflictor) && inflictor == attacker && (inflictor:IsPlayer() || inflictor:IsNPC()) then
 	
-		Inflictor = Inflictor:GetActiveWeapon()
-		if ( !IsValid( Inflictor ) ) then Inflictor = attacker end
+		inflictor = inflictor:GetActiveWeapon()
+		if ( !IsValid( inflictor ) ) then inflictor = attacker end
 
 	end
 
-	self:RagdollSetDeathDetails(ply, Inflictor, attacker)
+	self:RagdollSetDeathDetails(ply, inflictor, attacker)
 
+	self:AddKillFeed(ply, inflictor, attacker)
 end
 
 
