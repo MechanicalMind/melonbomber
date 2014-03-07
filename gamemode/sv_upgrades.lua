@@ -50,8 +50,12 @@ function PlayerMeta:NetworkUpgrades()
 	net.Send(self)
 end
 
+util.AddNetworkString("melons_pickup_upgrade")
 function PlayerMeta:AddUpgrade(key)
 	table.insert(self.Upgrades, key)
+	net.Start("melons_pickup_upgrade")
+	net.WriteUInt(key, 16)
+	net.Send(self)
 	self:NetworkUpgrades()
 end
 

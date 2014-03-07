@@ -237,30 +237,31 @@ function GM:DrawUpgrades()
 	local i = 0
 	for k, pickup in pairs(GAMEMODE.Pickups) do
 		if !pickup.NoList && self:HasUpgrade(k) then
-			if !self.UpgradesNotif[k] then
-				self.UpgradePopup = {id = k, time = CurTime(), pos = Vector(ScrW() / 2, ScrH() / 4 * 3)}
-				self.UpgradesNotif[k] = true
-			end
 			local x, y = ScrW() - 4, ScrH() - 4 - f20 * i
-			if self.UpgradePopup && self.UpgradePopup.id == k then
-				if self.UpgradePopup.time + 3 < CurTime() then
-					local here = Vector(x, y)
-					local diff = here - self.UpgradePopup.pos
-					local speed = FrameTime() * 350
-					if diff:Length() < speed then
-						here = self.UpgradePopup.pos
-					else
-						self.UpgradePopup.pos = self.UpgradePopup.pos + diff:GetNormal() * speed
-					end
-				end
-				x = self.UpgradePopup.pos.x
-				y = self.UpgradePopup.pos.y
-			end
 			draw.ShadowText(pickup.name, "RobotoHUD-20", x, y, pickup.color or color_white, 2, 4)
 			i = i + 1
 		end
 	end
+
+	if self.UpgradePopup && self.Pickups[self.UpgradePopup.id] then
+		if self.UpgradePopup.time + 3 < CurTime() then
+			self.UpgradePopup = nil
+		else
+			local pickup = self.Pickups[self.UpgradePopup.id]
+			local y = ScrH() - draw.GetFontHeight("RobotoHUD-20") - draw.GetFontHeight("RobotoHUD-15") * 2
+			draw.ShadowText(pickup.name, "RobotoHUD-20", ScrW() / 2, y, pickup.color or color_white, 1, 1)
+			if pickup.Description then
+				draw.ShadowText(pickup.Description, "RobotoHUD-15", ScrW() / 2, y + draw.GetFontHeight("RobotoHUD-20"), color_white, 1, 1)
+			end
+		end
+	end
 end
+
+net.Receive("melons_pickup_upgrade", function (len)
+	local id = net.ReadUInt(16)
+
+	GAMEMODE.UpgradePopup = {id = id, time = CurTime()}
+end)
 
 
 function GM:DrawMoney()
