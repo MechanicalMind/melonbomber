@@ -219,6 +219,8 @@ function GM:DrawUpgrade(name, amo, col, x, y)
 	draw.ShadowText(name, "RobotoHUD-10", x + w + h * 0.2, y + h * 0.65, col, 0, 1)
 end
 
+GM.UpgradesNotif = {}
+
 function GM:DrawUpgrades()
 	local x = 20 + math.ceil(ScrW() * 0.09) + 20
 	local w,h = math.ceil(ScrW() * 0.09), 80
@@ -235,7 +237,26 @@ function GM:DrawUpgrades()
 	local i = 0
 	for k, pickup in pairs(GAMEMODE.Pickups) do
 		if !pickup.NoList && self:HasUpgrade(k) then
-			draw.ShadowText(pickup.name, "RobotoHUD-20", ScrW() - 4, ScrH() - 4 - f20 * i, pickup.color or color_white, 2, 4)
+			if !self.UpgradesNotif[k] then
+				self.UpgradePopup = {id = k, time = CurTime(), pos = Vector(ScrW() / 2, ScrH() / 4 * 3)}
+				self.UpgradesNotif[k] = true
+			end
+			local x, y = ScrW() - 4, ScrH() - 4 - f20 * i
+			if self.UpgradePopup && self.UpgradePopup.id == k then
+				if self.UpgradePopup.time + 3 < CurTime() then
+					local here = Vector(x, y)
+					local diff = here - self.UpgradePopup.pos
+					local speed = FrameTime() * 350
+					if diff:Length() < speed then
+						here = self.UpgradePopup.pos
+					else
+						self.UpgradePopup.pos = self.UpgradePopup.pos + diff:GetNormal() * speed
+					end
+				end
+				x = self.UpgradePopup.pos.x
+				y = self.UpgradePopup.pos.y
+			end
+			draw.ShadowText(pickup.name, "RobotoHUD-20", x, y, pickup.color or color_white, 2, 4)
 			i = i + 1
 		end
 	end

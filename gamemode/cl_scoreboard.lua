@@ -28,11 +28,11 @@ local function addPlayerItem(self, mlist, ply)
 		if IsValid(ply) && ply:IsPlayer() then
 			local col = ply:GetPlayerColor()
 			col = Color(col.x * 255, col.y * 255, col.z * 255)
-			draw.ShadowText(ply:Ping(), "RobotoHUD-20", w - 4, 0, col, 2)
+			draw.ShadowText(ply:Ping(), "RobotoHUD-20", w - 8, 0, col, 2)
 
-			draw.ShadowText(("|"):rep(math.min(10, ply:GetScore())) .. " " .. ply:GetScore(), "RobotoHUD-20", w / 2, 0, col, 0)
+			draw.ShadowText(("|"):rep(math.min(10, ply:GetScore())) .. " " .. ply:GetScore(), "RobotoHUD-20", w / 2 + 4, 0, col, 0)
 
-			draw.ShadowText(ply:Nick(), "RobotoHUD-20", 2, 0, col, 0)
+			draw.ShadowText(ply:Nick(), "RobotoHUD-20", 8, 0, col, 0)
 		end
 	end
 

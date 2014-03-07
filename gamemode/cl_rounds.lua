@@ -24,6 +24,8 @@ net.Receive("gamestate", function (len)
 		GAMEMODE:ScoreboardHide()
 	elseif GAMEMODE.GameState == 1 then
 		GAMEMODE:ScoreboardHide()
+		GAMEMODE.UpgradesNotif = {}
+		GAMEMODE.KillFeed = {}
 
 		// siren sound
 		if IsValid(LocalPlayer()) then
