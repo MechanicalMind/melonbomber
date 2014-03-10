@@ -24,11 +24,15 @@ net.Receive("gamestate", function (len)
 		GAMEMODE:ScoreboardHide()
 	elseif GAMEMODE.GameState == 1 then
 		GAMEMODE:ScoreboardHide()
+		GAMEMODE.UpgradesNotif = {}
+		GAMEMODE.KillFeed = {}
 
 		// siren sound
-		GAMEMODE.StartSiren = CreateSound(LocalPlayer(), "ambient/alarms/siren.wav")
-		GAMEMODE.StartSiren:Play()
-		GAMEMODE.StartSiren:ChangeVolume(0.5, 0)
+		if IsValid(LocalPlayer()) then
+			GAMEMODE.StartSiren = CreateSound(LocalPlayer(), "ambient/alarms/siren.wav")
+			GAMEMODE.StartSiren:Play()
+			GAMEMODE.StartSiren:ChangeVolume(0.5, 0)
+		end
 	elseif GAMEMODE.GameState == 2 then
 
 		// end siren on start round

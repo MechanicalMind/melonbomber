@@ -12,6 +12,7 @@ include("cl_health.lua")
 include("sh_pickups.lua")
 include("cl_upgrades.lua")
 include("sh_weightedrandom.lua")
+include("cl_killfeed.lua")
 
 function GM:Initialize() 
 end
