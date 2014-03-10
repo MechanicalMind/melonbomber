@@ -403,7 +403,7 @@ function GM:PlayerAltFire(ply)
 				end
 
 				placed = placed + 1
-				timer.Simple(placed * 0.2, function () self:CreateBomb(zone, sx, sy, ply, count) end)
+				timer.Simple(placed * 0.15, function () self:CreateBomb(zone, sx, sy, ply, count) end)
 				count = count + 1
 			end
 		end
