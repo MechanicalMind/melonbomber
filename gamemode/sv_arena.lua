@@ -317,6 +317,8 @@ function GM:CreateBomb(zone, x, y, owner, count)
 
 	ent:SetPos(t + Vector(0, 0, -ent:OBBMins().z))
 
+	ent:EmitSound("npc/roller/blade_cut.wav", 65, 70)
+
 	local phys = ent:GetPhysicsObject()
 	if IsValid(phys) then
 		phys:EnableMotion(false)
