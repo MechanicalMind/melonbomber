@@ -53,6 +53,7 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 	if bomb:GetPowerBomb() then
 		sound.Play("npc/scanner/cbot_energyexplosion1.wav", bomb:GetPos(), 100, math.Rand(80, 120))
 		sound.Play("BaseExplosionEffect.Sound", bomb:GetPos(), 100, math.Rand(80, 120))
+		-- sound.Play("npc/roller/mine/rmine_explode_shock1.wav", bomb:GetPos(), 100, math.Rand(80, 120))
 	else
 		sound.Play("BaseExplosionEffect.Sound", bomb:GetPos(), 100, math.Rand(80, 120))
 	end
@@ -317,7 +318,11 @@ function GM:CreateBomb(zone, x, y, owner, count)
 
 	ent:SetPos(t + Vector(0, 0, -ent:OBBMins().z))
 
-	ent:EmitSound("npc/roller/blade_cut.wav", 65, 70)
+	if ent:GetRemoteDetonate() then
+		ent:EmitSound("npc/roller/mine/rmine_predetonate.wav", 65, 70)
+	else
+	end
+		ent:EmitSound("npc/roller/blade_cut.wav", 65, 70)
 
 	local phys = ent:GetPhysicsObject()
 	if IsValid(phys) then
@@ -360,6 +365,8 @@ function GM:PlayerAltFire(ply)
 			elseif ply.LastMoveKeyDown == IN_MOVERIGHT then
 				dir = Vector(1, 0, 0)
 			end
+			ply:EmitSound("npc/scanner/scanner_nearmiss" .. math.random(1,2) .. ".wav")
+			local placed = 0
 			for i = 0, ply:GetMaxBombs() - count - 1 do
 				local sx, sy = x + math.Round(dir.x) * i, y + math.Round(dir.y) * i 
 				local sq = zone.grid:getSquare(sx, sy)
@@ -395,7 +402,8 @@ function GM:PlayerAltFire(ply)
 					break
 				end
 
-				self:CreateBomb(zone, sx, sy, ply, count)
+				placed = placed + 1
+				timer.Simple(placed * 0.2, function () self:CreateBomb(zone, sx, sy, ply, count) end)
 				count = count + 1
 			end
 		end

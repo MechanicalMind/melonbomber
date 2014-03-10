@@ -70,7 +70,7 @@ function ENT:Initialize()
 		if IsValid(phys) then
 		end
 	else 
-		
+		self.MSize = 0
 	end
 
 	self.CreateTime = CurTime()
@@ -81,6 +81,8 @@ end
 if ( CLIENT ) then
 
 	function ENT:Draw()
+		self.MSize = math.Approach(self.MSize, 1, FrameTime() * 10)
+
 		if !self.Melon then
 			self.Melon = ClientsideModel("models/props_junk/watermelon01.mdl")
 			self.Melon:SetNoDraw(true)
@@ -94,18 +96,19 @@ if ( CLIENT ) then
 		if self:GetPowerBomb() then
 			size = size * 1.2
 		end
+		size = size * self.MSize
 		self.Melon:SetModelScale(size, 0)
 		local pos = self:GetPos()
 
-		if self:GetKicking() then
+		-- if self:GetKicking() then
 			if !self.MelonLastPos then self.MelonLastPos = self:GetPos() end
 			self.MelonLastPos.x = math.Approach(self.MelonLastPos.x, self:GetPos().x, FrameTime() * 175)
 			self.MelonLastPos.y = math.Approach(self.MelonLastPos.y, self:GetPos().y, FrameTime() * 175)
 			self.MelonLastPos.z = math.Approach(self.MelonLastPos.z, self:GetPos().z, FrameTime() * 175)
 			pos = self.MelonLastPos
-		end
+		-- end
 
-		self.Melon:SetPos(pos + Vector(0, 0, -18 + 6))
+		self.Melon:SetPos(pos + Vector(0, 0, -18 + 10))
 		if self:GetPowerBomb() then
 			if !self.Melon.PowerBomb then
 				self.Melon.PowerBomb = true
@@ -121,7 +124,10 @@ if ( CLIENT ) then
 				self.SawBlade:SetAngles(Angle(0, math.Rand(0, 360), 0))
 			end
 			self.SawBlade:SetModelScale(size * 0.6, 0)
-			self.SawBlade:SetPos(pos + Vector(0, 0, -18 + 6))
+			self.SawBlade:SetPos(pos + Vector(0, 0, -18 + 10))
+			local ang = self.SawBlade:GetAngles()
+			ang:RotateAroundAxis(ang:Up(), FrameTime() * -400)
+			self.SawBlade:SetAngles(ang)
 			self.SawBlade:DrawModel()
 		end
 
@@ -134,8 +140,8 @@ if ( CLIENT ) then
 			local ang = self.Antenna:GetAngles()
 			ang:RotateAroundAxis(ang:Up(), FrameTime() * 13)
 			self.Antenna:SetAngles(ang)
-			self.Antenna:SetModelScale(size * 0.3, 0)
-			self.Antenna:SetPos(pos + Vector(0, 0, -18 + 6))
+			self.Antenna:SetModelScale(size * 0.25, 0)
+			self.Antenna:SetPos(pos + Vector(0, 0, -18 + 10))
 			self.Antenna:DrawModel()
 		end
 	end
@@ -152,9 +158,6 @@ end
 
 function ENT:PhysicsCollide( data, physobj )
 
-	if ( data.DeltaTime > 0.2 ) then
-		sound.Play("physics/flesh/flesh_squishy_impact_hard" .. math.random(1, 4) .. ".wav", self:GetPos(), 75, math.random( 90, 120 ), math.Clamp( data.Speed / 450, 0, 1 ) )
-	end
 	
 end
 
@@ -226,14 +229,22 @@ function ENT:StartTouch(ent)
 	if ent:IsPlayer() && ent:HasUpgrade(8) then
 		if IsValid(phys) then
 			if !self:GetKicking() then
-				self:SetKicking(true)
-				self.KickingDelay = CurTime() + 0.1
-
 				// get the direction
 				local ang = (self:GetPos() - ent:GetPos()):Angle()
 				ang.p = 0
 				ang.y = math.Round(ang.y / 90) * 90
 				self.KickingDir = ang:Forward()
+
+				local zone, x, y = GAMEMODE:GetGridPosFromEnt(self)
+				if zone then
+					local sx = x + math.Round(self.KickingDir.x)
+					local sy = y + math.Round(self.KickingDir.y)
+					if GAMEMODE:IsGridPosClear(zone, sx, sy) then
+						self:SetKicking(true)
+						self.KickingDelay = CurTime() + 0
+						self:EmitSound("npc/fast_zombie/claw_strike3.wav")
+					end
+				end
 			end
 		end
 	end

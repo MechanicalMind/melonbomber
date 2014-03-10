@@ -138,7 +138,7 @@ function GM:ScoreboardShow()
 	else
 		menu = vgui.Create("DFrame")
 		GAMEMODE.ScoreboardPanel = menu
-		menu:SetSize(ScrW() * 0.8, ScrH() * 0.8)
+		menu:SetSize(ScrW() * 0.6, ScrH() * 0.8)
 		menu:Center()
 		menu:MakePopup()
 		menu:SetKeyboardInputEnabled(false)

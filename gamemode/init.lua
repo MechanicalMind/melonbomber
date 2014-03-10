@@ -38,6 +38,7 @@ util.AddNetworkString("he_opencustommenu")
 resource.AddFile("materials/mech/ring.vmt")
 resource.AddFile("materials/mech/ring_thin.vmt")
 resource.AddFile("resource/fonts/Roboto-Black.ttf")
+resource.AddFile("sound/melonbomber/bottle_pop_2.wav")
 
 
 function GM:Initialize() 
