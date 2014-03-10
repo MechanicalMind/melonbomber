@@ -179,8 +179,8 @@ function ENT:StartTouch(ent)
 			end
 			-- ent:EmitSound("npc/dog/dog_servo" .. self:GetPickupType() .. ".wav", 100, 60)
 		end
-		ent:EmitSound("npc/dog/dog_pneumatic2.wav", 40, 110)
-		-- ent:EmitSound("ambient/levels/canals/windchime2.wav", 100, 160)
+		-- ent:EmitSound("npc/dog/dog_pneumatic2.wav", 40, 110)
+		ent:EmitSound("melonbomber/bottle_pop_2.wav", 70, math.random(80, 120))
 		self:Remove()
 	end
 end
