@@ -130,7 +130,7 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 	end
 
 	if !combiner then
-		self:FinishExplosion(zone, combo, bomb:GetOwner())
+		self:FinishExplosion(zone, combo, bomb:GetBombOwner())
 	end
 end
 
@@ -155,6 +155,7 @@ function GM:CombineExplosion(zone, x, y, bomb, combiner)
 	end
 end
 
+util.AddNetworkString("pk_elecplosion")
 function GM:SpecificExplosion(zone, x, y, bomb, attacker)
 	local center = (zone:OBBMins() + zone:OBBMaxs()) / 2
 	local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
@@ -164,13 +165,18 @@ function GM:SpecificExplosion(zone, x, y, bomb, attacker)
 	if bomb:GetPowerBomb() then
 		mag = 2
 	end
-	timer.Simple(0, function ()
-		local eff = EffectData()
-		eff:SetOrigin(t + Vector(0, 0, 15))
-		eff:SetScale(zone.grid.sqsize / 2)
-		eff:SetMagnitude(mag)
-		util.Effect("pk_elecplosion", eff, true, true)
-	end)
+	-- timer.Simple(0, function ()
+	-- 	local eff = EffectData()
+	-- 	eff:SetOrigin(t + Vector(0, 0, 15))
+	-- 	eff:SetScale(zone.grid.sqsize / 2)
+	-- 	eff:SetMagnitude(mag)
+	-- 	util.Effect("pk_elecplosion", eff, true, true)
+	-- end)
+	net.Start("pk_elecplosion")
+	net.WriteVector(t + Vector(0, 0, 15))
+	net.WriteDouble(zone.grid.sqsize / 2)
+	net.WriteDouble(mag)
+	net.Broadcast()
 
 	local ent = zone.grid:getSquare(x, y)
 	if IsValid(ent) then

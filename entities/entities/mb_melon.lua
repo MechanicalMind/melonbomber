@@ -88,6 +88,7 @@ if ( CLIENT ) then
 			self.Melon:SetNoDraw(true)
 			self.Melon:SetAngles(AngleRand())
 		end
+		-- if IsValid(self.Melon) then
 		local left = math.min(1, (3 - (self.ExplodeTime - CurTime()) ) / 3)
 		local size = left * 0.2 + 1.2 + math.sin((CurTime() - self.CreateTime) * 4) * 0.15
 		if self:GetRemoteDetonate() then

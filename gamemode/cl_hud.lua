@@ -58,6 +58,8 @@ function GM:DrawGameHUD()
 	self:DrawHealth(ply)
 
 	if ply != LocalPlayer() then
+		local col = ply:GetPlayerColor()
+		col = Color(col.r * 255, col.y * 255, col.z * 255)
 		draw.ShadowText(ply:Nick(), "RobotoHUD-30", ScrW() / 2, ScrH() - 4, col, 1, 4)
 	end
 end

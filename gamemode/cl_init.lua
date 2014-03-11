@@ -13,6 +13,7 @@ include("sh_pickups.lua")
 include("cl_upgrades.lua")
 include("sh_weightedrandom.lua")
 include("cl_killfeed.lua")
+include("cl_voicepanels.lua")
 
 function GM:Initialize() 
 end
@@ -186,4 +187,12 @@ net.Receive("hull_set", function (len)
 	for k, ply in pairs(player.GetAll()) do
 		GAMEMODE:PlayerSetNewHull(ply)
 	end
+end)
+
+net.Receive("pk_elecplosion", function (len)
+	local eff = EffectData()
+	eff:SetOrigin(net.ReadVector())
+	eff:SetScale(net.ReadDouble())
+	eff:SetMagnitude(net.ReadDouble())
+	util.Effect("pk_elecplosion", eff, true, true)
 end)
