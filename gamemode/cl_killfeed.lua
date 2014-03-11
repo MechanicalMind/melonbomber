@@ -5,7 +5,8 @@ net.Receive("kill_feed_add", function (len)
 	local ply = net.ReadEntity()
 	local inflictor = net.ReadEntity()
 	local attacker = net.ReadEntity()
-	
+	if !IsValid(ply) then return end
+
 	local t = {}
 	t.time = CurTime()
 	t.player = ply
@@ -20,7 +21,7 @@ net.Receive("kill_feed_add", function (len)
 		t.attackerColor = Color(col.x * 255, col.y * 255, col.z * 255)
 		Msg(attacker:Nick() .. " killed " .. ply:Nick() .. "\n")
 	else
-		Msg(ply:Nick() .. " killed themself\n")
+		Msg(ply:Nick() .. " killed themselves\n")
 	end
 	table.insert(GAMEMODE.KillFeed, t)	
 end)
