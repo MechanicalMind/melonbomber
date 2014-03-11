@@ -130,16 +130,16 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 	end
 
 	if !combiner then
-		self:FinishExplosion(zone, combo)
+		self:FinishExplosion(zone, combo, bomb:GetOwner())
 	end
 end
 
-function GM:FinishExplosion(zone, combo)
+function GM:FinishExplosion(zone, combo, attacker)
 	for k, v in pairs(combo.squares) do
 		local x, y = k:match("([^:]+):([^:]+)")
 		x = tonumber(x)
 		y = tonumber(y)
-		self:SpecificExplosion(zone, x, y, v)
+		self:SpecificExplosion(zone, x, y, v, attacker)
 	end
 end
 
@@ -155,7 +155,7 @@ function GM:CombineExplosion(zone, x, y, bomb, combiner)
 	end
 end
 
-function GM:SpecificExplosion(zone, x, y, bomb)
+function GM:SpecificExplosion(zone, x, y, bomb, attacker)
 	local center = (zone:OBBMins() + zone:OBBMaxs()) / 2
 	local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
 	t.z = zone:OBBMins().z
@@ -195,7 +195,9 @@ function GM:SpecificExplosion(zone, x, y, bomb)
 					local dmg = DamageInfo()
 					if IsValid(bomb) then
 						dmg:SetInflictor(bomb)
-						if IsValid(bomb:GetBombOwner()) then
+						if IsValid(attacker) then
+							dmg:SetAttacker(attacker)
+						elseif IsValid(bomb:GetBombOwner()) then
 							dmg:SetAttacker(bomb:GetBombOwner())
 						else
 							dmg:SetAttacker(bomb)
