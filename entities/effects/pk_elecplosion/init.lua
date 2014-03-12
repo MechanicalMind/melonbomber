@@ -72,11 +72,7 @@ function EFFECT:Init( data )
 		particle:SetEndSize( 50 )   
 		particle:SetRoll( math.random(0,360) )
 		//particle:SetRollDelta( 0 )
-		if self.Mag > 1 then
-			particle:SetColor( 120, 120, 120 )
-		else
-			particle:SetColor( 150, 150, 150 )
-		end
+		particle:SetColor( 150, 150, 150 )
 		
 	end
 		
