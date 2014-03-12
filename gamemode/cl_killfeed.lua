@@ -24,22 +24,23 @@ net.Receive("kill_feed_add", function (len)
 		Msg(ply:Nick() .. " killed themselves\n")
 	end
 
-	local greatest = 0
-	for k, v in pairs(GAMEMODE.KillFeed) do
-		if k > greatest then
-			greatest = k
-		end
-	end 
-
-	GAMEMODE.KillFeed[greatest + 1] = t	
+	table.insert(GAMEMODE.KillFeed, t)
 end)
 
 function GM:DrawKillFeed()
 	local gap = draw.GetFontHeight("RobotoHUD-15") + 4
-	local i = 0
-	for k, t in pairs(self.KillFeed) do
+	local down = 0
+	local k = 1
+	while true do
+		if k > #GAMEMODE.KillFeed then
+			break
+		end
+		local t = GAMEMODE.KillFeed[k]
+		if !t then
+			print("error", #GAMEMODE.KillFeed)
+		end
 		if t.time + 30 < CurTime() then
-			self.KillFeed[k] = nil
+			table.remove(self.KillFeed, k)
 		else
 			surface.SetFont("RobotoHUD-15")
 			local twp, thp = surface.GetTextSize(t.playerName)
@@ -48,18 +49,20 @@ function GM:DrawKillFeed()
 				local killed = " killed "
 				local twa, tha = surface.GetTextSize(t.attackerName)
 				local twk, thk = surface.GetTextSize(killed)
-				draw.ShadowText(t.attackerName, "RobotoHUD-15", ScrW() - 4 - twp - twk - twa, 4 + i * gap, t.attackerColor, 0)
-				draw.ShadowText(killed, "RobotoHUD-15", ScrW() - 4 - twp - twk, 4 + i * gap, color_white, 0)
-				draw.ShadowText(t.playerName, "RobotoHUD-15", ScrW() - 4 - twp, 4 + i * gap, t.playerColor, 0)
+				draw.ShadowText(t.attackerName, "RobotoHUD-15", ScrW() - 4 - twp - twk - twa, 4 + down * gap, t.attackerColor, 0)
+				draw.ShadowText(killed, "RobotoHUD-15", ScrW() - 4 - twp - twk, 4 + down * gap, color_white, 0)
+				draw.ShadowText(t.playerName, "RobotoHUD-15", ScrW() - 4 - twp, 4 + down * gap, t.playerColor, 0)
 			else
 				local killed = " killed themself"
 				local twk, thk = surface.GetTextSize(killed)
 
-				draw.ShadowText(killed, "RobotoHUD-15", ScrW() - 4 - twk, 4 + i * gap, color_white, 0)
-				draw.ShadowText(t.playerName, "RobotoHUD-15", ScrW() - 4 - twp - twk, 4 + i * gap, t.playerColor, 0)
+				draw.ShadowText(killed, "RobotoHUD-15", ScrW() - 4 - twk, 4 + down * gap, color_white, 0)
+				draw.ShadowText(t.playerName, "RobotoHUD-15", ScrW() - 4 - twp - twk, 4 + down * gap, t.playerColor, 0)
 			end
 
-			i = i + 1
+			down = down + 1
+			k = k + 1
 		end
 	end
 end
+
