@@ -57,10 +57,19 @@ function GM:SpectateNext(ply, direction)
 	local players = {}
 	local index = 1
 	for k, v in pairs(player.GetAll()) do
-		if v != ply && v:Alive() then
-			table.insert(players, v)
-			if v == ply:GetCSpectatee() then
-				index = #players
+		if v != ply then
+			if v:Alive() then
+				table.insert(players, v)
+				if v == ply:GetCSpectatee() then
+					index = #players
+				end
+			else
+				if IsValid(v:GetRagdollEntity()) then
+					table.insert(players, v:GetRagdollEntity())
+					if v:GetRagdollEntity() == ply:GetCSpecatee() then
+						index = #players
+					end
+				end
 			end
 		end
 	end
@@ -113,7 +122,12 @@ function GM:ChooseSpectatee(ply)
 	end
 
 	// if invalid or dead
-	if !IsValid(ply:GetCSpectatee()) || ( ply:GetCSpectatee():IsPlayer() && !ply:GetCSpectatee():Alive() ) then
+	if !IsValid(ply:GetCSpectatee()) then
 		self:SpectateNext(ply)
+	elseif ply:GetCSpectatee():IsPlayer() && !ply:GetCSpectatee():Alive() then
+		// if they have a ragdoll, spectate that
+		if IsValid(ply:GetRagdollEntity()) then
+			ply:CSpectate(OBS_MODE_CHASE, ply:GetRagdollEntity())
+		end
 	end
 end
