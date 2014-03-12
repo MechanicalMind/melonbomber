@@ -2,7 +2,7 @@ GM.Name 	= "Melonbomber"
 GM.Author 	= "MechanicalMind"
 // Credits to waddlesworth for the logo and icon
 GM.Email 	= ""
-GM.Website 	= "www.codingconcoctions.com/"
+GM.Website 	= "http://codingconcoctions.com/melonbomber/"
 GM.Version 	= "1.1"
 
 team.SetUp(1, "Spectators", Color(50, 50, 50))
