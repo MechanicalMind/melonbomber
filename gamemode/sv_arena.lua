@@ -354,11 +354,20 @@ function GM:PlayerAltFire(ply)
 	end
 
 	if count > 0 && ply:HasUpgrade(7) then
+
+		// first first created bomb
+		local firstBomb
 		for k, ent in pairs(ents.FindByClass("mb_melon")) do
 			if ent:GetBombOwner() == ply then
-				ent:Explode(zone, combo)
-				break
+				if !firstBomb || ent:GetCreateTime() < firstBomb:GetCreateTime() then
+					firstBomb = ent
+				end
 			end
+		end
+
+		// explode the first bomb
+		if firstBomb then
+			firstBomb:Explode(zone, combo)
 		end
 	elseif ply:HasUpgrade(6) then
 		local zone, x, y = self:GetGridPosFromEnt(ply)

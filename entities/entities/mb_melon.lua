@@ -337,3 +337,7 @@ function ENT:GetKicking()
 	end
 	return self:GetNWBool("MelonKicking", bool)
 end
+
+function ENT:GetCreateTime()
+	return self.CreateTime
+end
