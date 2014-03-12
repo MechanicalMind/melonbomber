@@ -68,12 +68,12 @@ end
 local jab = 35.6
 function GM:SetupSpawnZone(zone)
 	local players = self:GetPlayingPlayers()
-	local amo = math.max(2, #players)
+	local amo = math.max(4, #players)
 
 	local mins, maxs = zone:OBBMins(), zone:OBBMaxs()
 	local size = maxs - mins
 
-	local area = amo * 30
+	local area = amo * 20
 
 	local width = math.floor(size.x / jab / 2)
 	local height = math.floor(size.y / jab / 2)
