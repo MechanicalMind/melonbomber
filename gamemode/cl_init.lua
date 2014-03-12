@@ -69,10 +69,10 @@ end
 
 
 function GM:CalcView(ply, pos, angles, fov)
-	if self:IsCSpectating() && IsValid(self:GetCSpectatee()) && self:GetCSpectatee():IsPlayer() then
+	if self:IsCSpectating() && IsValid(self:GetCSpectatee()) then
 		ply = self:GetCSpectatee()
 	end
-	if !ply:Alive() then
+	if ply:IsPlayer() && !ply:Alive() then
 		ply = ply:GetRagdollEntity()
 	end
 	if IsValid(ply) then

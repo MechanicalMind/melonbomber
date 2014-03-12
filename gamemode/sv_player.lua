@@ -450,6 +450,6 @@ function GM:PlayerSay( ply, text, team)
 	ct:Add(ply:Nick(), Color(col.x * 255, col.y * 255, col.z * 255))
 	ct:Add(": " .. text, color_white)
 	ct:SendAll()
-	Msg(ply:Nick() .. ": " .. text)
+	Msg(ply:Nick() .. ": " .. text .. "\n")
 	return false
 end

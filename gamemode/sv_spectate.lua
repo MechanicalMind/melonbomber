@@ -63,13 +63,6 @@ function GM:SpectateNext(ply, direction)
 				if v == ply:GetCSpectatee() then
 					index = #players
 				end
-			else
-				if IsValid(v:GetRagdollEntity()) then
-					table.insert(players, v:GetRagdollEntity())
-					if v:GetRagdollEntity() == ply:GetCSpecatee() then
-						index = #players
-					end
-				end
 			end
 		end
 	end
@@ -124,10 +117,5 @@ function GM:ChooseSpectatee(ply)
 	// if invalid or dead
 	if !IsValid(ply:GetCSpectatee()) then
 		self:SpectateNext(ply)
-	elseif ply:GetCSpectatee():IsPlayer() && !ply:GetCSpectatee():Alive() then
-		// if they have a ragdoll, spectate that
-		if IsValid(ply:GetRagdollEntity()) then
-			ply:CSpectate(OBS_MODE_CHASE, ply:GetRagdollEntity())
-		end
 	end
 end
