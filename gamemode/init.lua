@@ -37,6 +37,8 @@ util.AddNetworkString("he_opencustommenu")
 
 resource.AddFile("resource/fonts/Roboto-Black.ttf")
 resource.AddFile("sound/melonbomber/bottle_pop_2.wav")
+resource.AddFile("materials/melonbomber/skull.png")
+resource.AddFile("materials/melonbomber/skull_license.txt")
 
 
 function GM:Initialize() 

@@ -12,13 +12,16 @@ surface.CreateFont( "ScoreboardPlayer" , {
 	italic = false
 })
 
+local muted = Material("icon32/muted.png")
+local skull = Material("melonbomber/skull.png")
+
 local function addPlayerItem(self, mlist, ply)
 
-	local but = vgui.Create("DPanel")
+	local but = vgui.Create("DButton")
 	but.player = ply
 	but.ctime = CurTime()
 	but:SetTall(draw.GetFontHeight("RobotoHUD-20") + 4)
-
+	but:SetText("")
 
 	function but:Paint(w, h)
 
@@ -26,13 +29,41 @@ local function addPlayerItem(self, mlist, ply)
 		-- surface.DrawOutlinedRect(0, 0, w, h)
 
 		if IsValid(ply) && ply:IsPlayer() then
+			local s = 8
+
+			if !ply:Alive() then
+				surface.SetMaterial(skull)
+				surface.SetDrawColor(220, 220, 220, 255)
+				surface.DrawTexturedRect(s, h / 2 - 16, 32, 32)
+				s = s + 32 + 4
+			end
+
+			if ply:IsMuted() then
+				surface.SetMaterial(muted)
+
+				// draw shadow
+				-- surface.SetDrawColor(color_black)
+				-- surface.DrawTexturedRect(s + 1, h / 2 - 16 + 1, 32, 32)
+
+				// draw mute icon
+				surface.SetDrawColor(150, 150, 150, 255)
+				surface.DrawTexturedRect(s, h / 2 - 16, 32, 32)
+				s = s + 32 + 4
+			end
+
 			local col = ply:GetPlayerColor()
 			col = Color(col.x * 255, col.y * 255, col.z * 255)
 			draw.ShadowText(ply:Ping(), "RobotoHUD-20", w - 8, 0, col, 2)
 
 			draw.ShadowText(("|"):rep(math.min(10, ply:GetScore())) .. " " .. ply:GetScore(), "RobotoHUD-20", w / 2 + 4, 0, col, 0)
 
-			draw.ShadowText(ply:Nick(), "RobotoHUD-20", 8, 0, col, 0)
+			draw.ShadowText(ply:Nick(), "RobotoHUD-20", s, 0, col, 0)
+		end
+	end
+
+	function but:DoClick()
+		if IsValid(ply) then
+			GAMEMODE:DoScoreboardActionPopup(ply)
 		end
 	end
 
@@ -246,3 +277,41 @@ end
 function GM:HUDDrawScoreBoard()
 end
 
+function GM:DoScoreboardActionPopup(ply)
+	local actions = DermaMenu()
+
+	if ply:IsAdmin() then
+		local admin = actions:AddOption("Is an Admin")
+		admin:SetIcon("icon16/shield.png")
+	end
+
+	if ply != LocalPlayer() then
+		local t = "Mute"
+		if ply:IsMuted() then
+			t = "Unmute"
+		end
+		local mute = actions:AddOption( t )
+		mute:SetIcon("icon16/sound_mute.png")
+		function mute:DoClick()
+			if IsValid(ply) then
+				ply:SetMuted(!ply:IsMuted())
+			end
+		end
+	end
+	
+	if IsValid(LocalPlayer()) && LocalPlayer():IsAdmin() then
+		actions:AddSpacer()
+
+		if ply:Team() == 2 then
+			-- if ply:Alive() then
+			-- 	local specateThem = actions:AddOption( "Spectate" )
+			-- 	specateThem:SetIcon( "icon16/status_online.png" )
+			-- 	function specateThem:DoClick()
+			-- 		RunConsoleCommand("mu_spectate", ply:EntIndex())
+			-- 	end
+			-- end
+		end
+	end
+
+	actions:Open()
+end
