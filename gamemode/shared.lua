@@ -4,6 +4,7 @@ GM.Author 	= "MechanicalMind"
 GM.Email 	= ""
 GM.Website 	= "http://codingconcoctions.com/melonbomber/"
 GM.Version 	= "1.1"
+GM.GCCEntryID = 3
 
 team.SetUp(1, "Spectators", Color(50, 50, 50))
 team.SetUp(2, "Player", Color(150, 150, 150))
