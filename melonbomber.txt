@@ -4,4 +4,5 @@
 	"title"		"Melonbomber"
 	"maps"		"^mb_"
 	"menusystem"	"1"
+	"version" 		"0.2"
 }
