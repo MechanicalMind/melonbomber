@@ -15,6 +15,8 @@ include("sh_weightedrandom.lua")
 include("cl_killfeed.lua")
 include("cl_voicepanels.lua")
 
+GM.FirstPerson = CreateClientConVar( "mb_firstperson", 0, true, true )
+
 function GM:Initialize() 
 end
 
@@ -76,23 +78,28 @@ function GM:CalcView(ply, pos, angles, fov)
 		ply = ply:GetRagdollEntity()
 	end
 	if IsValid(ply) then
-		local trace = {}
-		trace.start = ply:GetPos() + Vector(0, 0, 100)
-		trace.endpos = trace.start + Vector(0, 0, 300)
-		trace.filter = ply
-		-- trace.mask = MASK_SHOT
-		local tr = util.TraceLine(trace)
+		if !self.FirstPerson:GetBool() || ply != LocalPlayer() then
+			local trace = {}
+			trace.start = ply:GetPos() + Vector(0, 0, 100)
+			trace.endpos = trace.start + Vector(0, 0, 300)
+			trace.filter = ply
+			-- trace.mask = MASK_SHOT
+			local tr = util.TraceLine(trace)
 
-		local view = {}
-		view.origin = tr.HitPos + Vector(0, 0, -5)
-		view.angles = Angle(90,90,0)
-		view.fov = fov
-		return view
+			local view = {}
+			view.origin = tr.HitPos + Vector(0, 0, -5)
+			view.angles = Angle(90,90,0)
+			view.fov = fov
+			return view
+		end
 	end
 end
 
 function GM:ShouldDrawLocalPlayer()
-	return true
+	if !self.FirstPerson:GetBool() then
+		return true
+	end
+	return false
 end
 
 GM.Zones = {}
@@ -143,43 +150,50 @@ function GM:CreateMove( cmd )
 		end
 		cmd:RemoveKey(IN_JUMP)
 		cmd:RemoveKey(IN_DUCK)
-		cmd:ClearMovement()
+		cmd:SetUpMove(0)
 
-		local rel
-		local zone, x, y = GAMEMODE:GetZonePosFromEnt(LocalPlayer())
-		if zone then
-			local center = (zone.mins + zone.maxs) / 2
-			local t = LocalPlayer():GetPos() - center
-			rel = t - Vector(x * zone.sqsize, y * zone.sqsize, t.z)
-			-- DebugInfo(0, tostring(rel))
-			-- DebugInfo(1, tostring(x))
-			-- DebugInfo(2, tostring(y))
+		if !self.FirstPerson:GetBool() then
+			cmd:ClearMovement()
+
+			local rel
+			local zone, x, y = GAMEMODE:GetZonePosFromEnt(LocalPlayer())
+			if zone then
+				local center = (zone.mins + zone.maxs) / 2
+				local t = LocalPlayer():GetPos() - center
+				rel = t - Vector(x * zone.sqsize, y * zone.sqsize, t.z)
+				-- DebugInfo(0, tostring(rel))
+				-- DebugInfo(1, tostring(x))
+				-- DebugInfo(2, tostring(y))
+			end
+
+			local vec = Vector(0, 0, 0)
+			if cmd:KeyDown(IN_FORWARD) then
+				cmd:SetForwardMove(100000)
+				vec.y = 1
+			elseif cmd:KeyDown(IN_BACK) then
+				cmd:SetForwardMove(100000)
+				vec.y = -1
+			end
+
+			if cmd:KeyDown(IN_MOVELEFT) then
+				cmd:SetForwardMove(100000)
+				lastangles = Angle(0, 180, 0)
+				vec.x = -1
+			elseif cmd:KeyDown(IN_MOVERIGHT) then
+				cmd:SetForwardMove(100000)
+				lastangles = Angle(0, 0, 0)
+				vec.x = 1
+			end
+
+
+			if vec:Length() > 0 then
+				lastangles = vec:Angle()
+			end
+			cmd:SetViewAngles(lastangles)
+
+		else
+		
 		end
-
-		local vec = Vector(0, 0, 0)
-		if cmd:KeyDown(IN_FORWARD) then
-			cmd:SetForwardMove(100000)
-			vec.y = 1
-		elseif cmd:KeyDown(IN_BACK) then
-			cmd:SetForwardMove(100000)
-			vec.y = -1
-		end
-
-		if cmd:KeyDown(IN_MOVELEFT) then
-			cmd:SetForwardMove(100000)
-			lastangles = Angle(0, 180, 0)
-			vec.x = -1
-		elseif cmd:KeyDown(IN_MOVERIGHT) then
-			cmd:SetForwardMove(100000)
-			lastangles = Angle(0, 0, 0)
-			vec.x = 1
-		end
-
-
-		if vec:Length() > 0 then
-			lastangles = vec:Angle()
-		end
-		cmd:SetViewAngles(lastangles)
 	end
 end
 

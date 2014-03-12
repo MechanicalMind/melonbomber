@@ -36,9 +36,6 @@ function GM:DrawKillFeed()
 			break
 		end
 		local t = GAMEMODE.KillFeed[k]
-		if !t then
-			print("error", #GAMEMODE.KillFeed)
-		end
 		if t.time + 30 < CurTime() then
 			table.remove(self.KillFeed, k)
 		else
