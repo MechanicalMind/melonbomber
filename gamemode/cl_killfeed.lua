@@ -23,7 +23,15 @@ net.Receive("kill_feed_add", function (len)
 	else
 		Msg(ply:Nick() .. " killed themselves\n")
 	end
-	table.insert(GAMEMODE.KillFeed, t)	
+
+	local greatest = 0
+	for k, v in pairs(GAMEMODE.KillFeed) do
+		if k > greatest then
+			greatest = k
+		end
+	end 
+
+	GAMEMODE.KillFeed[greatest + 1] = t	
 end)
 
 function GM:DrawKillFeed()
