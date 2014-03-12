@@ -436,3 +436,20 @@ end
 function GM:CanPlayerSuicide(ply)
 	return false
 end
+
+function GM:PlayerSay( ply, text, team)
+	if !IsValid(ply) then
+		return
+	end
+
+	local ct = ChatText()
+	if !ply:Alive() then
+		ct:Add("[DEAD] ", Color(200, 20, 20))
+	end
+	local col = ply:GetPlayerColor()
+	ct:Add(ply:Nick(), Color(col.x * 255, col.y * 255, col.z * 255))
+	ct:Add(": " .. text, color_white)
+	ct:SendAll()
+	Msg(ply:Nick() .. ": " .. text)
+	return false
+end
