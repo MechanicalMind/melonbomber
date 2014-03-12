@@ -373,49 +373,77 @@ function GM:PlayerAltFire(ply)
 			elseif ply.LastMoveKeyDown == IN_MOVERIGHT then
 				dir = Vector(1, 0, 0)
 			end
-			ply:EmitSound("npc/scanner/scanner_nearmiss" .. math.random(1,2) .. ".wav")
-			local placed = 0
-			for i = 0, ply:GetMaxBombs() - count - 1 do
-				local sx, sy = x + math.Round(dir.x) * i, y + math.Round(dir.y) * i 
-				local sq = zone.grid:getSquare(sx, sy)
-				if IsValid(sq) then
-					if sq.gridSolid then
-						break
-					else
-						sq:Remove()
-					end
-				end
-				local center = (zone:OBBMins() + zone:OBBMaxs()) / 2
-				local t = Vector(sx * zone.grid.sqsize, sy * zone.grid.sqsize) + center
-				t.z = zone:OBBMins().z
+			
+			self:PlaceLineBomb(ply, zone, x, y, dir)
+		end
+	end
+end
 
-				// don't place through players
-				local shouldbreak = false
-				for k, ent in pairs(player.GetAll()) do
-					if ent != ply && ent:Alive() then
-						local s = zone.grid.sqsize / 2 - 1
-						local mins, maxs = t + Vector(-s, -s, 0), t + Vector(s, s, 32)
-						mins = mins - ent:OBBMaxs()
-						maxs = maxs - ent:OBBMins()
-						local pos = ent:GetPos()
-						if pos.x > mins.x && pos.x < maxs.x then
-							if pos.y > mins.y && pos.y < maxs.y then
-								shouldbreak = true
-								break
-							end
-						end
-					end
-				end
-				if shouldbreak then
-					break
-				end
+function GM:PlaceLineBomb(ply, zone, x, y, dir)
+	
 
-				placed = placed + 1
-				timer.Simple(placed * 0.15, function () self:CreateBomb(zone, sx, sy, ply, count) end)
+	ply:EmitSound("npc/scanner/scanner_nearmiss" .. math.random(1,2) .. ".wav")
+
+	local placed = 0
+
+	local function nextbomb()
+		if !IsValid(ply) then 
+			return
+		end
+
+		if placed >= ply:GetMaxBombs() then
+			return
+		end
+
+		local count = 0
+		for k, ent in pairs(ents.FindByClass("mb_melon")) do
+			if ent:GetBombOwner() == ply then
 				count = count + 1
 			end
 		end
+
+		if count < ply:GetMaxBombs() then
+			local sx, sy = x + math.Round(dir.x) * placed, y + math.Round(dir.y) * placed
+			local sq = zone.grid:getSquare(sx, sy)
+			if IsValid(sq) then
+				if sq.gridSolid then
+					return
+				else
+					sq:Remove()
+				end
+			end
+			local center = (zone:OBBMins() + zone:OBBMaxs()) / 2
+			local t = Vector(sx * zone.grid.sqsize, sy * zone.grid.sqsize) + center
+			t.z = zone:OBBMins().z
+
+			// don't place through players
+			for k, ent in pairs(player.GetAll()) do
+				if ent != ply && ent:Alive() then
+					local s = zone.grid.sqsize / 2 - 1
+					local mins, maxs = t + Vector(-s, -s, 0), t + Vector(s, s, 32)
+					mins = mins - ent:OBBMaxs()
+					maxs = maxs - ent:OBBMins()
+					local pos = ent:GetPos()
+					if pos.x > mins.x && pos.x < maxs.x then
+						if pos.y > mins.y && pos.y < maxs.y then
+							shouldbreak = true
+							return
+						end
+					end
+				end
+			end
+
+			placed = placed + 1
+			self:CreateBomb(zone, sx, sy, ply, count)
+			count = count + 1
+
+			if count < ply:GetMaxBombs() then
+				timer.Simple(0.15, nextbomb)
+			end
+		end
 	end
+
+	nextbomb()
 end
 
 
