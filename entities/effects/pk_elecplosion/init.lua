@@ -61,7 +61,7 @@ function EFFECT:Init( data )
 	for i = 1, 7 do
 		
 		-- local particle = self.Emitter:Add( "particle/particle_smokegrenade1", self.pos + VectorRand() * self.Scale / 2)
-		local t = VectorRand() * self.Scale
+		local t = VectorRand() * self.Scale * 0.7
 		t.z = math.abs(t.z)
 		local particle = self.Emitter:Add( "particle/smokesprites_000" .. math.random(1, 9), self.pos + t)
 		particle:SetVelocity( VectorRand(0, 0, 10) )
