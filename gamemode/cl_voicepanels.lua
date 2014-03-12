@@ -40,13 +40,13 @@ function PANEL:Paint( w, h )
 
 	surface.SetDrawColor(0, 0, 0, 255)
 	surface.DrawRect(0, 0, w, h)
-	surface.SetDrawColor(col.r, col.b, col.g, 120)
+	surface.SetDrawColor(col.r, col.g, col.b, 120)
 	surface.DrawRect(0, 0, w, h)
 
 	surface.SetDrawColor(0, 0, 0, 255)
 	surface.DrawOutlinedRect(0, 0, w, h)
 
-	surface.SetDrawColor(col.r, col.b, col.g, 120)
+	surface.SetDrawColor(col.r, col.g, col.b, 120)
 	surface.DrawRect(0, 0, math.floor(w * volume), h)
 	surface.SetDrawColor(0, 0, 0, 255)
 	surface.DrawOutlinedRect(0, 0, w * volume, h)
