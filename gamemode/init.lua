@@ -33,7 +33,7 @@ include("sv_killfeed.lua")
 
 
 util.AddNetworkString("clientIPE")
-util.AddNetworkString("he_opencustommenu")
+util.AddNetworkString("mb_openhelpmenu")
 
 resource.AddFile("resource/fonts/Roboto-Black.ttf")
 resource.AddFile("sound/melonbomber/bottle_pop_2.wav")
@@ -155,7 +155,7 @@ function GM:CleanupMap()
 	hook.Call("MapCleanup", self)
 end
 
-function GM:ShowSpare2(ply)
-	net.Start("he_opencustommenu")
+function GM:ShowHelp(ply)
+	net.Start("mb_openhelpmenu")
 	net.Send(ply)
 end

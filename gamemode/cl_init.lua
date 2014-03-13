@@ -14,6 +14,7 @@ include("cl_upgrades.lua")
 include("sh_weightedrandom.lua")
 include("cl_killfeed.lua")
 include("cl_voicepanels.lua")
+include("cl_helpscreen.lua")
 
 GM.FirstPerson = CreateClientConVar( "mb_firstperson", 0, true, true )
 
