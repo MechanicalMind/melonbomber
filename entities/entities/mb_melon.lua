@@ -98,6 +98,7 @@ if ( CLIENT ) then
 				size = size * 1.2
 			end
 			size = size * self.MSize
+
 			self.Melon:SetModelScale(size, 0)
 			local pos = self:GetPos()
 
@@ -289,11 +290,11 @@ function ENT:Use( ply, caller )
 end
 
 function ENT:GetBombOwner()
-	return self.BombOwner
+	return self:GetNWEntity("BombOwner")
 end
 
 function ENT:SetBombOwner(ply)
-	self.BombOwner = ply
+	self:SetNWEntity("BombOwner", ply)
 end
 
 function ENT:SetPierce(bool)

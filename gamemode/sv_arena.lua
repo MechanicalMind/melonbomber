@@ -366,7 +366,7 @@ function GM:PlayerAltFire(ply)
 		end
 
 		// explode the first bomb
-		if firstBomb then
+		if firstBomb && firstBomb:GetCreateTime() + 1 < CurTime() then
 			firstBomb:Explode(zone, combo)
 		end
 	elseif ply:HasUpgrade(6) then
