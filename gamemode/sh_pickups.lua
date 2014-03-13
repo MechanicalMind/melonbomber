@@ -62,21 +62,21 @@ end
 function pick:DrawDecor(ent)
 	local ang = Angle(0, CurTime() * 13, 0)
 	local part = ent:MakeDecorPart("melon1", "models/props_junk/watermelon01.mdl")
-	if part then
+	if IsValid(part) then
 		part:SetAngles(ang)
 		part:SetPos(ent:GetPos() + Vector(0, 0, 4))
 		part:SetModelScale(0.5, 0)
 		part:DrawModel()
 	end
 	local part = ent:MakeDecorPart("melon2", "models/props_junk/watermelon01.mdl")
-	if part then
+	if IsValid(part) then
 		part:SetAngles(ang)
 		part:SetPos(ent:GetPos() + Vector(0, 0, 4) + ang:Forward() * 8)
 		part:SetModelScale(0.5, 0)
 		part:DrawModel()
 	end
 	local part = ent:MakeDecorPart("melon3", "models/props_junk/watermelon01.mdl")
-	if part then
+	if IsValid(part) then
 		part:SetAngles(ang)
 		part:SetPos(ent:GetPos() + Vector(0, 0, 4) + ang:Forward() * -8)
 		part:SetModelScale(0.5, 0)
@@ -102,14 +102,14 @@ end
 function pick:DrawDecor(ent)
 	local ang = Angle(0, CurTime() * 13, 0)
 	local part = ent:MakeDecorPart("boot", "models/props_junk/Shoe001a.mdl")
-	if part then
+	if IsValid(part) then
 		part:SetAngles(ang)
 		part:SetPos(ent:GetPos() + Vector(0, 0, 8) + ang:Forward() * -6)
 		part:SetModelScale(1.2, 0)
 		part:DrawModel()
 	end
 	local part = ent:MakeDecorPart("melon", "models/props_junk/watermelon01.mdl")
-	if part then
+	if IsValid(part) then
 		part:SetAngles(ang)
 		part:SetPos(ent:GetPos() + Vector(0, 0, 6) + ang:Forward() * 4)
 		part:SetModelScale(0.6, 0)

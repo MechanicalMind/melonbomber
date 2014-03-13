@@ -83,67 +83,72 @@ if ( CLIENT ) then
 	function ENT:Draw()
 		self.MSize = math.Approach(self.MSize, 1, FrameTime() * 10)
 
-		if !self.Melon then
+		if !IsValid(self.Melon) then
 			self.Melon = ClientsideModel("models/props_junk/watermelon01.mdl")
 			self.Melon:SetNoDraw(true)
 			self.Melon:SetAngles(AngleRand())
 		end
-		-- if IsValid(self.Melon) then
-		local left = math.min(1, (3 - (self.ExplodeTime - CurTime()) ) / 3)
-		local size = left * 0.2 + 1.2 + math.sin((CurTime() - self.CreateTime) * 4) * 0.15
-		if self:GetRemoteDetonate() then
-			size = left * 0.2 + 1.2
-		end
-		if self:GetPowerBomb() then
-			size = size * 1.2
-		end
-		size = size * self.MSize
-		self.Melon:SetModelScale(size, 0)
-		local pos = self:GetPos()
-
-		-- if self:GetKicking() then
-			if !self.MelonLastPos then self.MelonLastPos = self:GetPos() end
-			self.MelonLastPos.x = math.Approach(self.MelonLastPos.x, self:GetPos().x, FrameTime() * 175)
-			self.MelonLastPos.y = math.Approach(self.MelonLastPos.y, self:GetPos().y, FrameTime() * 175)
-			self.MelonLastPos.z = math.Approach(self.MelonLastPos.z, self:GetPos().z, FrameTime() * 175)
-			pos = self.MelonLastPos
-		-- end
-
-		self.Melon:SetPos(pos + Vector(0, 0, -18 + 10))
-		if self:GetPowerBomb() then
-			if !self.Melon.PowerBomb then
-				self.Melon.PowerBomb = true
-				self.Melon:SetMaterial("models/weapons/v_crowbar/crowbar_cyl")
+		if IsValid(self.Melon) then
+			local left = math.min(1, (3 - (self.ExplodeTime - CurTime()) ) / 3)
+			local size = left * 0.2 + 1.2 + math.sin((CurTime() - self.CreateTime) * 4) * 0.15
+			if self:GetRemoteDetonate() then
+				size = left * 0.2 + 1.2
 			end
-		end
-		self.Melon:DrawModel()
-
-		if self:GetPierce() then
-			if !self.SawBlade then
-				self.SawBlade = ClientsideModel("models/props_junk/sawblade001a.mdl")
-				self.SawBlade:SetNoDraw(true)
-				self.SawBlade:SetAngles(Angle(0, math.Rand(0, 360), 0))
+			if self:GetPowerBomb() then
+				size = size * 1.2
 			end
-			self.SawBlade:SetModelScale(size * 0.6, 0)
-			self.SawBlade:SetPos(pos + Vector(0, 0, -18 + 10))
-			local ang = self.SawBlade:GetAngles()
-			ang:RotateAroundAxis(ang:Up(), FrameTime() * -400)
-			self.SawBlade:SetAngles(ang)
-			self.SawBlade:DrawModel()
-		end
+			size = size * self.MSize
+			self.Melon:SetModelScale(size, 0)
+			local pos = self:GetPos()
 
-		if self:GetRemoteDetonate() then
-			if !self.Antenna then
-				self.Antenna = ClientsideModel("models/props_rooftop/roof_dish001.mdl")
-				self.Antenna:SetNoDraw(true)
-				self.Antenna:SetAngles(Angle(0, math.Rand(0, 360), 0))
+			-- if self:GetKicking() then
+				if !self.MelonLastPos then self.MelonLastPos = self:GetPos() end
+				self.MelonLastPos.x = math.Approach(self.MelonLastPos.x, self:GetPos().x, FrameTime() * 175)
+				self.MelonLastPos.y = math.Approach(self.MelonLastPos.y, self:GetPos().y, FrameTime() * 175)
+				self.MelonLastPos.z = math.Approach(self.MelonLastPos.z, self:GetPos().z, FrameTime() * 175)
+				pos = self.MelonLastPos
+			-- end
+
+			self.Melon:SetPos(pos + Vector(0, 0, -18 + 10))
+			if self:GetPowerBomb() then
+				if !self.Melon.PowerBomb then
+					self.Melon.PowerBomb = true
+					self.Melon:SetMaterial("models/weapons/v_crowbar/crowbar_cyl")
+				end
 			end
-			local ang = self.Antenna:GetAngles()
-			ang:RotateAroundAxis(ang:Up(), FrameTime() * 13)
-			self.Antenna:SetAngles(ang)
-			self.Antenna:SetModelScale(size * 0.25, 0)
-			self.Antenna:SetPos(pos + Vector(0, 0, -18 + 10))
-			self.Antenna:DrawModel()
+			self.Melon:DrawModel()
+
+			if self:GetPierce() then
+				if !IsValid(self.SawBlade) then
+					self.SawBlade = ClientsideModel("models/props_junk/sawblade001a.mdl")
+					self.SawBlade:SetNoDraw(true)
+					self.SawBlade:SetAngles(Angle(0, math.Rand(0, 360), 0))
+				end
+				if IsValid(self.SawBlade) then
+					self.SawBlade:SetModelScale(size * 0.6, 0)
+					self.SawBlade:SetPos(pos + Vector(0, 0, -18 + 10))
+					local ang = self.SawBlade:GetAngles()
+					ang:RotateAroundAxis(ang:Up(), FrameTime() * -400)
+					self.SawBlade:SetAngles(ang)
+					self.SawBlade:DrawModel()
+				end
+			end
+
+			if self:GetRemoteDetonate() then
+				if !IsValid(self.Antenna) then
+					self.Antenna = ClientsideModel("models/props_rooftop/roof_dish001.mdl")
+					self.Antenna:SetNoDraw(true)
+					self.Antenna:SetAngles(Angle(0, math.Rand(0, 360), 0))
+				end
+				if IsValid(self.Antenna) then
+					local ang = self.Antenna:GetAngles()
+					ang:RotateAroundAxis(ang:Up(), FrameTime() * 13)
+					self.Antenna:SetAngles(ang)
+					self.Antenna:SetModelScale(size * 0.25, 0)
+					self.Antenna:SetPos(pos + Vector(0, 0, -18 + 10))
+					self.Antenna:DrawModel()
+				end
+			end
 		end
 	end
 

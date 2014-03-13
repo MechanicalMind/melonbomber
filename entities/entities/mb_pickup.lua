@@ -87,7 +87,7 @@ end
 if ( CLIENT ) then
 
 	function ENT:MakeDecorPart(name, model)
-		if self.DecorParts[name] then
+		if IsValid(self.DecorParts[name]) then
 			return self.DecorParts[name]
 		end
 		self.DecorParts[name] = ClientsideModel(model or "models/props_junk/watermelon01.mdl")
@@ -109,7 +109,7 @@ if ( CLIENT ) then
 				if pickup.DrawDecor then
 					pickup:DrawDecor(self)
 				else
-					if !self.Melon then
+					if !IsValid(self.Melon) then
 						self.Melon = ClientsideModel(pickup.model or "models/props_junk/watermelon01.mdl")
 						self.Melon:SetNoDraw(true)
 						self.Melon:SetAngles(Angle(0, math.Rand(0, 360), 0))
@@ -117,7 +117,7 @@ if ( CLIENT ) then
 							self.Melon:SetMaterial(pickup.ModelMaterial)
 						end
 					end
-					if self.Melon then
+					if IsValid(self.Melon) then
 						local ang = self.Melon:GetAngles()
 						ang:RotateAroundAxis(ang:Up(), FrameTime() * 13)
 						self.Melon:SetAngles(ang)
