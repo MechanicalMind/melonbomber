@@ -40,6 +40,8 @@ resource.AddFile("sound/melonbomber/bottle_pop_2.wav")
 resource.AddFile("materials/melonbomber/skull.png")
 resource.AddFile("materials/melonbomber/skull_license.txt")
 
+GM.MapScale = CreateConVar("mb_map_scale", 20, bit.bor(FCVAR_NOTIFY), "Size of map squared per player (default 20)" )
+GM.MapMaxArea = CreateConVar("mb_map_maxarea", 500, bit.bor(FCVAR_NOTIFY), "Max area of map squared" )
 
 function GM:Initialize() 
 	self.DeathRagdolls = {}
@@ -75,7 +77,10 @@ function GM:SetupSpawnZone(zone)
 	local mins, maxs = zone:OBBMins(), zone:OBBMaxs()
 	local size = maxs - mins
 
-	local area = amo * 20
+	local area = amo * self.MapScale:GetFloat()
+	local max = self.MapMaxArea:GetFloat()
+	print("Player area " .. area .. ", max area" .. max .. ": " .. math.min(area, max))
+	area = math.min(area, max)
 
 	local width = math.floor(size.x / jab / 2)
 	local height = math.floor(size.y / jab / 2)
