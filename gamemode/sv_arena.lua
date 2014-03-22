@@ -49,6 +49,31 @@ function GM:IsGridPosClear(zone, x, y)
 	return true
 end
 
+function GM:GetPlayersInGridPos(zone, x, y)
+	local tab = {}
+
+	local center = (zone:OBBMins() + zone:OBBMaxs()) / 2
+	local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
+	t.z = zone:OBBMins().z
+	
+	local s = zone.grid.sqsize / 2 - 1
+	for k, ent in pairs(player.GetAll()) do
+		if ent:Alive() then
+			local mins, maxs = t + Vector(-s, -s, 0), t + Vector(s, s, 32)
+			mins = mins - ent:OBBMaxs()
+			maxs = maxs - ent:OBBMins()
+			local pos = ent:GetPos()
+			if pos.x > mins.x && pos.x < maxs.x then
+				if pos.y > mins.y && pos.y < maxs.y then
+					table.insert(tab, ent)
+				end
+			end
+		end
+	end
+
+	return tab
+end
+
 function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 	if bomb:GetPowerBomb() then
 		sound.Play("npc/scanner/cbot_energyexplosion1.wav", bomb:GetPos(), 100, math.Rand(80, 120))
@@ -563,4 +588,72 @@ function GM:LineBombThink()
 			ply.LastMoveKeyDown = lastkey
 		end
 	end
+end
+
+function GM:ArenaDeathBlockThink()
+	if self:GetGameState() == 2 && self:GetStateRunningTime() > 3 * 60 then
+		if !self.DBTime || self.DBTime < CurTime() then
+			self.DBTime = CurTime() + 0.2
+			self:ArenaNextDeathBlock(ents.FindByClass("spawn_zone")[1])
+		end
+	end
+end
+
+function GM:ArenaNextDeathBlock(zone)
+	if !zone.NextDeathBlock then zone.NextDeathBlock = 0 end
+	if !zone.DeathBlockStage then zone.DeathBlockStage = 0 end
+
+	local dy = 0
+	local jx = 0
+	if zone.DeathBlockStage % 2 == 0 && zone.grid.sizeUp > 0 then
+		dy = -zone.grid.sizeUp
+		jx = -1
+	elseif zone.grid.sizeDown > 0 then
+		dy = zone.grid.sizeDown
+		jx = 1
+	else
+		if zone.DeathBlockLastLine then
+			self:EndRound(1)
+			return
+		else
+			dy = 0
+			jx = 0
+		end
+	end
+
+	if zone.NextDeathBlock >= zone.grid:getWidth() then
+		for i = -zone.grid.sizeLeft - 1, zone.grid.sizeRight + 1 do
+			local x, y = i, dy + jx
+			local ent = zone.grid:getSquare(x, y)
+			if IsValid(ent) then
+				ent:Remove()
+			end
+		end
+		if jx == -1 then
+			zone.grid.sizeUp = zone.grid.sizeUp - 1
+		elseif jx == 1 then
+			zone.grid.sizeDown = zone.grid.sizeDown - 1
+		else
+
+		end
+		zone.DeathBlockStage = zone.DeathBlockStage + 1
+		zone.NextDeathBlock = 0
+		return
+	end
+
+	local x, y = -zone.grid.sizeLeft + zone.NextDeathBlock, dy
+	local ent = zone.grid:getSquare(x, y)
+	if IsValid(ent) then
+		ent:Remove()
+	end
+
+	local t = GAMEMODE:GetPlayersInGridPos(zone, x, y)
+	for k, ply in pairs(t) do
+		ply:Kill()
+	end
+
+	local gen = ClassGenerator(zone.grid, zone:OBBMins(), zone:OBBMaxs())
+	gen:createWall(x, y, 2)
+
+	zone.NextDeathBlock = zone.NextDeathBlock + 1
 end

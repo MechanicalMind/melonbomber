@@ -40,99 +40,6 @@ end
 // 2 is pos y
 // 3 is neg x
 
-function Gen:createContainer(dir, x, y)
-	local topLeft = Vector(0, -194 + self.grid.sqsize / 2, -61.384880)
-	dir = math.Clamp(dir, 0, 3)
-	local angles = Angle(0, dir * 90, 0)
-
-	local add = self.center + Vector(self.grid.sqsize, 0, 0) * x  + Vector(0, self.grid.sqsize, 0) * y
-	local jimmy = topLeft * 1
-	jimmy:Rotate(angles)
-	local pos = add + jimmy
-	pos.z = self.mins.z
-	local ent = self:spawnProp(pos, angles, "models/props_wasteland/cargo_container01.mdl")
-	pos.z = pos.z - ent:OBBMins().z + math.Rand(-1,1)
-	ent:SetPos(pos)
-
-	ent.gridX = x
-	ent.gridY = y
-	ent.gridDir = dir
-	ent.gridType = "cont"
-
-	if math.random(0, 10) > 0 then
-		local apos = pos * 1
-		apos.z = apos.z + (ent:OBBMaxs() - ent:OBBMins()).z
-		ent.crateAbove = self:spawnProp(apos, angles, "models/props_wasteland/cargo_container01.mdl")
-		if math.random(0, 4) > 1 then
-			local apos = pos * 1
-			apos.z = apos.z + (ent:OBBMaxs() - ent:OBBMins()).z * 2
-			ent.crateDoubleAbove = self:spawnProp(apos, angles, "models/props_wasteland/cargo_container01.mdl")
-		end
-	end
-
-	-- print(ent:OBBMaxs(), ent:OBBMins())
-	if dir == 0 then
-		self.grid:setSquare(x, y, ent)
-		self.grid:setSquare(x, y - 1, ent)
-		self.grid:setSquare(x, y - 2, ent)
-	elseif dir == 1 then
-		self.grid:setSquare(x, y, ent)
-		self.grid:setSquare(x + 1, y, ent)
-		self.grid:setSquare(x + 2, y, ent)
-	elseif dir == 2 then
-		self.grid:setSquare(x, y, ent)
-		self.grid:setSquare(x, y + 1, ent)
-		self.grid:setSquare(x, y + 2, ent)
-	elseif dir == 3 then
-		self.grid:setSquare(x, y, ent)
-		self.grid:setSquare(x - 1, y, ent)
-		self.grid:setSquare(x - 2, y, ent)
-	end
-	table.insert(self.containers, ent)
-	return ent
-end
-
-
-function Gen:canPlaceContainer(dir, x, y)
-	if x < -self.grid.width then return false end
-	if x > self.grid.width then return false end
-	if y < -self.grid.height then return false end
-	if y > self.grid.height then return false end
-	dir = math.Clamp(dir, 0, 3)
-	if dir == 0 then
-		if self.grid:checkSquare(x, y) then return false end
-		if self.grid:checkSquare(x, y - 1) then return false end
-		if self.grid:checkSquare(x, y - 2) then return false end
-		if self.grid:countEmptySquares(x - 1, y - 3, x + 1, y + 1) <= 12 then return false end
-	elseif dir == 1 then
-		if self.grid:checkSquare(x, y) then return false end
-		if self.grid:checkSquare(x + 1, y) then return false end
-		if self.grid:checkSquare(x + 2, y) then return false end
-		if self.grid:countEmptySquares(x - 1, y - 1, x + 3, y + 1) <= 12 then return false end
-	elseif dir == 2 then
-		if self.grid:checkSquare(x, y) then return false end
-		if self.grid:checkSquare(x, y + 1) then return false end
-		if self.grid:checkSquare(x, y + 2) then return false end
-		if self.grid:countEmptySquares(x - 1, y - 1, x + 1, y + 3) <= 12 then return false end
-	elseif dir == 3 then
-		if self.grid:checkSquare(x, y) then return false end
-		if self.grid:checkSquare(x - 1, y) then return false end
-		if self.grid:checkSquare(x - 2, y) then return false end
-		if self.grid:countEmptySquares(x - 3, y - 1, x + 1, y + 1) <= 12 then return false end
-	end
-	return true
-end
-
-function Gen:isContainer(x, y)
-	local ent = self.grid:getSquare(x, y)
-	if IsValid(ent) && ent.gridType == "cont" then
-		return true
-	end
-	return false
-end
-
-
-
 function Gen:createBox(x, y)
 	local angles = Angle(0, 0, 0)
 
@@ -201,17 +108,12 @@ function Gen:createWall(x, y, t)
 end
 
 function Gen:generate()
-	// containers
-	-- for i = 1, (self.grid.width * self.grid.height) * 0.2 do
-	-- 	local dir, x, y = math.random(0, 3), math.random(-self.grid.width, self.grid.width), math.random(-self.grid.height, self.grid.height)
-	-- 	if self:canPlaceContainer(dir, x, y) then
-	-- 		self:createContainer(dir, x, y)
-	-- 	end
-	-- end
 
-	for i = 0, self.grid.width * self.grid.height * 2 * 2 - 1 do
-		local x = i % (self.grid.width * 2) - self.grid.width
-		local y = math.floor(i / (self.grid.width * 2)) - self.grid.height
+	// generate map
+	for i = 0, (self.grid:getWidth()) * (self.grid:getHeight()) - 1 do
+		local x = i % (self.grid:getWidth()) - self.grid.sizeLeft
+		local y = math.floor(i / (self.grid:getWidth())) - self.grid.sizeUp
+		print(x, y)
 		if x % 2 == 0 && y % 2 == 0 then
 			self:createWall(x, y)
 		else
@@ -220,30 +122,19 @@ function Gen:generate()
 			end
 		end
 	end
-	for i = -self.grid.width - 1, self.grid.width do 
-		self:createWall(i, -self.grid.height - 1, 2)
-		self:createWall(i, self.grid.height, 2)
+	print("width", self.grid:getWidth(), self.grid:getHeight())
+
+	// generate walls around map
+	for i = -self.grid.sizeLeft - 1, self.grid.sizeRight + 1 do 
+		self:createWall(i, -self.grid.sizeUp - 1, 2)
+		self:createWall(i, self.grid.sizeDown + 1, 2)
 	end
 
-	for i = -self.grid.height, self.grid.height - 1 do
-		self:createWall(-self.grid.width - 1, i, 2)
-		self:createWall(self.grid.width, i, 2)
+	for i = -self.grid.sizeUp, self.grid.sizeDown do
+		self:createWall(-self.grid.sizeLeft - 1, i, 2)
+		self:createWall(self.grid.sizeRight + 1, i, 2)
 	end
 
-
-
-	local accessible = self.grid:generateAccessible()
-	local squares = {}
-	for k, v in pairs(accessible.squares) do
-		if v.sq == nil then
-			table.insert(squares, v)
-		end
-	end
-	
-	for i = 1, 10 do
-		local sq = table.Random(squares)
-		-- self:createPlant(sq.x, sq.y)
-	end
 end
 
 // capture point

@@ -2,11 +2,24 @@
 ClassGrid = class()
 local Grid = ClassGrid
 
-function Grid:initialize(sqsize, width, height)
+function Grid:initialize(sqsize, sizeleft, sizeup, sizeright, sizedown)
 	self.squares = {}
-	self.width = width
-	self.height = height
+	if sizeleft then
+		self.sizeLeft = sizeleft
+		self.sizeRight = sizeright
+		self.sizeDown = sizedown
+		self.sizeUp = sizeup
+	end
+
 	self.sqsize = sqsize
+end
+
+function Grid:getWidth()
+	return self.sizeLeft + self.sizeRight + 1
+end
+
+function Grid:getHeight()
+	return self.sizeUp + self.sizeDown + 1
 end
 
 function Grid:setSquare(x, y, abc)
@@ -20,10 +33,10 @@ function Grid:getSquare(x, y)
 end
 
 function Grid:checkSquare(x, y)
-	if x < -self.width then return true end
-	if x > self.width then return true end
-	if y < -self.height then return true end
-	if y > self.height then return true end
+	if x < -self.sizeLeft then return true end
+	if x > self.sizeRight then return true end
+	if y < -self.sizeUp then return true end
+	if y > self.sizeDown then return true end
 	return self:getSquare(x, y) != nil
 end
 
@@ -39,64 +52,27 @@ function Grid:countEmptySquares(x1, y1, x2, y2)
 	return c
 end
 
-function Grid:canAccess(x, y)
-	if x < -self.width then return false end
-	if x > self.width - 1 then return false end
-	if y < -self.height then return false end
-	if y > self.height - 1 then return false end
-	local sq = self:getSquare(x, y)
-	if !IsValid(sq) then return true end
-	if sq.gridWalkable then return true end
-	return false 
-end
+function Grid:generateWalkable()
+	local empty = Grid(self.sqsize, self.sizeLeft, self.sizeUp, self.sizeRight, self.sizeDown)
 
-function Grid:generateAccessible()
-	local walkable = Grid(self.sqsize, self.width, self.height)
-	local todo = {}
-
-	local function doit(x, y, pow)
-		pow = pow or 0
-		if self:canAccess(x, y) then
-			local sq = walkable:getSquare(x, y)
-			if !sq || sq.pow > pow + 1 then
-				walkable:setSquare(x, y, {x = x, y = y, pow = pow + 1, sq = self:getSquare(x, y)})
-				table.insert(todo, {x = x, y = y})
+	for x = -self.sizeLeft, self.sizeRight do
+		for y = -self.sizeUp, self.sizeDown do
+			local sq = self:getSquare(x, y)
+			if !IsValid(sq) || sq.gridWalkable then
+				empty:setSquare(x, y, {x = x, y = y, sq = self:getSquare(x, y)})
 			end
 		end
 	end
 
-	for i = -self.width, self.width do
-		doit(i, -self.height)
-		doit(i, self.height)
-	end
-
-	for i = -self.height + 1, self.height - 1 do
-		doit(-self.width, i)
-		doit(self.width, i)
-	end
-
-
-	local i = 1
-	while true do
-		local v = todo[i]
-		if v then
-			doit(v.x + 1, v.y, walkable:getSquare(v.x, v.y).pow)
-			doit(v.x - 1, v.y, walkable:getSquare(v.x, v.y).pow)
-			doit(v.x, v.y + 1, walkable:getSquare(v.x, v.y).pow)
-			doit(v.x, v.y - 1, walkable:getSquare(v.x, v.y).pow)
-		else
-			break
-		end
-		i = i + 1
-	end
-	return walkable
+	return empty
 end
 
-function Grid:generateEmpty()
-	local empty = Grid(self.sqsize, self.width, self.height)
 
-	for x = -self.width, self.width - 1 do
-		for y = -self.height, self.height - 1 do
+function Grid:generateEmpty()
+	local empty = Grid(self.sqsize, self.sizeLeft, self.sizeUp, self.sizeRight, self.sizeDown)
+
+	for x = -self.sizeLeft, self.sizeRight do
+		for y = -self.sizeUp, self.sizeDown do
 			local sq = self:getSquare(x, y)
 			if !IsValid(sq) then
 				empty:setSquare(x, y, {x = x, y = y, sq = self:getSquare(x, y)})

@@ -79,7 +79,7 @@ function GM:SetupSpawnZone(zone)
 
 	local area = amo * self.MapScale:GetFloat()
 	local max = self.MapMaxArea:GetFloat()
-	print("Player area " .. area .. ", max area" .. max .. ": " .. math.min(area, max))
+	print("Player area " .. area .. ", max area " .. max .. ": " .. math.min(area, max))
 	area = math.min(area, max)
 
 	local width = math.floor(size.x / jab / 2)
@@ -89,18 +89,19 @@ function GM:SetupSpawnZone(zone)
 	width = math.min(width, max)
 	height = math.min(height, max)
 
-	zone.grid = ClassGrid(jab, width, height)
+	zone.grid = ClassGrid(jab, width, height, width, height)
 	local generator = ClassGenerator(zone.grid, mins, maxs)
 
 	generator:generate()
 
-	zone.walkable = zone.grid:generateAccessible()
+	zone.walkable = zone.grid:generateEmpty()
 end
 
 function GM:Think()
 	self:RoundsThink()
 	self:SpectateThink()
 	self:LineBombThink()
+	self:ArenaDeathBlockThink()
 end
 
 function GM:ShutDown()
