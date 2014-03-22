@@ -125,6 +125,7 @@ function GM:OnStartRound()
 end
 
 function GM:EntityTakeDamage( ent, dmginfo )
+	ent.LastDamageInfo = dmginfo
 end
 
 function file.ReadDataAndContent(path)

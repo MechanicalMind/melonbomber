@@ -237,6 +237,7 @@ function GM:SpecificExplosion(zone, x, y, bomb, attacker)
 						dmg:SetDamageForce((ent:GetShootPos() - bomb:GetPos()):GetNormal() * 10 )
 					end
 					dmg:SetDamage(400)
+					dmg:SetDamageType(DMG_BLAST)
 					ent:TakeDamageInfo(dmg)
 				end
 			end
@@ -593,7 +594,7 @@ end
 function GM:ArenaDeathBlockThink()
 	if self:GetGameState() == 2 && self:GetStateRunningTime() > 3 * 60 then
 		if !self.DBTime || self.DBTime < CurTime() then
-			self.DBTime = CurTime() + 0.2
+			self.DBTime = CurTime() + math.Rand(0.1, 0.3)
 			self:ArenaNextDeathBlock(ents.FindByClass("spawn_zone")[1])
 		end
 	end
@@ -649,11 +650,17 @@ function GM:ArenaNextDeathBlock(zone)
 
 	local t = GAMEMODE:GetPlayersInGridPos(zone, x, y)
 	for k, ply in pairs(t) do
-		ply:Kill()
+		local dmg = DamageInfo()
+		dmg:SetDamageType(DMG_AIRBOAT)
+		dmg:SetDamage(1000)
+		ply:TakeDamageInfo(dmg)
 	end
 
 	local gen = ClassGenerator(zone.grid, zone:OBBMins(), zone:OBBMaxs())
-	gen:createWall(x, y, 2)
+	local ent = gen:createWall(x, y, 2)
+	if IsValid(ent) then
+		ent:EmitSound("physics/metal/metal_box_impact_soft" .. math.random(1, 3) .. ".wav")
+	end
 
 	zone.NextDeathBlock = zone.NextDeathBlock + 1
 end

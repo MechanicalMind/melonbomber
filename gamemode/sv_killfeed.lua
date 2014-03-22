@@ -6,5 +6,10 @@ function GM:AddKillFeed(ply, inflictor, attacker)
 	net.WriteEntity(ply)
 	net.WriteEntity(inflictor)
 	net.WriteEntity(attacker)
+	if ply.LastDamageInfo then
+		net.WriteUInt(ply.LastDamageInfo:GetDamageType(), 32)
+	else
+		net.WriteUInt(0, 32)
+	end
 	net.Broadcast()
 end
