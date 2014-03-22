@@ -594,7 +594,7 @@ end
 function GM:ArenaDeathBlockThink()
 	if self:GetGameState() == 2 && self:GetStateRunningTime() > 3 * 60 then
 		if !self.DBTime || self.DBTime < CurTime() then
-			self.DBTime = CurTime() + math.Rand(0.1, 0.3)
+			self.DBTime = CurTime() + 0.2
 			self:ArenaNextDeathBlock(ents.FindByClass("spawn_zone")[1])
 		end
 	end
@@ -646,6 +646,14 @@ function GM:ArenaNextDeathBlock(zone)
 	local ent = zone.grid:getSquare(x, y)
 	if IsValid(ent) then
 		ent:Remove()
+	end
+
+	if jx != 0 then
+		local x, y = -zone.grid.sizeLeft + zone.NextDeathBlock - 1, dy + jx
+		local ent = zone.grid:getSquare(x, y)
+		if IsValid(ent) then
+			ent:Remove()
+		end
 	end
 
 	local t = GAMEMODE:GetPlayersInGridPos(zone, x, y)
