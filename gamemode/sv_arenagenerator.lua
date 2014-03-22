@@ -113,7 +113,6 @@ function Gen:generate()
 	for i = 0, (self.grid:getWidth()) * (self.grid:getHeight()) - 1 do
 		local x = i % (self.grid:getWidth()) - self.grid.sizeLeft
 		local y = math.floor(i / (self.grid:getWidth())) - self.grid.sizeUp
-		print(x, y)
 		if x % 2 == 0 && y % 2 == 0 then
 			self:createWall(x, y)
 		else
@@ -122,7 +121,6 @@ function Gen:generate()
 			end
 		end
 	end
-	print("width", self.grid:getWidth(), self.grid:getHeight())
 
 	// generate walls around map
 	for i = -self.grid.sizeLeft - 1, self.grid.sizeRight + 1 do 
