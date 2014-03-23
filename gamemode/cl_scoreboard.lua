@@ -165,7 +165,11 @@ end
 
 function GM:ScoreboardShow()
 	if IsValid(menu) then
-		menu:SetVisible(true)
+		if GAMEMODE.GameState == 3 then
+			menu:SetVisible(!menu:IsVisible())
+		else
+			menu:SetVisible(true)
+		end
 	else
 		menu = vgui.Create("DFrame")
 		GAMEMODE.ScoreboardPanel = menu
