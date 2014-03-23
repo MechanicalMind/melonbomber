@@ -371,7 +371,7 @@ function GM:PlayerPlaceBomb(ply)
 	end
 end
 
-function GM:CreateBomb(zone, x, y, owner, count)
+function GM:CreateBomb(zone, x, y, owner, count, nopowerbomb)
 	local center = (zone:OBBMins() + zone:OBBMaxs()) / 2
 	local t = Vector(x * zone.grid.sqsize, y * zone.grid.sqsize) + center
 	t.z = zone:OBBMins().z
@@ -380,7 +380,7 @@ function GM:CreateBomb(zone, x, y, owner, count)
 	ent:SetBombOwner(owner)
 	ent:SetAngles(Angle(0, 0, 0))
 	ent:SetExplosionLength(owner:GetBombPower())
-	if owner:HasUpgrade(5) && count == 0 then
+	if owner:HasUpgrade(5) && count == 0 && !nopowerbomb then
 		ent:SetPowerBomb(true)
 	else
 		if owner:HasUpgrade(4) then
@@ -511,7 +511,7 @@ function GM:PlaceLineBomb(ply, zone, x, y, dir)
 			end
 
 			placed = placed + 1
-			self:CreateBomb(zone, sx, sy, ply, count)
+			self:CreateBomb(zone, sx, sy, ply, count, true)
 			count = count + 1
 
 			if count < ply:GetMaxBombs() then
