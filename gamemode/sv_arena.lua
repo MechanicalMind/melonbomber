@@ -292,6 +292,7 @@ function GM:GibCrate(ent)
 		else
 			gib:SetModel(table.Random(woodGibs))
 		end
+		gib:SetAngles(AngleRand())
 		gib:SetMaterial(ent:GetMaterial())
 		gib:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 		gib:Spawn()
