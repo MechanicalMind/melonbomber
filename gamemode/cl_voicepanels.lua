@@ -52,7 +52,7 @@ function PANEL:Paint( w, h )
 	surface.DrawOutlinedRect(0, 0, w * volume, h)
 
 	local f = draw.ShadowText or draw.SimpleText
-	draw.ShadowText(self.ply:Nick(), "GModNotify", (w - 32) / 2, h / 2, color_white, 1, 1)
+	draw.ShadowText(self.ply:Nick(), "GModNotify", 4 + 32 + 4, h / 2, Color(255, 255, 255, volume * 255), 1, 1)
 
 end
 
