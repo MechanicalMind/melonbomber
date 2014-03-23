@@ -5,10 +5,7 @@ local Gen = ClassGenerator
 function Gen:initialize(grid, mins, maxs)
 	self.containers = {}
 	self.walls = {}
-	self.doors = {}
-	self.trees = {}
-	self.decor = {}
-	self.plants = {}
+	self.crates = {}
 	self.grid = grid
 	self.mins = mins
 	self.maxs = maxs
@@ -40,7 +37,7 @@ end
 // 2 is pos y
 // 3 is neg x
 
-function Gen:createBox(x, y)
+function Gen:createBox(x, y, strength)
 	local angles = Angle(0, 0, 0)
 
 	local size = 20
@@ -49,9 +46,13 @@ function Gen:createBox(x, y)
 	pos.z = self.mins.z
 
 	local ent = self:spawnProp(pos, angles, "models/hunter/blocks/cube075x075x075.mdl")
-	ent:SetMaterial("models/props/CS_militia/roofbeams03")
-	local b = math.random(200, 255)
-	ent:SetColor(Color(255, b, b))
+	if strength && strength > 1 then
+		ent:SetMaterial("models/props_c17/metalladder002")
+	else
+		ent:SetMaterial("models/props/CS_militia/roofbeams03")
+		local b = math.random(200, 255)
+		ent:SetColor(Color(255, b, b))
+	end
 	local phys = ent:GetPhysicsObject()
 	if IsValid(phys) then
 	end
@@ -67,7 +68,9 @@ function Gen:createBox(x, y)
 	ent.gridWalkable = true
 	ent.gridBreakable = true
 	ent.gridSolid = true
-	table.insert(self.plants, ent)
+	ent.gridStrength = strength or 1
+	ent.gridMaxStrength = strength or 1
+	table.insert(self.crates, ent)
 
 	self.grid:setSquare(x, y, ent)
 	return ent
@@ -101,7 +104,7 @@ function Gen:createWall(x, y, t)
 	ent.gridType = "wall"
 	ent.gridWalkable = false
 	ent.gridSolid = true
-	table.insert(self.plants, ent)
+	table.insert(self.walls, ent)
 
 	self.grid:setSquare(x, y, ent)
 	return ent
@@ -117,7 +120,11 @@ function Gen:generate()
 			self:createWall(x, y)
 		else
 			if math.random(4) != 1 then
-				self:createBox(x, y)
+				if math.random(1, 15) == 1 then
+					self:createBox(x, y, 3)
+				else
+					self:createBox(x, y)
+				end
 			end
 		end
 	end

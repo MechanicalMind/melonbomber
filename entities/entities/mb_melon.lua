@@ -194,6 +194,13 @@ function ENT:Think()
 			end
 		end
 
+		if self:GetRemoteDetonate() && !self.HasRemoteAlarmed && self.CreateTime + 1 < CurTime() then
+			self.HasRemoteAlarmed = true
+			if IsValid(self:GetBombOwner()) then
+				self:GetBombOwner():EmitSound("npc/roller/remote_yes.wav", 40, 70)
+			end
+		end
+
 		if self.ExplodeTime < CurTime() && !self:GetRemoteDetonate() then
 			self:Explode()
 			return true
@@ -219,6 +226,11 @@ function ENT:Think()
 						zone.grid:setSquare(x, y, nil)
 					else
 						self:SetKicking(false)
+						local ent = zone.grid:getSquare(sx, sy)
+						if IsValid(ent) && ent:GetClass() == "mb_melon" then
+							ent:KickMelon(self.KickingDir)
+							sound.Play("physics/flesh/flesh_squishy_impact_hard" .. math.random(1, 4) .. ".wav", self:GetPos(), 75, math.random( 90, 120 ))
+						end
 					end
 				else
 					self:SetKicking(false)
@@ -231,6 +243,21 @@ function ENT:Think()
 	end
 end
 
+function ENT:KickMelon(dir)
+	local zone, x, y = GAMEMODE:GetGridPosFromEnt(self)
+	if zone then
+		local sx = x + math.Round(dir.x)
+		local sy = y + math.Round(dir.y)
+		if GAMEMODE:IsGridPosClear(zone, sx, sy) then
+			self:SetKicking(true)
+			self.KickingDelay = CurTime() + 0
+			self.KickingDir = dir
+			return true
+		end
+	end
+	return false
+end
+
 function ENT:StartTouch(ent)
 	local phys = self:GetPhysicsObject()
 	if ent:IsPlayer() && ent:HasUpgrade(8) then
@@ -240,17 +267,10 @@ function ENT:StartTouch(ent)
 				local ang = (self:GetPos() - ent:GetPos()):Angle()
 				ang.p = 0
 				ang.y = math.Round(ang.y / 90) * 90
-				self.KickingDir = ang:Forward()
+				local dir = ang:Forward()
 
-				local zone, x, y = GAMEMODE:GetGridPosFromEnt(self)
-				if zone then
-					local sx = x + math.Round(self.KickingDir.x)
-					local sy = y + math.Round(self.KickingDir.y)
-					if GAMEMODE:IsGridPosClear(zone, sx, sy) then
-						self:SetKicking(true)
-						self.KickingDelay = CurTime() + 0
-						self:EmitSound("npc/fast_zombie/claw_strike3.wav")
-					end
+				if self:KickMelon(dir) then
+					self:EmitSound("npc/fast_zombie/claw_strike3.wav")
 				end
 			end
 		end

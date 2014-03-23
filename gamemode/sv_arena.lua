@@ -206,9 +206,16 @@ function GM:SpecificExplosion(zone, x, y, bomb, attacker)
 	local ent = zone.grid:getSquare(x, y)
 	if IsValid(ent) then
 		if ent.gridBreakable then
-			self:GibCrate(ent)
-			self:CreatePickup(ent)
-			ent:Remove()
+			if !bomb:GetPowerBomb() && ent.gridStrength > 1 then
+				self:GibCrate(ent)
+				ent.gridStrength = ent.gridStrength - 1
+				local b = ent.gridStrength / ent.gridMaxStrength * 150 + (255 - 150)
+				ent:SetColor(Color(b, b, b))
+			else
+				self:GibCrate(ent)
+				self:CreatePickup(ent)
+				ent:Remove()
+			end
 		elseif ent:GetClass() == "mb_pickup" then
 			ent:Remove()
 		end
@@ -237,7 +244,7 @@ function GM:SpecificExplosion(zone, x, y, bomb, attacker)
 						dmg:SetDamageForce((ent:GetShootPos() - bomb:GetPos()):GetNormal() * 10 )
 					end
 					dmg:SetDamage(400)
-					dmg:SetDamageType(DMG_BLAST)
+					-- dmg:SetDamageType(DMG_BLAST)
 					ent:TakeDamageInfo(dmg)
 				end
 			end
@@ -245,15 +252,47 @@ function GM:SpecificExplosion(zone, x, y, bomb, attacker)
 	end
 end
 
+local brickGibs = {
+	"models/props_debris/prison_wallchunk001a.mdl",
+	"models/props_debris/prison_wallchunk001f.mdl",
+	"models/props_debris/concrete_chunk02a.mdl",
+	"models/props_debris/concrete_chunk07a.mdl",
+	"models/props_debris/concrete_chunk08a.mdl"
+}
+
+local woodGibs = {
+	"models/props_junk/wood_crate001a_chunk01.mdl",
+	"models/props_junk/wood_crate001a_chunk02.mdl",
+	"models/props_junk/wood_crate001a_chunk03.mdl",
+	"models/props_junk/wood_crate001a_chunk04.mdl",
+	"models/props_junk/wood_crate001a_chunk05.mdl",
+	"models/props_junk/wood_crate001a_chunk06.mdl",
+	"models/props_junk/wood_crate001a_chunk07.mdl",
+	"models/props_junk/wood_crate001a_chunk09.mdl"
+}
+
+local woodBreak = {
+	"physics/wood/wood_plank_break1.wav",
+	"physics/wood/wood_plank_break2.wav",
+	"physics/wood/wood_plank_break3.wav",
+	"physics/wood/wood_plank_break4.wav"
+}
+
 function GM:GibCrate(ent)
 
-	for i = 1, math.random(1, 3) do
-		local i = math.random(1, 8)
-		if i == 8 then i = 9 end
+	local maxGibs = 3
+	if ent.gridStrength && ent.gridStrength > 1 then
+		maxGibs = 2
+	end
+	for i = 1, math.random(1, maxGibs) do
 		local gib = ents.Create("prop_physics")
 		gib:SetPos(ent:GetPos() + Vector(0, 0, 30))
-		gib:SetModel("models/props_junk/wood_crate001a_chunk0" .. i .. ".mdl")
-		gib:SetMaterial("models/props/CS_militia/roofbeams03")
+		if ent.gridMaxStrength > 1 then
+			gib:SetModel(table.Random(brickGibs))
+		else
+			gib:SetModel(table.Random(woodGibs))
+		end
+		gib:SetMaterial(ent:GetMaterial())
 		gib:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
 		gib:Spawn()
 		gib:Fire("kill", "", math.Rand(3, 8))
@@ -264,7 +303,11 @@ function GM:GibCrate(ent)
 		end
 	end
 
-	ent:EmitSound("physics/wood/wood_plank_break" .. math.random(1, 4) .. ".wav")
+	if ent.gridMaxStrength && ent.gridMaxStrength > 1 then
+	
+	else
+		ent:EmitSound(table.Random(woodBreak))
+	end
 end
 
 function GM:CreatePickup(ent)
@@ -354,9 +397,8 @@ function GM:CreateBomb(zone, x, y, owner, count)
 
 	if ent:GetRemoteDetonate() then
 		ent:EmitSound("npc/roller/mine/rmine_predetonate.wav", 65, 70)
-	else
 	end
-		ent:EmitSound("npc/roller/blade_cut.wav", 65, 70)
+	ent:EmitSound("npc/roller/blade_cut.wav", 65, 70)
 
 	local phys = ent:GetPhysicsObject()
 	if IsValid(phys) then
