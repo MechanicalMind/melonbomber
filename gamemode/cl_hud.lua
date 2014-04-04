@@ -150,6 +150,7 @@ function GM:DrawHealthFace(ply)
 	render.SetStencilPassOperation( STENCILOPERATION_REPLACE )
 	render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_ALWAYS )
 	render.SetStencilWriteMask( 1 )
+	render.SetStencilTestMask( 1 )
 	render.SetStencilReferenceValue( 1 )
 
 	render.SetBlend( 0 )
