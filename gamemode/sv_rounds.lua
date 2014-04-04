@@ -130,6 +130,7 @@ function GM:EndRound(reason, winner)
 	for k, ply in pairs(self:GetPlayingPlayers()) do
 		
 	end
+	self:AddRoundStatistic(self:GetStateRunningTime(), #self:GetPlayingPlayers())
 	self:SetGameState(3)
 end
 

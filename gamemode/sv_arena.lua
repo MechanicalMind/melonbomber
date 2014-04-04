@@ -635,7 +635,7 @@ function GM:LineBombThink()
 end
 
 function GM:ArenaDeathBlockThink()
-	if self:GetGameState() == 2 && self:GetStateRunningTime() > 3 * 60 then
+	if self:GetGameState() == 2 && self:GetStateRunningTime() > 10 * 60 then
 		if !self.DBTime || self.DBTime < CurTime() then
 			self.DBTime = CurTime() + 0.2
 			self:ArenaNextDeathBlock(ents.FindByClass("spawn_zone")[1])

@@ -58,18 +58,26 @@ local function formatf(str, ...)
 		elseif tl == "f" then
 			value = tonumber(value or 0) or 0
 			if c == nil || c == "" then
-				res = tostring(value)
+				res = tostring(math.abs(value))
 			else
-				local pow = 10 ^ (math.max(1, tonumber(c or 1) or 1))
+				local pow = 10 ^ (math.max(0, tonumber(c or 1) or 1))
 				res = tostring(math.Round(math.abs(value) * pow) / pow)
 				local a, b = res:match("([^%.]*)%.([^%.]*)")
 				local padding = tonumber(c or 0) or 0
 				if a then
-					if #b < padding then
-						res = res .. ("0"):rep(padding - #b)
+					if pow <= 1 then
+						res = a
+					else
+						if #b < padding then
+							res = res .. ("0"):rep(padding - #b)
+						end
 					end
 				else
-					res = res .. "." .. ("0"):rep(padding)
+					if pow <= 1 then
+
+					else
+						res = res .. "." .. ("0"):rep(padding)
+					end
 				end
 			end
 		elseif tl == "s" then
@@ -116,7 +124,8 @@ local function printf(str, ...)
 	print(formatf(str, ...))
 end
 
-concommand.Add("mu_stats_print", function ()
+concommand.Add("mu_stats_round", function (ply, com, args)
+	if IsValid(ply) && !ply:IsListenServerHost() then return end
 	local code = [[SELECT * FROM mu_round LIMIT 100]]
 	local res = sql.Query(code)
 	if res == false then
@@ -126,7 +135,7 @@ concommand.Add("mu_stats_print", function ()
 	if res then
 		printf("|%5s|%7s|%10s|", "Round", "Players", "Time")
 		for k, v in pairs(res) do
-			printf("|%5d|%7d|%10f|", v.id, v.numPlayers, v.timePlayed)
+			printf("|%5d|%7d|%9.0fs|", v.id, v.numPlayers, v.timePlayed)
 		end
 	end
 end)
