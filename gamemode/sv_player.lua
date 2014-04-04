@@ -453,3 +453,11 @@ function GM:PlayerSay( ply, text, team)
 	Msg(ply:Nick() .. ": " .. text .. "\n")
 	return false
 end
+
+function GM:StartCommand(ply, cmd)
+	if ply:IsBot() then
+		cmd:SetForwardMove(0)
+		cmd:SetViewAngles(Angle(0, 0, 0))
+		self:BotMove(ply, cmd)
+	end
+end

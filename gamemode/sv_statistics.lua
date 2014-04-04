@@ -126,16 +126,25 @@ end
 
 concommand.Add("mu_stats_round", function (ply, com, args)
 	if IsValid(ply) && !ply:IsListenServerHost() then return end
-	local code = [[SELECT * FROM mu_round LIMIT 100]]
+	local size = tonumber(args[2] or 100) or 100
+	local page = tonumber(args[1] or 0) or 0
+
+	local code = [[SELECT * FROM mu_round LIMIT %1, %2]]
+	code = code:gsub("%%1", sql.SQLStr(page * size, true), 1)
+	code = code:gsub("%%2", sql.SQLStr(size, true), 1)
 	local res = sql.Query(code)
 	if res == false then
 		print("Stats SQL error: " .. sql.LastError())
 		return
 	end
+	print((res and #res or 0) .. " results")
 	if res then
-		printf("|%5s|%7s|%10s|", "Round", "Players", "Time")
+		local mc = MsgClients()
+		mc:SetDefaultColor(Color(150, 255, 150))
+		mc:Add(formatf("|%5s|%7s|%8s|\n", "Round", "Players", "Time"))
 		for k, v in pairs(res) do
-			printf("|%5d|%7d|%9.0fs|", v.id, v.numPlayers, v.timePlayed)
+			mc:Add(formatf("|%5d|%7d|%7.0fs|\n", v.id, v.numPlayers, v.timePlayed))
 		end
+		mc:Send(ply)
 	end
 end)

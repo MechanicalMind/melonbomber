@@ -31,6 +31,7 @@ include("sh_pickups.lua")
 include("sh_weightedrandom.lua")
 include("sv_killfeed.lua")
 include("sv_statistics.lua")
+include("sv_bot.lua")
 
 
 util.AddNetworkString("clientIPE")
@@ -46,6 +47,7 @@ GM.MapMaxArea = CreateConVar("mb_map_maxarea", 500, bit.bor(FCVAR_NOTIFY), "Max 
 
 function GM:Initialize() 
 	self.DeathRagdolls = {}
+	self:SetupStatisticsTables()
 end
 
 function GM:InitPostEntity() 
