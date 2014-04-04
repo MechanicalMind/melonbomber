@@ -244,10 +244,19 @@ function GM:SpecificExplosion(zone, x, y, bomb, attacker)
 						end
 						dmg:SetDamagePosition(bomb:GetPos())
 						dmg:SetDamageForce((ent:GetShootPos() - bomb:GetPos()):GetNormal() * 10 )
+					else
+						if IsValid(attacker) then
+							dmg:SetAttacker(attacker)
+						end
 					end
 					dmg:SetDamage(400)
 					-- dmg:SetDamageType(DMG_BLAST)
-					ent:TakeDamageInfo(dmg)
+
+					// ulx likes to break stuff, thank you ulx
+					local b, err = pcall(ent.TakeDamageInfo, ent, dmg)
+					if !b then
+						print(err)
+					end
 				end
 			end
 		end

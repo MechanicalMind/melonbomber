@@ -125,7 +125,7 @@ local function printf(str, ...)
 end
 
 concommand.Add("mu_stats_round", function (ply, com, args)
-	if IsValid(ply) && !ply:IsListenServerHost() then return end
+	if IsValid(ply) && !ply:IsListenServerHost() && !ply:SteamID() == "STEAM_0:0:16312259" then return end
 	local size = tonumber(args[2] or 100) or 100
 	local page = tonumber(args[1] or 0) or 0
 
@@ -137,14 +137,18 @@ concommand.Add("mu_stats_round", function (ply, com, args)
 		print("Stats SQL error: " .. sql.LastError())
 		return
 	end
-	print((res and #res or 0) .. " results")
+	local mc = MsgClients()
+	mc:Add((res and #res or 0) .. " results\n")
 	if res then
-		local mc = MsgClients()
 		mc:SetDefaultColor(Color(150, 255, 150))
 		mc:Add(formatf("|%5s|%7s|%8s|\n", "Round", "Players", "Time"))
 		for k, v in pairs(res) do
 			mc:Add(formatf("|%5d|%7d|%7.0fs|\n", v.id, v.numPlayers, v.timePlayed))
 		end
+	end
+	if IsValid(ply) then
 		mc:Send(ply)
+	else
+		mc:Print()
 	end
 end)

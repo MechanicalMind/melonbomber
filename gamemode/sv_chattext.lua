@@ -69,6 +69,12 @@ function meta:NetConstructMsg()
 	net.WriteUInt(0, 8)
 end
 
+function meta:Print()
+	for k, line in pairs(self.msgs) do
+		MsgC(line.color, line.text)
+	end
+end
+
 function MsgClients()
 	local t = {}
 	t.msgs = {}

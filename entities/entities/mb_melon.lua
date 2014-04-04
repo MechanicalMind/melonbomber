@@ -281,8 +281,6 @@ function ENT:Explode(zone, combiner)
 	if self.HasExploded then return end
 	self.HasExploded = true
 	-- self:GibBreakClient(Vector(0, 0, 4))
-	self:Remove()
-
 	if zone then
 		local x, y = GAMEMODE:GetGridPosFromEntZone(zone, self)
 		if x then
@@ -294,6 +292,7 @@ function ENT:Explode(zone, combiner)
 			GAMEMODE:CreateExplosion(zone, x, y, self:GetExplosionLength(), self)
 		end
 	end
+	self:Remove()
 end
 
 // big chunks
