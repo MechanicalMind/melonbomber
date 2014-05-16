@@ -646,10 +646,19 @@ function GM:LineBombThink()
 end
 
 function GM:ArenaDeathBlockThink()
-	if self:GetGameState() == 2 && self:GetStateRunningTime() > self.DeathBlocksTime:GetFloat() then
-		if !self.DBTime || self.DBTime < CurTime() then
-			self.DBTime = CurTime() + 0.2
-			self:ArenaNextDeathBlock(ents.FindByClass("spawn_zone")[1])
+	if self:GetGameState() == 2 then
+		if !self.DeathBlocksStarted then
+			if self:GetStateRunningTime() > self.DeathBlocksTime:GetFloat() then
+				self.DeathBlocksStarted = true
+				local ct = ChatText()
+				ct:Add("Death blocks have started, get to the center!", Color(170, 10, 10))
+				ct:SendAll()
+			end
+		else
+			if !self.DBTime || self.DBTime < CurTime() then
+				self.DBTime = CurTime() + 0.2
+				self:ArenaNextDeathBlock(ents.FindByClass("spawn_zone")[1])
+			end
 		end
 	end
 end

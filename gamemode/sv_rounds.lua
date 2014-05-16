@@ -78,6 +78,7 @@ function GM:SetupRound()
 		end
 	end
 	self:CleanupMap()
+	self.DeathBlocksStarted = false
 	
 	self:SetGameState(1)
 	self.Rounds = self.Rounds + 1

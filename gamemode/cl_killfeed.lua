@@ -57,7 +57,7 @@ function GM:DrawKillFeed()
 				local killed = " killed "
 				local twa, tha = surface.GetTextSize("Death blocks")
 				local twk, thk = surface.GetTextSize(killed)
-				draw.ShadowText("Death blocks", "RobotoHUD-15", ScrW() - 4 - twp - twk - twa, 4 + down * gap, Color(220, 30, 30), 0)
+				draw.ShadowText("Death blocks", "RobotoHUD-15", ScrW() - 4 - twp - twk - twa, 4 + down * gap, Color(170, 10, 10), 0)
 				draw.ShadowText(killed, "RobotoHUD-15", ScrW() - 4 - twp - twk, 4 + down * gap, color_white, 0)
 				draw.ShadowText(t.playerName, "RobotoHUD-15", ScrW() - 4 - twp, 4 + down * gap, t.playerColor, 0)
 			else
