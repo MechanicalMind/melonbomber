@@ -11,8 +11,21 @@ function meta:Add(string, color)
 	return self
 end
 
+function meta:AddPart(msg)
+	table.insert(self.msgs, msg)
+	return self
+end
+
+function meta:AddParts(msgs)
+	for k, msg in pairs(msgs) do
+		table.insert(self.msgs, msg)
+	end
+	return self
+end
+
 function meta:SetDefaultColor(color)
 	self.default_color = color
+	return self
 end
 
 function meta:SendAll()
@@ -36,14 +49,18 @@ function meta:NetConstructMsg()
 	for k, msg in pairs(self.msgs) do
 		net.WriteUInt(1,8)
 		net.WriteString(msg.text)
+		if !msg.color then
+			msg.color = self.default_color or color_white
+		end
 		net.WriteVector(Vector(msg.color.r, msg.color.g, msg.color.b))
 	end
 	net.WriteUInt(0,8)
+	return self
 end
 
-function ChatText()
+function ChatText(msgs)
 	local t = {}
-	t.msgs = {}
+	t.msgs = msgs or {}
 	setmetatable(t, meta)
 	return t
 end
@@ -67,17 +84,19 @@ function meta:NetConstructMsg()
 		net.WriteString(line.text)
 	end
 	net.WriteUInt(0, 8)
+	return self
 end
 
 function meta:Print()
 	for k, line in pairs(self.msgs) do
 		MsgC(line.color, line.text)
 	end
+	return self
 end
 
-function MsgClients()
+function MsgClients(msgs)
 	local t = {}
-	t.msgs = {}
+	t.msgs = msgs or {}
 	setmetatable(t, meta)
 	return t
 end
