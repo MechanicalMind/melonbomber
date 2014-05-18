@@ -166,7 +166,7 @@ end
 function GM:ScoreboardShow()
 	if IsValid(menu) then
 		if GAMEMODE.GameState == 3 then
-			menu:SetVisible(!menu:IsVisible())
+			menu:SetVisible(false)
 		else
 			menu:SetVisible(true)
 		end
@@ -269,11 +269,10 @@ function GM:ScoreboardShow()
 end
 function GM:ScoreboardHide()
 	if GAMEMODE.GameState == 3 then
+		menu:Close()
 		return
 	end
 	if IsValid(menu) then
-		menu.ResultsPanel.Results = nil
-		menu.ResultsPanel:InvalidateLayout()
 		menu:Close()
 	end
 end

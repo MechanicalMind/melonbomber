@@ -8,6 +8,13 @@ local function createRoboto(s)
 		antialias = true,
 		italic = false
 	})
+	surface.CreateFont( "RobotoHUD-L" .. s , {
+		font = "Roboto",
+		size = math.Round(ScrW() / 1000 * s),
+		weight = 500,
+		antialias = true,
+		italic = false
+	})
 end
 
 for i = 5, 50, 5 do
@@ -28,6 +35,13 @@ function draw.EasyPNG(path, x, y, w, h, col)
 		surface.SetDrawColor(255, 255, 255, 255)
 	end
 	surface.DrawTexturedRect(x, y, w, h)
+end
+
+function draw.DrawRectOutline(x, y, w, h, border)
+	surface.DrawRect(x, y, w, border)
+	surface.DrawRect(x, y, border, h)
+	surface.DrawRect(x, y + h - border, w, border)
+	surface.DrawRect(x + w - border, y, border, h)
 end
 
 local function translate(name)

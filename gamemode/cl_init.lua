@@ -15,6 +15,8 @@ include("sh_weightedrandom.lua")
 include("cl_killfeed.lua")
 include("cl_voicepanels.lua")
 include("cl_helpscreen.lua")
+include("cl_endroundboard.lua")
+include("cl_wraptext.lua")
 
 GM.FirstPerson = CreateClientConVar( "mb_firstperson", 0, true, true )
 
@@ -211,3 +213,25 @@ net.Receive("pk_elecplosion", function (len)
 	eff:SetMagnitude(net.ReadDouble())
 	util.Effect("pk_elecplosion", eff, true, true)
 end)
+
+function GM:StartChat()
+	if IsValid(self.EndRoundPanel) && self.EndRoundPanel:IsVisible() then
+		timer.Simple(0, function () chat.Close() end)
+
+		self.EndRoundPanel:SetKeyboardInputEnabled(true)
+		self.EndRoundPanel.ChatTextEntry:RequestFocus()
+		return true
+	end
+end
+
+function GM:ChatText(i, name, text, filter)
+	self:EndRoundAddChatText(Color(0, 120, 220), text)
+
+	if ( filter == "chat" ) then
+		Msg( name, ": ", text, "\n" )
+	else
+		Msg( text, "\n" )
+	end
+	
+	return false
+end

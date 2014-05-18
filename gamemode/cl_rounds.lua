@@ -21,9 +21,7 @@ net.Receive("gamestate", function (len)
 
 
 	if GAMEMODE.GameState == 0 then
-		GAMEMODE:ScoreboardHide()
 	elseif GAMEMODE.GameState == 1 then
-		GAMEMODE:ScoreboardHide()
 		GAMEMODE.UpgradesNotif = {}
 		GAMEMODE.KillFeed = {}
 
@@ -40,6 +38,10 @@ net.Receive("gamestate", function (len)
 			GAMEMODE.StartSiren:FadeOut(0.3)
 		end
 	end
+
+	if GAMEMODE.GameState != 2 then
+		GAMEMODE:CloseEndRoundMenu()
+	end
 end)
 
 net.Receive("round_victor", function (len)
@@ -53,10 +55,28 @@ net.Receive("round_victor", function (len)
 	end
 
 	timer.Simple(2, function ()
-		GAMEMODE:ScoreboardRoundResults(tab)
+		GAMEMODE:EndRoundMenuResults(tab)
 	end)
 end)
 
 function PlayerMeta:GetScore()
 	return self:GetNWInt("MelonScore") or 0
+end
+
+net.Receive("gamerules", function ()
+
+	local settings = {}
+	while net.ReadUInt(8) != 0 do
+		local k = net.ReadString()
+		local t = net.ReadUInt(8)
+		local v = net.ReadType(t)
+		settings[k] = v
+	end
+
+	GAMEMODE.RoundSettings = settings
+end)
+
+function GM:GetRoundSettings()
+	self.RoundSettings = self.RoundSettings or {}
+	return self.RoundSettings 
 end

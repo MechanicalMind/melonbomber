@@ -2,6 +2,7 @@ local PlayerMeta = FindMetaTable("Player")
 
 util.AddNetworkString("gamestate")
 util.AddNetworkString("round_victor")
+util.AddNetworkString("gamerules")
 
 GM.GameState = GAMEMODE and GAMEMODE.GameState or 0
 GM.StateStart = GAMEMODE and GAMEMODE.StateStart or CurTime()
@@ -46,6 +47,31 @@ function GM:SetGameState(state)
 	net.Broadcast()
 end
 
+function GM:GetRoundSettings()
+	self.RoundSettings = self.RoundSettings or {}
+	return self.RoundSettings 
+end
+
+function GM:NetworkGameSettings(ply)
+	net.Start("gamerules")
+
+	if self.RoundSettings then
+		for k, v in pairs(self.RoundSettings) do
+			net.WriteUInt(1, 8)
+			net.WriteString(k)
+			net.WriteType(v)
+		end
+	end
+	net.WriteUInt(0, 8)
+
+	if ply == nil then
+		net.Broadcast()
+	else
+		net.Send(ply)
+	end
+end
+
+
 function GM:SetupRound()
 	local c = 0
 	for k, ply in pairs(player.GetAll()) do
@@ -85,11 +111,17 @@ function GM:SetupRound()
 end
 
 function GM:StartRound()
-	self:SetGameState(2)
 
 	for k, ply in pairs(self:GetPlayingPlayers()) do
 		ply:Freeze(false)
 	end
+
+	self.RoundSettings = {}
+	self.RoundSettings.RoundTime = 300
+
+	self:NetworkGameSettings()
+	hook.Run("OnStartRound")
+	self:SetGameState(2)
 
 	local ct = ChatText()
 	ct:Add("Round has started")
@@ -128,10 +160,14 @@ function GM:EndRound(reason, winner)
 		ct:SendAll()
 	end
 
+	self.RoundSettings.NextRoundTime = 15
+	self:NetworkGameSettings()
+
 	for k, ply in pairs(self:GetPlayingPlayers()) do
 		
 	end
 	self:AddRoundStatistic(self:GetStateRunningTime(), #self:GetPlayingPlayers())
+	hook.Run("OnEndRound", self.Rounds)
 	self:SetGameState(3)
 end
 
