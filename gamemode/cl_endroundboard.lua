@@ -162,7 +162,7 @@ function GM:OpenEndRoundMenu()
 			surface.DrawTexturedRect( x * -1, y * -1, ScrW(), ScrH() )
 		end
 		
-		surface.SetDrawColor(50, 45, 40, 255)
+		surface.SetDrawColor(50, 50, 50, 135)
 		surface.DrawRect(-x, -y, ScrW(), ScrH())
 
 		DisableClipping(false)
@@ -181,7 +181,7 @@ function GM:OpenEndRoundMenu()
 	listpnl:Dock(FILL)
 	listpnl:DockPadding(10, 10, 10, 10)
 	function listpnl:Paint(w, h)
-		surface.SetDrawColor(40, 35, 31, 255)
+		surface.SetDrawColor(50, 45, 40, 241)
 		surface.DrawRect(0, 0, w, h)
 	end
 
@@ -218,9 +218,8 @@ function GM:OpenEndRoundMenu()
 	end
 
 	function pnl:Paint(w, h)
-		surface.SetDrawColor(40, 35, 31, 255)
+		surface.SetDrawColor(45, 42, 40, 241)
 		surface.DrawRect(0, 0, w, h)
-		surface.SetDrawColor(40, 31, 35, 255)
 		-- draw.DrawRectOutline(0, 0, w, h, 10)
 	end
 
@@ -234,10 +233,11 @@ function GM:OpenEndRoundMenu()
 
 	function sayPnl:Paint(w, h)
 		if entry.Focused then
-			surface.SetDrawColor(40, 31, 35, 255)
-			surface.DrawRect(0, 0, w, h)
+			surface.SetDrawColor(20, 20, 20, 190)
 		else
+			surface.SetDrawColor(50, 50, 50, 190)
 		end
+		surface.DrawRect(0, 0, w, h)
 	end
 
 	local say = vgui.Create("DLabel", sayPnl)
