@@ -17,10 +17,11 @@ local function createRoboto(s)
 	})
 end
 
-for i = 5, 50, 5 do
-	createRoboto(i)
+for i = 5, 50 do
+	if i % 5 == 0 || i % 4 == 0 then
+		createRoboto(i)
+	end
 end
-createRoboto(8)
 
 function draw.ShadowText(n, f, x, y, c, px, py, shadowColor)
 	draw.SimpleText(n, f, x + 1, y + 1, shadowColor or color_black, px, py)

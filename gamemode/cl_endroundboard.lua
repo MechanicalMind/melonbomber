@@ -6,29 +6,44 @@ local menu
 
 local muted = Material("icon32/muted.png")
 local unmuted = Material("icon32/unmuted.png")
+local grad = surface.GetTextureID("gui/center_gradient")
 
 local function addPlayerItem(self, mlist, ply)
 
 	local but = vgui.Create("DButton")
 	but.player = ply
 	but.ctime = CurTime()
-	but:SetTall(draw.GetFontHeight("RobotoHUD-20") + 4)
+	but:SetTall(32)
 	but:SetText("")
 
+	local avatar = vgui.Create("AvatarImage", but)
+	avatar:Dock(LEFT)
+	avatar:SetWide(32)
+	avatar:SetPlayer(ply)
+	function avatar:DoClick() but:DoClick() end
+
+		
 	function but:Paint(w, h)
 
-		surface.SetDrawColor(color_black)
-		-- surface.DrawOutlinedRect(0, 0, w, h)
+		surface.SetDrawColor(30, 30, 30, 241)
+		surface.DrawRect(0, 0, w, h)
+
+		surface.SetTexture(grad)
+		surface.SetDrawColor(150, 150, 150, 10)
+		surface.DrawTexturedRectRotated(w / 2, h / 2, h, w, 90)
 
 		if IsValid(ply) && ply:IsPlayer() then
 			local col = ply:GetPlayerColor()
 			col = Color(col.x * 255, col.y * 255, col.z * 255)
-			if self.Hovered then
-				surface.SetDrawColor(col.r, col.g, col.b, 20)
-				surface.DrawRect(0, 0, w, h)
-			end
-			local s = 4
+			
+			surface.SetDrawColor(col.r, col.g, col.b, 255)
+			surface.DrawRect(w - 32, 0, 32, h)
 
+			surface.SetTexture(grad)
+			surface.SetDrawColor(255, 255, 255, 10)
+			surface.DrawTexturedRectRotated(w - 16, h / 2, 32, 32, 90)
+
+			local s = 32 + 4
 			if ply:IsSpeaking() then
 				surface.SetMaterial(unmuted)
 
@@ -50,14 +65,14 @@ local function addPlayerItem(self, mlist, ply)
 				surface.SetMaterial(muted)
 
 				// draw mute icon
-				surface.SetDrawColor(150, 150, 150, 255)
+				surface.SetDrawColor(255, 255, 255, 255)
 				surface.DrawTexturedRect(s, h / 2 - 16, 32, 32)
 				s = s + 32 + 4
 			end
 
-			draw.SimpleText(ply:Ping(), "RobotoHUD-20", w - 4, 0, col, 2)
+			draw.SimpleText(ply:Ping(), "RobotoHUD-L16", w - 4 - 32, h / 2, color_white, 2, 1)
 
-			draw.SimpleText(ply:Nick(), "RobotoHUD-20", s, 0, col, 0)
+			draw.SimpleText(ply:Nick(), "RobotoHUD-16", s, h / 2, color_white, 0, 1)
 		end
 	end
 
@@ -181,8 +196,12 @@ function GM:OpenEndRoundMenu()
 	listpnl:Dock(FILL)
 	listpnl:DockPadding(10, 10, 10, 10)
 	function listpnl:Paint(w, h)
-		surface.SetDrawColor(50, 45, 40, 241)
+		surface.SetDrawColor(120, 120, 120, 241)
 		surface.DrawRect(0, 0, w, h)
+
+		surface.SetTexture(grad)
+		surface.SetDrawColor(255, 255, 255, 30)
+		surface.DrawTexturedRectRotated(w / 2, h / 2, h, w, 90)
 	end
 
 
@@ -205,7 +224,7 @@ function GM:OpenEndRoundMenu()
 	canvas:DockPadding(0, 0, 0, 0)
 	function canvas:OnChildAdded( child )
 		child:Dock(TOP)
-		child:DockMargin(0, 0, 0, 1)
+		child:DockMargin(0, 0, 0, 4)
 	end
 
 	// chat section
@@ -218,9 +237,12 @@ function GM:OpenEndRoundMenu()
 	end
 
 	function pnl:Paint(w, h)
-		surface.SetDrawColor(45, 42, 40, 241)
+		surface.SetDrawColor(120, 120, 120, 241)
 		surface.DrawRect(0, 0, w, h)
-		-- draw.DrawRectOutline(0, 0, w, h, 10)
+		
+		surface.SetTexture(grad)
+		surface.SetDrawColor(255, 255, 255, 30)
+		surface.DrawTexturedRectRotated(w / 2, h / 2, h, w, 90)
 	end
 
 
@@ -243,7 +265,7 @@ function GM:OpenEndRoundMenu()
 	local say = vgui.Create("DLabel", sayPnl)
 	say:Dock(LEFT)
 	say:SetFont("RobotoHUD-15")
-	say:SetTextColor(Color(150, 150, 150))
+	say:SetTextColor(Color(220, 220, 220))
 	say:SetText("Say:")
 	say:DockMargin(4, 0, 0, 0)
 	say:SizeToContentsX()
@@ -314,8 +336,12 @@ function GM:OpenEndRoundMenu()
 	respnl:DockMargin(20, 0, 0, 0)
 	respnl:DockPadding(0, 0, 0, 0)
 	function respnl:Paint(w, h)
-		surface.SetDrawColor(40, 35, 31, 255)
+		surface.SetDrawColor(120, 120, 120, 241)
 		surface.DrawRect(0, 0, w, h)
+		
+		surface.SetTexture(grad)
+		surface.SetDrawColor(255, 255, 255, 30)
+		surface.DrawTexturedRectRotated(w / 2, h / 2, h, w, 90)
 	end
 
 	local winner = vgui.Create("DLabel", respnl)

@@ -118,7 +118,7 @@ end
 function Builder:Paint(bx, by)
 	local y = 4
 	for k, line in pairs(self.blocks) do
-		draw.DrawText(line.text, self.font, bx + line.startX, by + y, line.color or color_white, 0)
+		draw.ShadowText(line.text, self.font, bx + line.startX, by + y, line.color or color_white, 0)
 		if line.newLine then
 			y = y + draw.GetFontHeight(self.font)
 		end
