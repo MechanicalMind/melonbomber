@@ -348,7 +348,12 @@ function GM:OpenEndRoundMenu()
 	menu.WinningTeam = winner
 	winner:Dock(TOP)
 	winner:DockMargin(20, 20, 20, 20)
-	winner:SetTall(30)
+	winner:SetTall(draw.GetFontHeight("RobotoHUD-30"))
+	winner.text = ""
+	winner.textColor = color_white
+	function winner:Paint(w, h)
+		draw.ShadowText(self.text, "RobotoHUD-30", 0, 0, winner.textColor, 0)
+	end
 
 	local timeleft = vgui.Create("DPanel", respnl)
 	timeleft:Dock(BOTTOM)
@@ -366,6 +371,7 @@ function GM:OpenEndRoundMenu()
 	// map vote
 	local votepnl = vgui.Create("DPanel", respnl)
 	menu.VotePanel = votepnl
+	votepnl:SetVisible(false)
 	votepnl:Dock(FILL)
 	votepnl:DockMargin(20, 0, 20, 0)
 	votepnl:DockPadding(0, 0, 0, 0)
@@ -414,14 +420,12 @@ function GM:EndRoundMenuResults(res)
 
 	menu.Results = res
 	menu.ChatList:Clear()
-	menu.ResultList:Clear()
 	if res.reason == 2 then
-		local col = Color(res.winnerColor.x * 255, res.winnerColor.y * 255, res.winnerColor.z * 255)
-		menu.WinningTeam:SetText(res.winnerName .. " wins!")
-		menu.WinningTeam:SetColor(color_white)
+		menu.WinningTeam.text = res.winnerName .. " won"
+		menu.WinningTeam.textColor = Color(res.winnerColor.x * 255, res.winnerColor.y * 255, res.winnerColor.z * 255)
 	else
-		menu.WinningTeam:SetText("Round tied")
-		menu.WinningTeam:SetColor(Color(150, 150, 150))
+		menu.WinningTeam.text = "Round tied"
+		menu.WinningTeam.textColor = Color(150, 150, 150)
 	end
 
 end

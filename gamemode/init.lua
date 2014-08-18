@@ -32,6 +32,7 @@ include("sh_weightedrandom.lua")
 include("sv_killfeed.lua")
 include("sv_statistics.lua")
 include("sv_bot.lua")
+include("sv_maps.lua")
 
 
 util.AddNetworkString("clientIPE")
@@ -97,7 +98,7 @@ function GM:SetupSpawnZone(zone)
 	height = math.min(height, max)
 
 	zone.grid = ClassGrid(jab, width, height, width, height)
-	local generator = ClassGenerator(zone.grid, mins, maxs)
+	local generator = ClassGenerator(zone.grid, mins, maxs, width * 2, height * 2)
 
 	generator:generate()
 

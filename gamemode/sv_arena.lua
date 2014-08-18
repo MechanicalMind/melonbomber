@@ -727,7 +727,7 @@ function GM:ArenaNextDeathBlock(zone)
 		ply:TakeDamageInfo(dmg)
 	end
 
-	local gen = ClassGenerator(zone.grid, zone:OBBMins(), zone:OBBMaxs())
+	local gen = ClassGenerator(zone.grid, zone:OBBMins(), zone:OBBMaxs(), 2, 2)
 	local ent = gen:createWall(x, y, 2)
 	if IsValid(ent) then
 		ent:EmitSound("physics/metal/metal_box_impact_soft" .. math.random(1, 3) .. ".wav")

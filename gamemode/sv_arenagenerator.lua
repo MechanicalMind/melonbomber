@@ -2,7 +2,7 @@
 ClassGenerator = class()
 local Gen = ClassGenerator
 
-function Gen:initialize(grid, mins, maxs)
+function Gen:initialize(grid, mins, maxs, width, height)
 	self.containers = {}
 	self.walls = {}
 	self.crates = {}
@@ -10,6 +10,8 @@ function Gen:initialize(grid, mins, maxs)
 	self.mins = mins
 	self.maxs = maxs
 	self.center = (maxs + mins) / 2
+	self.width = math.Round(width)
+	self.height = math.Round(height)
 end
 
 function Gen:spawnProp(pos, ang, mdl, opts)
@@ -112,19 +114,22 @@ end
 
 function Gen:generate()
 
+	local maptype = MapTypes[math.random(#MapTypes)]
+	print("New map is: ", maptype.name)
+
+	local minx, miny = math.floor(-self.width / 2), math.floor(-self.height / 2)
+	local grid = MapMakerGrid(minx, miny, minx + self.width, miny + self.height)
+	maptype:generateMap(grid)
+
 	// generate map
-	for i = 0, (self.grid:getWidth()) * (self.grid:getHeight()) - 1 do
-		local x = i % (self.grid:getWidth()) - self.grid.sizeLeft
-		local y = math.floor(i / (self.grid:getWidth())) - self.grid.sizeUp
-		if x % 2 == 0 && y % 2 == 0 then
-			self:createWall(x, y)
-		else
-			if math.random(4) != 1 then
-				if math.random(1, 15) == 1 then
-					self:createBox(x, y, 3)
-				else
-					self:createBox(x, y)
-				end
+	for x = grid.minx, grid.maxx do
+		for y = grid.miny, grid.maxy do
+			if grid:isWall(x, y) then
+				self:createWall(x, y)
+			elseif grid:isHardBox(x, y) then
+				self:createBox(x, y, 3)
+			elseif grid:isBox(x, y) then
+				self:createBox(x, y)
 			end
 		end
 	end

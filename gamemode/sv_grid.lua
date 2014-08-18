@@ -2,6 +2,7 @@
 ClassGrid = class()
 local Grid = ClassGrid
 
+// TODO remove this junk from grid
 function Grid:initialize(sqsize, sizeleft, sizeup, sizeright, sizedown)
 	self.squares = {}
 	if sizeleft then
