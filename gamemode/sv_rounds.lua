@@ -93,7 +93,7 @@ function GM:StartRound()
 	local ct = ChatText()
 	ct:Add("Round has started")
 	ct:SendAll()
-
+	hook.Call("OnStartRound")
 end
 
 function GM:EndRound(reason, winner)
@@ -130,6 +130,7 @@ function GM:EndRound(reason, winner)
 	for k, ply in pairs(self:GetPlayingPlayers()) do
 		
 	end
+	hook.Call("OnEndRound")
 	self:SetGameState(3)
 end
 
