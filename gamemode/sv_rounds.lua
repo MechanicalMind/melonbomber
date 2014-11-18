@@ -38,6 +38,7 @@ function GM:GetPlayingPlayers()
 end
 
 function GM:SetGameState(state)
+	print("gamestate", state)
 	self.GameState = state
 	self.StateStart = CurTime()
 	net.Start("gamestate")
@@ -177,13 +178,13 @@ function GM:RoundsThink()
 			self:SetupRound()
 		end
 	elseif self:GetGameState() == 1 then
-		if self:GetStateRunningTime() > 5 then
+		if self:GetStateRunningTime() > self.PrepTime:GetInt() then
 			self:StartRound()
 		end
 	elseif self:GetGameState() == 2 then
 		self:CheckForVictory()
 	elseif self:GetGameState() == 3 then
-		if self:GetStateRunningTime() > 10 then
+		if self:GetStateRunningTime() > self.EndTime:GetInt() then
 			self:SetupRound()
 		end
 	end

@@ -18,6 +18,7 @@ end
 net.Receive("gamestate", function (len)
 	GAMEMODE.GameState = net.ReadUInt(32)
 	GAMEMODE.StateStart = net.ReadDouble()
+	print("cl gamestate", GAMEMODE.GameState)
 
 
 	if GAMEMODE.GameState == 0 then
