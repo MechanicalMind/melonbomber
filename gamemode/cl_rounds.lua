@@ -19,7 +19,6 @@ net.Receive("gamestate", function (len)
 	GAMEMODE.GameState = net.ReadUInt(32)
 	GAMEMODE.StateStart = net.ReadDouble()
 
-
 	if GAMEMODE.GameState == 0 then
 		GAMEMODE:ScoreboardHide()
 	elseif GAMEMODE.GameState == 1 then

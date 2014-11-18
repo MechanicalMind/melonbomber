@@ -42,6 +42,8 @@ resource.AddFile("materials/melonbomber/skull_license.txt")
 
 GM.MapScale = CreateConVar("mb_map_scale", 20, bit.bor(FCVAR_NOTIFY), "Size of map squared per player (default 20)" )
 GM.MapMaxArea = CreateConVar("mb_map_maxarea", 500, bit.bor(FCVAR_NOTIFY), "Max area of map squared" )
+GM.PrepTime = CreateConVar("mb_time_prep", 5, bit.bor(FCVAR_REPLICATED), "Time to wait before round starts (default 5)" )
+GM.EndTime = CreateConVar("mb_time_end", 10, bit.bor(FCVAR_REPLICATED), "Time to show scoreboard at the end (default 10)" )
 
 function GM:Initialize() 
 	self.DeathRagdolls = {}

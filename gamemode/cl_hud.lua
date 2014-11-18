@@ -321,7 +321,7 @@ end
 function GM:DrawRoundTimer()
 
 	if self:GetGameState() == 1 then
-		local time = math.ceil(5 - self:GetStateRunningTime())
+		local time = math.ceil(GetGlobalInt( "mb_time_prep" ) - self:GetStateRunningTime())
 		if time > 0 then
 			draw.ShadowText(time, "RobotoHUD-40", ScrW() / 2, ScrH() / 3, color_white, 1, 1)
 		end

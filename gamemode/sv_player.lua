@@ -7,6 +7,9 @@ function GM:PlayerInitialSpawn(ply)
 	ply:SetMoney(10000)
 
 	ply:SetTeam(2)
+	
+	-- ConVar replication doesn't work with gmod currently
+	SetGlobalInt("mb_time_prep", GetConVarNumber("mb_time_prep"))
 
 	if self:GetGameState() != 0 then
 		timer.Simple(0, function ()
