@@ -38,7 +38,6 @@ function GM:GetPlayingPlayers()
 end
 
 function GM:SetGameState(state)
-	print("gamestate", state)
 	self.GameState = state
 	self.StateStart = CurTime()
 	net.Start("gamestate")
