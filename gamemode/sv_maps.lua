@@ -85,10 +85,10 @@ local function loadMaps(rootFolder)
 		local s = SERVER and "Server" or "Client"
 		local b = SERVER and 90 or 0
 		if !b then
-			MsgC(Color(255, 50, 50 + b), s .. " loading maptypes failed " .. name .. ".lua\nError: " .. err .. "\n")
+			MsgC(Color(255, 50, 50 + b), s .. " loading map failed " .. name .. " from " .. rootFolder .. "\nError: " .. err .. "\n")
 		else
-			MsgC(Color(50, 255, 50 + b), s .. " loaded maptypes file " .. name .. ".lua\n")
-			table.insert(MapTypes, tempG.map)
+			MsgC(Color(50, 255, 50 + b), s .. " loaded map " .. name .. " from " .. rootFolder .. "\n")
+			MapTypes[name] = tempG.map
 			-- local grid = MapMakerGrid(-10, -10, 10, 10)
 			-- tempG.MAP:GenerateMap(grid)
 			-- grid:print()

@@ -114,7 +114,8 @@ end
 
 function Gen:generate()
 
-	local maptype = MapTypes[math.random(#MapTypes)]
+	local maptype = table.Random(MapTypes)
+	maptype = MapTypes.allboxes or maptype
 	print("New map is: ", maptype.name)
 
 	local minx, miny = math.floor(-self.width / 2), math.floor(-self.height / 2)
