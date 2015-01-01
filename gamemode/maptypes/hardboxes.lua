@@ -1,4 +1,4 @@
-map.name = "Default"
+map.name = "Hard Boxes"
 
 function map:generateMap(grid)
 	for x = grid.minx, grid.maxx do
@@ -7,7 +7,11 @@ function map:generateMap(grid)
 				grid:setWall(x, y)
 			else
 				if math.random(4) != 1 then
-					grid:setBox(x, y)
+					if math.random(1, 15) == 1 then
+						grid:setHardBox(x, y)
+					else
+						grid:setBox(x, y)
+					end
 				end
 			end
 		end 

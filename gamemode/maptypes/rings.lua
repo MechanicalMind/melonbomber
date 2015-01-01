@@ -9,7 +9,6 @@ function map:generateMap(grid)
 				if x % s == 0 && y % s == 0 && px != py then
 					local bg = math.max(px, py)
 					local g = px == bg and py or px
-					print(bg, px, py, "==", g, bg / s - 1)
 					if ((g / s) + bg / s - 1) % 2 == 0 then
 						grid:setHardBox(x, y)
 					end

@@ -7,6 +7,9 @@ local menu
 local muted = Material("icon32/muted.png")
 local unmuted = Material("icon32/unmuted.png")
 local grad = surface.GetTextureID("gui/center_gradient")
+local score = Material("icon16/flag_yellow.png")
+local winner = Material("icon16/star.png")
+local ping = Material("icon16/transmit_blue.png")
 
 local function addPlayerItem(self, mlist, ply)
 
@@ -22,14 +25,23 @@ local function addPlayerItem(self, mlist, ply)
 	avatar:SetPlayer(ply)
 	function avatar:DoClick() but:DoClick() end
 
-		
+	
 	function but:Paint(w, h)
 
-		surface.SetDrawColor(30, 30, 30, 241)
+		if menu.Results && ply == menu.Results.winner then
+			surface.SetDrawColor(70, 50, 10, 241)
+		else
+			surface.SetDrawColor(30, 30, 30, 241)
+		end
 		surface.DrawRect(0, 0, w, h)
 
 		surface.SetTexture(grad)
 		surface.SetDrawColor(150, 150, 150, 10)
+		if menu.Results && ply == menu.Results.winner then
+			surface.SetDrawColor(255, 223, 0, 30)
+		else
+			surface.SetDrawColor(150, 150, 150, 10)
+		end
 		surface.DrawTexturedRectRotated(w / 2, h / 2, h, w, 90)
 
 		if IsValid(ply) && ply:IsPlayer() then
@@ -45,7 +57,6 @@ local function addPlayerItem(self, mlist, ply)
 
 			local s = 32 + 4
 			if ply:IsSpeaking() then
-				surface.SetMaterial(unmuted)
 
 				local v = ply:VoiceVolume()
 
@@ -53,6 +64,7 @@ local function addPlayerItem(self, mlist, ply)
 				render.SetScissorRect(x, y, x + s + 32 * (0.5 + v / 2), y + h, true)
 
 				// draw mute icon
+				surface.SetMaterial(unmuted)
 				surface.SetDrawColor(255, 255, 255, 255)
 				-- surface.SetDrawColor(255, 255, 255, 255 * math.Clamp(v, 0.1, 1))
 				surface.DrawTexturedRect(s, h / 2 - 16, 32, 32)
@@ -62,15 +74,31 @@ local function addPlayerItem(self, mlist, ply)
 			end
 
 			if ply:IsMuted() then
-				surface.SetMaterial(muted)
 
 				// draw mute icon
+				surface.SetMaterial(muted)
 				surface.SetDrawColor(255, 255, 255, 255)
 				surface.DrawTexturedRect(s, h / 2 - 16, 32, 32)
 				s = s + 32 + 4
 			end
 
-			draw.SimpleText(ply:Ping(), "RobotoHUD-L16", w - 4 - 32, h / 2, color_white, 2, 1)
+			// render ping icon
+			surface.SetMaterial(ping)
+			surface.SetDrawColor(255, 255, 255, 255)
+			surface.DrawTexturedRect(w * 0.8, h / 2 - 8, 16, 16)
+
+			// draw ping
+			draw.SimpleText(ply:Ping(), "RobotoHUD-L16", w * 0.8 + 4 + 16, h / 2, color_white, 0, 1)
+
+			if menu.Results && ply == menu.Results.winner then
+				surface.SetMaterial(winner)
+			else
+				surface.SetMaterial(score)
+			end
+			surface.SetDrawColor(255, 255, 255, 255)
+			surface.DrawTexturedRect(w * 0.6, h / 2 - 8, 16, 16)
+
+			draw.SimpleText(ply:GetScore(), "RobotoHUD-L16", w * 0.6 + 16 + 4, h / 2, Color(247, 223, 84), 0, 1)
 
 			draw.SimpleText(ply:Nick(), "RobotoHUD-16", s, h / 2, color_white, 0, 1)
 		end
