@@ -160,7 +160,7 @@ function GM:EndRound(reason, winner)
 		ct:SendAll()
 	end
 
-	self.RoundSettings.NextRoundTime = 15
+	self.RoundSettings.NextRoundWait = 15
 	self:NetworkGameSettings()
 
 	for k, ply in pairs(self:GetPlayingPlayers()) do
@@ -221,7 +221,7 @@ function GM:RoundsThink()
 	elseif self:GetGameState() == 2 then
 		self:CheckForVictory()
 	elseif self:GetGameState() == 3 then
-		if self:GetStateRunningTime() > 10 then
+		if self:GetStateRunningTime() > (self.RoundSettings.NextRoundWait or 30) then
 			self:SetupRound()
 		end
 	end

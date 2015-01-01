@@ -8,7 +8,6 @@ local muted = Material("icon32/muted.png")
 local unmuted = Material("icon32/unmuted.png")
 local grad = surface.GetTextureID("gui/center_gradient")
 local score = Material("icon16/flag_yellow.png")
-local winner = Material("icon16/star.png")
 local ping = Material("icon16/transmit_blue.png")
 
 local function addPlayerItem(self, mlist, ply)
@@ -90,11 +89,7 @@ local function addPlayerItem(self, mlist, ply)
 			// draw ping
 			draw.SimpleText(ply:Ping(), "RobotoHUD-L16", w * 0.8 + 4 + 16, h / 2, color_white, 0, 1)
 
-			if menu.Results && ply == menu.Results.winner then
-				surface.SetMaterial(winner)
-			else
-				surface.SetMaterial(score)
-			end
+			surface.SetMaterial(score)
 			surface.SetDrawColor(255, 255, 255, 255)
 			surface.DrawTexturedRect(w * 0.6, h / 2 - 8, 16, 16)
 
@@ -364,6 +359,33 @@ function GM:OpenEndRoundMenu()
 	respnl:DockMargin(20, 0, 0, 0)
 	respnl:DockPadding(0, 0, 0, 0)
 	function respnl:Paint(w, h)
+	end
+
+	local winner = vgui.Create("DPanel", respnl)
+	menu.WinningTeam = winner
+	winner:Dock(TOP)
+	winner:DockMargin(0, 0, 0, 0)
+	winner:SetTall(draw.GetFontHeight("RobotoHUD-30") + 20)
+	winner.text = ""
+	winner.textColor = color_white
+	function winner:Paint(w, h)
+		surface.SetDrawColor(30, 30, 30, 252)
+		surface.DrawRect(0, 0, w, h)
+		
+		surface.SetTexture(grad)
+		surface.SetDrawColor(90, 90, 90, 20)
+		surface.DrawTexturedRectRotated(w / 2, h / 2, h, w, 90)
+		draw.ShadowText(self.text, "RobotoHUD-30", 20, h / 2, winner.textColor, 0, 1)
+	end
+
+
+	// map vote
+	local votepnl = vgui.Create("DPanel", respnl)
+	menu.VotePanel = votepnl
+	votepnl:Dock(FILL)
+	votepnl:DockMargin(0, 20, 0, 0)
+	votepnl:DockPadding(0, 0, 0, 0)
+	function votepnl:Paint(w, h)
 		surface.SetDrawColor(120, 120, 120, 241)
 		surface.DrawRect(0, 0, w, h)
 
@@ -372,47 +394,18 @@ function GM:OpenEndRoundMenu()
 		surface.DrawTexturedRectRotated(w / 2, h / 2, h, w, 90)
 	end
 
-	local winner = vgui.Create("DPanel", respnl)
-	menu.WinningTeam = winner
-	winner:Dock(TOP)
-	winner:DockMargin(20, 20, 20, 20)
-	winner:SetTall(draw.GetFontHeight("RobotoHUD-30"))
-	winner.text = ""
-	winner.textColor = color_white
-	function winner:Paint(w, h)
-		draw.ShadowText(self.text, "RobotoHUD-30", 0, 0, winner.textColor, 0)
-	end
-
-	local timeleft = vgui.Create("DPanel", respnl)
+	local timeleft = vgui.Create("DPanel", votepnl)
 	timeleft:Dock(BOTTOM)
 	timeleft:SetTall(draw.GetFontHeight("RobotoHUD-20"))
-	local col = Color(150, 150, 150)
+	local col = Color(220, 220, 220)
 	function timeleft:Paint(w, h)
 		if GAMEMODE:GetGameState() == 3 then
 			local settings = GAMEMODE:GetRoundSettings()
-			local roundTime = settings.NextRoundTime or 30
+			local roundTime = settings.NextRoundWait or 30
 			local time = math.max(0, roundTime - GAMEMODE:GetStateRunningTime())
-			draw.SimpleText("Next round in " .. math.ceil(time), "RobotoHUD-20", w - 4, 0, col, 2)
+			draw.ShadowText("Next round in " .. math.ceil(time), "RobotoHUD-20", w - 4, 0, col, 2)
 		end
 	end
-
-	// map vote
-	local votepnl = vgui.Create("DPanel", respnl)
-	menu.VotePanel = votepnl
-	votepnl:SetVisible(false)
-	votepnl:Dock(FILL)
-	votepnl:DockMargin(20, 0, 20, 0)
-	votepnl:DockPadding(0, 0, 0, 0)
-	function votepnl:Paint(w, h)
-	end
-
-	local header = vgui.Create("DLabel", votepnl)
-	header:Dock(TOP)
-	header:SetFont("RobotoHUD-25")
-	header:SetTall(draw.GetFontHeight("RobotoHUD-25") * 1.1)
-	header:SetText("Map voting")
-	header:SetColor(Color(245, 245, 245))
-	header:DockMargin(4, 2, 4, 2)
 
 	local mlist = vgui.Create("DScrollPanel", votepnl)
 	menu.MapVoteList = mlist
@@ -443,8 +436,6 @@ end
 
 function GM:EndRoundMenuResults(res)
 	self:OpenEndRoundMenu()
-	menu.ResultsPanel:SetVisible(true)
-	menu.VotePanel:SetVisible(false)
 
 	menu.Results = res
 	menu.ChatList:Clear()
