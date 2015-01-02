@@ -30,6 +30,9 @@ function GM:BotMove(ply, cmd)
 			if x == tx && y == ty && look:Length() < zone.grid.sqsize * 0.4 then
 				ply.BotTarget = nil
 			else
+				if look:Length() > zone.grid.sqsize then
+					ply.BotTarget = nil
+				end
 				cmd:SetViewAngles(look:Angle())
 				cmd:SetForwardMove(70)
 			end
