@@ -1,5 +1,5 @@
 local PANEL = {}
-local PlayerVoicePanels = {}
+PlayerVoicePanels = PlayerVoicePanels or {}
 
 function PANEL:Init()
 
