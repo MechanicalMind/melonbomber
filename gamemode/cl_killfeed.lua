@@ -17,16 +17,50 @@ net.Receive("kill_feed_add", function (len)
 	t.inflictor = inflictor
 	t.attacker = attacker
 	t.damageType = damageType
+
+	t.text = {}
 	if IsValid(attacker) && attacker:IsPlayer() && attacker != ply then
-		t.attackerName = attacker:Nick()
 		local col = attacker:GetPlayerColor()
-		t.attackerColor = Color(col.x * 255, col.y * 255, col.z * 255)
-		Msg(attacker:Nick() .. " killed " .. ply:Nick() .. "\n")
-	elseif damageType == DMG_AIRBOAT then
-		Msg("Death blocks killed " .. ply:Nick() .. "\n")
+		col = Color(col.x * 255, col.y * 255, col.z * 255)
+		table.insert(t.text, col)
+		table.insert(t.text, attacker:GetName())
+		table.insert(t.text, color_white)
+		table.insert(t.text, " killed ")
+		local col = ply:GetPlayerColor()
+		col = Color(col.x * 255, col.y * 255, col.z * 255)
+		table.insert(t.text, col)
+		table.insert(t.text, ply:GetName())
+	elseif t.damageType == DMG_AIRBOAT then
+		table.insert(t.text, Color(170, 10, 10))
+		table.insert(t.text, "Death blocks")
+		table.insert(t.text, color_white)
+		table.insert(t.text, " killed ")
+		local col = ply:GetPlayerColor()
+		col = Color(col.x * 255, col.y * 255, col.z * 255)
+		table.insert(t.text, col)
+		table.insert(t.text, ply:GetName())
 	else
-		Msg(ply:Nick() .. " killed themselves\n")
+		local col = ply:GetPlayerColor()
+		col = Color(col.x * 255, col.y * 255, col.z * 255)
+		table.insert(t.text, col)
+		table.insert(t.text, ply:GetName())
+		table.insert(t.text, color_white)
+		table.insert(t.text, " killed themself")
 	end
+	surface.SetFont("RobotoHUD-15")
+	local w = 0
+	local col = color_white
+	for k, v in pairs(t.text) do
+		if type(v) == "string" then
+			local tw, th = surface.GetTextSize(v)
+			w = w + tw
+			MsgC(col, v)
+		else
+			col = v
+		end
+	end
+	Msg("\n")
+	t.textWidth = w
 
 	table.insert(GAMEMODE.KillFeed, t)
 end)
@@ -46,26 +80,19 @@ function GM:DrawKillFeed()
 			surface.SetFont("RobotoHUD-15")
 			local twp, thp = surface.GetTextSize(t.playerName)
 
-			if t.attackerName then
-				local killed = " killed "
-				local twa, tha = surface.GetTextSize(t.attackerName)
-				local twk, thk = surface.GetTextSize(killed)
-				draw.ShadowText(t.attackerName, "RobotoHUD-15", ScrW() - 4 - twp - twk - twa, 4 + down * gap, t.attackerColor, 0)
-				draw.ShadowText(killed, "RobotoHUD-15", ScrW() - 4 - twp - twk, 4 + down * gap, color_white, 0)
-				draw.ShadowText(t.playerName, "RobotoHUD-15", ScrW() - 4 - twp, 4 + down * gap, t.playerColor, 0)
-			elseif t.damageType == DMG_AIRBOAT then
-				local killed = " killed "
-				local twa, tha = surface.GetTextSize("Death blocks")
-				local twk, thk = surface.GetTextSize(killed)
-				draw.ShadowText("Death blocks", "RobotoHUD-15", ScrW() - 4 - twp - twk - twa, 4 + down * gap, Color(170, 10, 10), 0)
-				draw.ShadowText(killed, "RobotoHUD-15", ScrW() - 4 - twp - twk, 4 + down * gap, color_white, 0)
-				draw.ShadowText(t.playerName, "RobotoHUD-15", ScrW() - 4 - twp, 4 + down * gap, t.playerColor, 0)
-			else
-				local killed = " killed themself"
-				local twk, thk = surface.GetTextSize(killed)
-
-				draw.ShadowText(killed, "RobotoHUD-15", ScrW() - 4 - twk, 4 + down * gap, color_white, 0)
-				draw.ShadowText(t.playerName, "RobotoHUD-15", ScrW() - 4 - twp - twk, 4 + down * gap, t.playerColor, 0)
+			if t.text then
+				local x = 0
+				local col = color_white
+				for k, v in pairs(t.text) do
+					if type(v) == "string" then
+						local killed = " killed "
+						local tw, th = surface.GetTextSize(v)
+						draw.ShadowText(v, "RobotoHUD-15", ScrW() - 4 - t.textWidth + x, 4 + down * gap, col, 0)
+						x = x + tw
+					else
+						col = v
+					end
+				end
 			end
 
 			down = down + 1

@@ -39,7 +39,7 @@ end
 // 2 is pos y
 // 3 is neg x
 
-function Gen:createBox(x, y, strength)
+function Gen:createBox(x, y, strength, explosive)
 	local angles = Angle(0, 0, 0)
 
 	local size = 20
@@ -48,7 +48,9 @@ function Gen:createBox(x, y, strength)
 	pos.z = self.mins.z
 
 	local ent = self:spawnProp(pos, angles, "models/hunter/blocks/cube075x075x075.mdl")
-	if strength && strength > 1 then
+	if explosive then
+		ent:SetMaterial("models/props_c17/canister02a")
+	elseif strength && strength > 1 then
 		ent:SetMaterial("models/props_c17/metalladder002")
 	else
 		ent:SetMaterial("models/props/CS_militia/roofbeams03")
@@ -58,8 +60,6 @@ function Gen:createBox(x, y, strength)
 	local phys = ent:GetPhysicsObject()
 	if IsValid(phys) then
 	end
-	local skins = ent:SkinCount()
-	ent:SetSkin(math.random(skins))
 
 	pos.z = pos.z - ent:OBBMins().z + math.Rand(0, 0.05) - 4
 	ent:SetPos(pos)
@@ -72,6 +72,7 @@ function Gen:createBox(x, y, strength)
 	ent.gridSolid = true
 	ent.gridStrength = strength or 1
 	ent.gridMaxStrength = strength or 1
+	ent.gridExplosive = explosive or false
 	table.insert(self.crates, ent)
 
 	self.grid:setSquare(x, y, ent)
@@ -95,8 +96,6 @@ function Gen:createWall(x, y, t)
 	local phys = ent:GetPhysicsObject()
 	if IsValid(phys) then
 	end
-	local skins = ent:SkinCount()
-	ent:SetSkin(math.random(skins))
 
 	pos.z = pos.z - ent:OBBMins().z + math.Rand(-0.1, 0.1)
 	ent:SetPos(pos)
@@ -115,8 +114,35 @@ end
 function Gen:generate()
 
 	local maptype = table.Random(MapTypes)
-	-- maptype = MapTypes.allboxes or maptype
-	print("New map is: ", maptype.name)
+	if GAMEMODE.MapVoting then
+		GAMEMODE.MapVoting = false
+		local votes = {}
+		for ply, map in pairs(GAMEMODE.MapVotes) do
+			if IsValid(ply) && ply:IsPlayer() then
+				votes[map] = (votes[map] or 0) + 1
+			end
+		end
+
+		local maxvotes = 0
+		for k, v in pairs(votes) do
+			if v > maxvotes then
+				maxvotes = v
+			end
+		end
+
+		local maps = {}
+		for k, v in pairs(votes) do
+			if v == maxvotes then
+				table.insert(maps, k)
+			end
+		end
+
+		if #maps > 0 then
+			maptype = table.Random(maps)
+			print("Map " .. maptype.key .. " selected with " .. maxvotes .. " votes")
+		end
+	end
+	print("New map is: " .. (maptype.name or "error"))
 
 	local minx, miny = math.floor(-self.width / 2), math.floor(-self.height / 2)
 	local grid = MapMakerGrid(minx, miny, minx + self.width, miny + self.height)
@@ -129,6 +155,8 @@ function Gen:generate()
 				self:createWall(x, y)
 			elseif grid:isHardBox(x, y) then
 				self:createBox(x, y, 3)
+			elseif grid:isExplosiveBox(x, y) then
+				self:createBox(x, y, 1, true)
 			elseif grid:isBox(x, y) then
 				self:createBox(x, y)
 			end

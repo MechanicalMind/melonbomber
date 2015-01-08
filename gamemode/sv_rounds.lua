@@ -160,6 +160,10 @@ function GM:EndRound(reason, winner)
 		ct:SendAll()
 	end
 
+	self.MapVotes = {}
+	self.MapVoting = true
+	self:NetworkMapList()
+
 	self.RoundSettings.NextRoundWait = 15
 	self:NetworkGameSettings()
 

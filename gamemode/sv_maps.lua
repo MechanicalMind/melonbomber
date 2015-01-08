@@ -1,4 +1,5 @@
 
+include("sv_mapvote.lua")
 
 MapTypes = {}
 
@@ -46,6 +47,14 @@ function SGrid:isHardBox(x, y)
 	return self.grid[x .. ":" .. y] == "h"
 end
 
+function SGrid:setExplosiveBox(x, y)
+	self.grid[x .. ":" .. y] = "e"
+end
+
+function SGrid:isExplosiveBox(x, y)
+	return self.grid[x .. ":" .. y] == "e"
+end
+
 function SGrid:getPrintChar(x, y)
 	local c = self.grid[x .. ":" .. y]
 	if c == nil then return " " end
@@ -88,7 +97,12 @@ local function loadMaps(rootFolder)
 			MsgC(Color(255, 50, 50 + b), s .. " loading map failed " .. name .. " from " .. rootFolder .. "\nError: " .. err .. "\n")
 		else
 			MsgC(Color(50, 255, 50 + b), s .. " loaded map " .. name .. " from " .. rootFolder .. "\n")
+			tempG.map.key = name
 			MapTypes[name] = tempG.map
+			local path = "materials/melonbomber/maptypes/" .. name .. ".png"
+			if file.Exists(path, "GAME") then
+				resource.AddSingleFile(path)
+			end
 			-- local grid = MapMakerGrid(-10, -10, 10, 10)
 			-- tempG.MAP:GenerateMap(grid)
 			-- grid:print()

@@ -167,6 +167,14 @@ function GM:OpenEndRoundMenu()
 		menu:SetVisible(true)
 		return
 	end
+	self:CreateEndRoundMenu()
+	menu:SetVisible(true)
+end
+
+function GM:CreateEndRoundMenu()
+	if IsValid(menu) then
+		return
+	end
 
 	menu = vgui.Create("DFrame")
 	menu:ParentToHUD()
@@ -181,6 +189,7 @@ function GM:OpenEndRoundMenu()
 	menu:SetDraggable(false)
 	menu:ShowCloseButton(false)
 	menu:DockPadding(8, 8, 8, 8)
+	menu:SetVisible(false)
 
 	local matBlurScreen = Material( "pp/blurscreen" )
 	function menu:Paint(w, h)
@@ -421,10 +430,10 @@ function GM:OpenEndRoundMenu()
 	end
 
 	local canvas = mlist:GetCanvas()
-	canvas:DockPadding(20, 0, 20, 0)
+	canvas:DockPadding(10, 10, 10, 10)
 	function canvas:OnChildAdded( child )
 		child:Dock(TOP)
-		child:DockMargin(0, 0, 0, 16)
+		child:DockMargin(0, 0, 0, 10)
 	end
 end
 
@@ -449,54 +458,69 @@ function GM:EndRoundMenuResults(res)
 
 end
 
-function GM:EndRoundMapVote()
-	self:OpenEndRoundMenu()
+net.Receive("map_type_list", function ()
 
-	menu.ResultsPanel:SetVisible(false)
-	menu.VotePanel:SetVisible(true)
+	local maps = {}
+	while net.ReadUInt(8) != 0 do
+		local t = {}
+		t.key = net.ReadString()
+		t.name = net.ReadString()
+		t.desc = net.ReadString()
+		table.insert(maps, math.random(0, #maps), t)
+	end
+
+	GAMEMODE.SelfMapVote = nil
+	GAMEMODE.MapVotes = {}
+	GAMEMODE.MapVotesByMap = {}
+
+	GAMEMODE:CreateEndRoundMenu()
 
 	menu.MapVoteList:Clear()
 
-	for k, map in pairs(self.MapList) do
+	local displaySize = 96 + 2
+
+	for k, map in pairs(maps) do
 		local but = vgui.Create("DButton")
 		but:SetText("")
-		but:SetTall(128)
+		but:SetTall(displaySize)
 		local png
-		local path = "maps/" .. map .. ".png"
+		local path = "materials/melonbomber/maptypes/" .. map.key .. ".png"
 		if file.Exists(path, "GAME") then
 			png = Material(path, "noclamp")
-		else
-			local path = "maps/thumb/" .. map .. ".png"
-			if file.Exists(path, "GAME") then
-				png = Material(path, "noclamp")
-			end
 		end
-		local dname = map:gsub("^%a%a%a?_", ""):gsub("_?v[%d%.%-]+$", "")
-		dname = dname:gsub("[_]", " "):gsub("([%a])([%a]+)", function (a, b) return a:upper() .. b end)
+		local dname = map.name
 		local z = tonumber(util.CRC(dname):sub(1, 8))
 		local mcol = Color(z % 255, z / 255 % 255, z / 255 / 255 % 255, 50)
-		local gray = Color(150, 150, 150)
+		local gray = Color(230, 230, 230)
 
 		but.VotesScroll = 0
 		but.VotesScrollDir = 1
+		local wrap
 		function but:Paint(w, h)
 			if self.Hovered then
 				surface.SetDrawColor(50, 50, 50, 50)
 				surface.DrawRect(0, 0, w, h)
 			end
 
-			draw.SimpleText(dname, "RobotoHUD-20", 128 + 20, 20, color_white, 0)
-			local fg = draw.GetFontHeight("RobotoHUD-20")
-			draw.SimpleText(map, "RobotoHUD-L15", 128 + 20, 20 + fg, gray, 0)
+			draw.ShadowText(dname, "RobotoHUD-16", displaySize + 6, 4, color_white, 0)
+			local fg = draw.GetFontHeight("RobotoHUD-16")
+			if !wrap then
+				wrap = WrapText("RobotoHUD-L15", math.floor((w - (displaySize + 6 + 4)) * 0.7), {gray, map.desc})
+			end
+			if wrap then
+				wrap:Paint(displaySize + 6, 4 + fg)
+			end
+			-- draw.ShadowText(map.desc, "RobotoHUD-L15", displaySize + 10, 10 + fg, gray, 0)
+			surface.SetDrawColor(50, 50, 50, 255)
+			surface.DrawRect(0, 0, displaySize, displaySize)
+			local border = 1
 			if png then
 				surface.SetMaterial(png)
 				surface.SetDrawColor(255, 255, 255, 255)
-				surface.DrawTexturedRect(0, 0, 128, 128)
+				surface.DrawTexturedRect(border, border, displaySize - border * 2, displaySize - border * 2)
 			else
-				surface.SetDrawColor(50, 50, 50, 255)
-				surface.DrawRect(0, 0, 128, 128)
 				surface.SetDrawColor(mcol)
-				surface.DrawRect(20, 20, 128 - 40, 128 - 40)
+				surface.DrawRect(border, border, displaySize - border * 2, displaySize - border * 2)
 			end
 
 			local votes = 0
@@ -506,20 +530,20 @@ function GM:EndRoundMapVote()
 
 			local fg2 = draw.GetFontHeight("RobotoHUD-L15")
 			if votes > 0 then
-				draw.SimpleText(votes .. (votes > 1 and " votes" or " vote"), "RobotoHUD-L15", 128 + 20, 20 + fg + 20 + fg2, color_white, 0)
+				draw.ShadowText(votes .. (votes > 1 and " votes" or " vote"), "RobotoHUD-L15", displaySize + 6, 4 + fg + 10 + fg2, color_white, 0)
 			end
 
 			local i = 0
-			for ply, map2 in pairs(GAMEMODE.MapVotes) do
-				if IsValid(ply) && map2 == map then
-					draw.SimpleText(ply:Nick(), "RobotoHUD-L15", w, i * fg2 - self.VotesScroll, gray, 2)
+			for ply, key in pairs(GAMEMODE.MapVotes) do
+				if IsValid(ply) && key == map.key then
+					draw.ShadowText(ply:Nick(), "RobotoHUD-L15", w, i * fg2 - self.VotesScroll, gray, 2)
 					i = i + 1
 				end
 			end
 
-			if i * fg2 > 128 then
+			if i * fg2 > displaySize then
 				self.VotesScroll = self.VotesScroll + FrameTime() * 14 * self.VotesScrollDir
-				if self.VotesScroll > i * fg2 - 128 then
+				if self.VotesScroll > i * fg2 - displaySize then
 					self.VotesScrollDir = -1
 				elseif self.VotesScroll < 0 then
 					self.VotesScrollDir = 1
@@ -528,11 +552,41 @@ function GM:EndRoundMapVote()
 		end
 
 		function but:DoClick()
-			RunConsoleCommand("ph_votemap", map)
+			RunConsoleCommand("mb_votemap", map.key)
 		end
 		menu.MapVoteList:AddItem(but)
 	end
-end
+end)
+
+net.Receive("mb_mapvotes", function (len)
+
+	local mapVotes = {}
+
+	while true do
+		local k = net.ReadUInt(8)
+		if k <= 0 then break end
+		local ply = net.ReadEntity()
+		local map = net.ReadString()
+		mapVotes[ply] = map
+	end
+
+	GAMEMODE.SelfMapVote = nil
+
+	local byMap = {}
+	for ply, map in pairs(mapVotes) do
+		byMap[map] = byMap[map] or {}
+		table.insert(byMap[map], ply)
+
+		if ply == LocalPlayer() then
+			GAMEMODE.SelfMapVote = map
+		end
+	end
+	
+	printTable(GAMEMODE.MapVotes)
+	printTable(GAMEMODE.MapVotesByMap)
+	GAMEMODE.MapVotes = mapVotes
+	GAMEMODE.MapVotesByMap = byMap
+end)
 
 function GM:EndRoundAddChatText(...)
 	if !IsValid(menu) then

@@ -77,10 +77,9 @@ function GM:GetPlayersInGridPos(zone, x, y)
 end
 
 function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
-	if bomb:GetPowerBomb() then
+	if bomb.GetPowerBomb && bomb:GetPowerBomb() then
 		sound.Play("npc/scanner/cbot_energyexplosion1.wav", bomb:GetPos(), 100, math.Rand(80, 120))
 		sound.Play("BaseExplosionEffect.Sound", bomb:GetPos(), 100, math.Rand(80, 120))
-		-- sound.Play("npc/roller/mine/rmine_explode_shock1.wav", bomb:GetPos(), 100, math.Rand(80, 120))
 	else
 		sound.Play("BaseExplosionEffect.Sound", bomb:GetPos(), 100, math.Rand(80, 120))
 	end
@@ -88,72 +87,41 @@ function GM:CreateExplosion(zone, x, y, length, bomb, combiner)
 	local combo = combiner or ClassGrid()
 	length = length or 1
 	self:CombineExplosion(zone, x, y, bomb, combo)
-	// x+
-	for i = 1, length do
-		local sq = zone.grid:getSquare(x + i, y)
+
+	local function boom(i, nx, ny)
+		local sq = zone.grid:getSquare(nx, ny)
 		if IsValid(sq) then
 			if sq.gridType != "wall" then
-				self:CombineExplosion(zone, x + i, y, bomb, combo)
+				self:CombineExplosion(zone, nx, ny, bomb, combo)
 			end
-			if sq:GetClass() == "mb_melon" || sq:GetClass() == "mb_pickup" || (sq.gridBreakable && bomb:GetPierce()) then
+			if sq:GetClass() == "mb_melon" || sq:GetClass() == "mb_pickup" || (sq.gridBreakable && bomb.GetPierce && bomb:GetPierce()) then
 				// keep going if we have pierce and it was a box
 			else
-				break
+				return true
 			end
 		else
-			self:CombineExplosion(zone, x + i, y, bomb, combo)
+			self:CombineExplosion(zone, nx, ny, bomb, combo)
 		end
+		return false
+	end
+	// x+
+	for i = 1, length do
+		if boom(i, x + i, y) then break end
 	end
 
 	// x-
 	for i = 1, length do
-		local sq = zone.grid:getSquare(x - i, y)
-		if IsValid(sq) then
-			if sq.gridType != "wall" then
-				self:CombineExplosion(zone, x - i, y, bomb, combo)
-			end
-			if sq:GetClass() == "mb_melon" || sq:GetClass() == "mb_pickup" || (sq.gridBreakable && bomb:GetPierce()) then
-				// keep going if we have pierce and it was a box
-			else
-				break
-			end
-		else
-			self:CombineExplosion(zone, x - i, y, bomb, combo)
-		end
+		if boom(i, x - i, y) then break end
 	end
 
 	// y+
 	for i = 1, length do
-		local sq = zone.grid:getSquare(x, y + i)
-		if IsValid(sq) then
-			if sq.gridType != "wall" then
-				self:CombineExplosion(zone, x, y + i, bomb, combo)
-			end
-			if sq:GetClass() == "mb_melon" || sq:GetClass() == "mb_pickup" || (sq.gridBreakable && bomb:GetPierce()) then
-				// keep going if we have pierce and it was a box
-			else
-				break
-			end
-		else
-			self:CombineExplosion(zone, x, y + i, bomb, combo)
-		end
+		if boom(i, x, y + i) then break end
 	end
 
 	// y-
 	for i = 1, length do
-		local sq = zone.grid:getSquare(x, y - i)
-		if IsValid(sq) then
-			if sq.gridType != "wall" then
-				self:CombineExplosion(zone, x, y - i, bomb, combo)
-			end
-			if sq:GetClass() == "mb_melon" || sq:GetClass() == "mb_pickup" || (sq.gridBreakable && bomb:GetPierce()) then
-				// keep going if we have pierce and it was a box
-			else
-				break
-			end
-		else
-			self:CombineExplosion(zone, x, y - i, bomb, combo)
-		end
+		if boom(i, x, y - i) then break end
 	end
 
 	if !combiner then
@@ -177,8 +145,15 @@ function GM:CombineExplosion(zone, x, y, bomb, combiner)
 	t.z = zone:OBBMins().z
 
 	local ent = zone.grid:getSquare(x, y)
-	if IsValid(ent) && ent:GetClass() == "mb_melon" then
-		ent:Explode(zone, combiner)
+	if IsValid(ent) then
+		if ent:GetClass() == "mb_melon" then
+			ent:Explode(zone, combiner)
+		elseif ent.gridExplosive then
+			if !ent.HasExploded then
+				ent.HasExploded = true
+				self:CreateExplosion(zone, x, y, 5, ent, combiner)
+			end
+		end
 	end
 end
 
@@ -189,7 +164,7 @@ function GM:SpecificExplosion(zone, x, y, bomb, attacker)
 	t.z = zone:OBBMins().z
 
 	local mag = 1
-	if bomb:GetPowerBomb() then
+	if bomb.GetPowerBomb && bomb:GetPowerBomb() then
 		mag = 2
 	end
 	-- timer.Simple(0, function ()
@@ -208,7 +183,7 @@ function GM:SpecificExplosion(zone, x, y, bomb, attacker)
 	local ent = zone.grid:getSquare(x, y)
 	if IsValid(ent) then
 		if ent.gridBreakable then
-			if !bomb:GetPowerBomb() && ent.gridStrength > 1 then
+			if !(bomb.GetPowerBomb && bomb:GetPowerBomb()) && ent.gridStrength > 1 then
 				self:GibCrate(ent)
 				ent.gridStrength = ent.gridStrength - 1
 				local b = ent.gridStrength / ent.gridMaxStrength * 150 + (255 - 150)
@@ -282,6 +257,14 @@ local woodGibs = {
 	"models/props_junk/wood_crate001a_chunk09.mdl"
 }
 
+local explosiveGibs = {
+	"models/props_c17/oildrumchunk01a.mdl",
+	"models/props_c17/oildrumchunk01b.mdl",
+	"models/props_c17/oildrumchunk01c.mdl",
+	"models/props_c17/oildrumchunk01d.mdl",
+	"models/props_c17/oildrumchunk01e.mdl"
+}
+
 local woodBreak = {
 	"physics/wood/wood_plank_break1.wav",
 	"physics/wood/wood_plank_break2.wav",
@@ -292,13 +275,17 @@ local woodBreak = {
 function GM:GibCrate(ent)
 
 	local maxGibs = 3
-	if ent.gridStrength && ent.gridStrength > 1 then
+	if ent.gridExplosive then
+		maxGibs = 5
+	elseif ent.gridStrength && ent.gridStrength > 1 then
 		maxGibs = 2
 	end
 	for i = 1, math.random(1, maxGibs) do
 		local gib = ents.Create("prop_physics")
 		gib:SetPos(ent:GetPos() + Vector(0, 0, 30))
-		if ent.gridMaxStrength > 1 then
+		if ent.gridExplosive then
+			gib:SetModel(table.Random(explosiveGibs))
+		elseif ent.gridMaxStrength > 1 then
 			gib:SetModel(table.Random(brickGibs))
 		else
 			gib:SetModel(table.Random(woodGibs))

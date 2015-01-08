@@ -1,4 +1,5 @@
-map.name = "Default"
+map.name = "Classic"
+map.description = "The classic map"
 
 function map:generateMap(grid)
 	for x = grid.minx, grid.maxx do
