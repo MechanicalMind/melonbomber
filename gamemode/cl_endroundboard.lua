@@ -139,10 +139,10 @@ local function doPlayerItems(self, mlist)
 		timer.Simple(0, function() 
 			local childs = mlist:GetCanvas():GetChildren()
 			table.sort(childs, function (a, b)
-				if !IsValid(a) then print(a, b, 1) return false end
-				if !IsValid(b) then print(a, b, 2) return false end
-				if !IsValid(a.player) then print(a, b, 3) return false end
-				if !IsValid(b.player) then print(a, b, 4) return false end
+				if !IsValid(a) then return false end
+				if !IsValid(b) then return false end
+				if !IsValid(a.player) then return false end
+				if !IsValid(b.player) then return false end
 				return a.player:Team() * 1000 + a.player:EntIndex() < b.player:Team() * 1000 + b.player:EntIndex()
 			end)
 			
@@ -582,8 +582,6 @@ net.Receive("mb_mapvotes", function (len)
 		end
 	end
 	
-	printTable(GAMEMODE.MapVotes)
-	printTable(GAMEMODE.MapVotesByMap)
 	GAMEMODE.MapVotes = mapVotes
 	GAMEMODE.MapVotesByMap = byMap
 end)
