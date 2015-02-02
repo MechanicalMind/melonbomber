@@ -23,6 +23,10 @@ function SGrid:getEmpty(x, y)
 	return self.grid[x .. ":" .. y] != nil
 end
 
+function SGrid:setEmpty(x, y)
+	self.grid[x .. ":" .. y] = nil
+end
+
 function SGrid:setWall(x, y)
 	self.grid[x .. ":" .. y] = "w"
 end
