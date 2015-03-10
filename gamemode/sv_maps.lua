@@ -80,7 +80,7 @@ function SGrid:print()
 end
 
 local function loadMaps(rootFolder)
-	local files, dirs = file.Find(rootFolder .. "*", "LUA")
+	local files, dirs = file.Find(rootFolder .. "*.lua", "LUA")
 	for k, v in pairs(files) do
 
 		local tempG = {}
@@ -90,17 +90,16 @@ local function loadMaps(rootFolder)
 		local name = v:sub(1, -5)
 		local f = CompileFile(rootFolder .. v)
 		if !f then
-			return
+			MsgC(Color(255, 50, 10), "Loading map failed " .. name .. " from " .. rootFolder .. "\n")
+			continue
 		end
 		setfenv(f, tempG)
 		local b, err = pcall(f)
 
-		local s = SERVER and "Server" or "Client"
-		local b = SERVER and 90 or 0
 		if !b then
-			MsgC(Color(255, 50, 50 + b), s .. " loading map failed " .. name .. " from " .. rootFolder .. "\nError: " .. err .. "\n")
+			MsgC(Color(255, 50, 10), "Loading map failed " .. name .. " from " .. rootFolder .. "\nError: " .. err .. "\n")
 		else
-			MsgC(Color(50, 255, 50 + b), s .. " loaded map " .. name .. " from " .. rootFolder .. "\n")
+			MsgC(Color(50, 255, 50), "Loaded map " .. name .. " from " .. rootFolder .. "\n")
 			tempG.map.key = name
 			MapTypes[name] = tempG.map
 			local path = "materials/melonbomber/maptypes/" .. name .. ".png"
