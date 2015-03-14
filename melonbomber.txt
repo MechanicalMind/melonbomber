@@ -4,7 +4,7 @@
 	"title"		"Melonbomber"
 	"maps"		"^mb_"
 	"menusystem"	"1"
-	"version" 	"1.3.2"
+	"version" 	"1.3.3"
 	"workshopid"	"237537750"
 	"entry_id"	"3"
 }
