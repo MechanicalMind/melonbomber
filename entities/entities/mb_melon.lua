@@ -316,28 +316,51 @@ function ENT:SetBombOwner(ply)
 	self:SetNWEntity("BombOwner", ply)
 end
 
+// work around so we don't have to use NWBool
+function ENT:SetBombBool(power, bool)
+	-- self:SetNWBool("BombPierce", bool)
+	local value = self:GetNWInt("BombBools")
+	if bool then 
+		value = bit.bor(value, power)
+	else
+		value = bit.band(value, bit.bnot(power))
+	end
+	self:SetNWInt("BombBools", value)
+end
+
+function ENT:GetBombBool(power)
+	return bit.band(self:GetNWInt("BombBools"), power) != 0
+end
+
+
 function ENT:SetPierce(bool)
-	self:SetNWBool("BombPierce", bool)
+	-- self:SetNWBool("BombPierce", bool)
+	self:SetBombBool(1, bool)
 end
 
 function ENT:GetPierce()
-	return self:GetNWBool("BombPierce")
+	-- return self:GetNWBool("BombPierce")
+	return self:GetBombBool(1)
 end
 
 function ENT:SetPowerBomb(bool)
-	self:SetNWBool("BombPowerBomb", bool)
+	self:SetBombBool(2, bool)
+	-- self:SetNWBool("BombPowerBomb", bool)
 end
 
 function ENT:GetPowerBomb()
-	return self:GetNWBool("BombPowerBomb")
+	-- return self:GetNWBool("BombPowerBomb")
+	return self:GetBombBool(2)
 end
 
 function ENT:SetRemoteDetonate(bool)
-	self:SetNWBool("BombRemoteDetonate", bool)
+	-- self:SetNWBool("BombRemoteDetonate", bool)
+	self:SetBombBool(4, bool)
 end
 
 function ENT:GetRemoteDetonate()
-	return self:GetNWBool("BombRemoteDetonate")
+	-- return self:GetNWBool("BombRemoteDetonate")
+	return self:GetBombBool(4)
 end
 
 function ENT:SetExplosionLength(len)
@@ -353,14 +376,16 @@ end
 
 function ENT:SetKicking(bool)
 	self.Kicking = bool
-	self:SetNWBool("MelonKicking", bool)
+	-- self:SetNWBool("MelonKicking", bool)
+	self:SetBombBool(8, bool)
 end
 
 function ENT:GetKicking()
 	if SERVER then
 		return self.Kicking
 	end
-	return self:GetNWBool("MelonKicking", bool)
+	-- return self:GetNWBool("MelonKicking", bool)
+	return self:GetBombBool(8)
 end
 
 function ENT:GetCreateTime()
