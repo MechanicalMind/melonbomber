@@ -86,6 +86,7 @@ end
 
 local pick = addPickup(7, "Remote control", Color(220, 190, 0), "models/props_rooftop/roof_dish001.mdl")
 pick.AddScale = 0.4
+pick.ZAdd = 0
 pick.Chance = 1
 pick.Description = "Choose when your bombs explode"
 function pick:OnPickup(ply)

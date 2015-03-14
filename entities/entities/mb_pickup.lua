@@ -122,7 +122,7 @@ if ( CLIENT ) then
 						ang:RotateAroundAxis(ang:Up(), FrameTime() * 13)
 						self.Melon:SetAngles(ang)
 						self.Melon:SetModelScale(pickup.AddScale or 1, 0)
-						self.Melon:SetPos(self:GetPos() + Vector(0, 0, 8))
+						self.Melon:SetPos(self:GetPos() + Vector(0, 0, pickup.ZAdd or 8))
 						self.Melon:DrawModel()
 					end
 				end
