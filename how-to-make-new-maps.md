@@ -1,7 +1,7 @@
 #How to create a custom map type for Melonbomber
 ###For advanced Lua programmers only
 
-Create a .lua file in garrysmod/lua/melonbomber/maptypes/
+Create a .lua file in `garrysmod/lua/melonbomber/maptypes/`
 
 Set the name and description for the map
 ```lua
@@ -34,4 +34,4 @@ setHardBox(x, y)
 setExplosiveBox(x, y)
 ```
 
-Place a 96 x 96 png image of your map in garrysmod/materials/melonbomber/maptypes
+Place a 96 x 96 png image of your map in `garrysmod/materials/melonbomber/maptypes`
