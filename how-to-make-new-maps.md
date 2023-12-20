@@ -1,5 +1,5 @@
-#How to create a custom map type for Melonbomber
-###For advanced Lua programmers only
+# How to create a custom map type for Melonbomber
+### For advanced Lua programmers only
 
 Create a .lua file in `garrysmod/lua/melonbomber/maptypes/`
 
